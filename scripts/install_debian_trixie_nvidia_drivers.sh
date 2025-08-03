@@ -151,7 +151,7 @@ enable_nonfree_repos() {
         log_info "Atualizando lista de pacotes..."
         sudo apt update || return 1
     else
-        log_info "Repositórios já contêm contrib/non-free."
+        log_info "Repositórios já contêm contrib, non-free e non-free-firmware."
     fi
 
     rm -f "$temp_file"
