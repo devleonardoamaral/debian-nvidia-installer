@@ -67,30 +67,5 @@ packages::is_installed() {
 
 # Instala um pacote no sistema
 packages::install() {
-    local pkg="$1"
-
-    log::info "Verificando pacote: $pkg..."
-    
-    # Verifica se o pacote já está instalado antes de continuar
-    if packages::is_installed "$pkg"; then
-        log::info "Pacote $pkg já instalado. Instalação ignorada."
-        return 0
-    fi
-
-    log::info "Pacote $pkg não encontrado no sistema. Iniciando instalação..."
-
-    # Tenta atualizar, mas continua mesmo se falhar
-    if ! packages::update; then
-        log::warn "Continuando com lista de pacotes desatualizada."
-    fi
-
-    # Caso de sucesso na instalação
-    if apt install -y "$pkg"; then
-        log::info "Pacote $pkg instalado com sucesso."
-        return 0
-    fi
-    
-    # Caso de falha na instalação
-    log::error "Falha na instalação de $pkg."
-    return 1
+    apt install -y "$1"
 }

@@ -8,16 +8,21 @@ fi
 declare -g SCRIPT_DIR
 
 # Importação dos módulos
+for file in "$SCRIPT_DIR"/log/*.sh; do source "$file"; done
 for file in "$SCRIPT_DIR"/lib/*.sh; do source "$file"; done
 for file in "$SCRIPT_DIR"/tui/*.sh; do source "$file"; done
 for file in "$SCRIPT_DIR"/src/*.sh; do source "$file"; done
 
 # Garante que o script só seja executado com privilégios root
-utils::force_sudo 
+if ! utils::check_sudo; then
+    log::warn "Este script requer privilégios de root."
+    log::info "Solicitando privilégios de root..."
+    utils::force_sudo # Reexecuta o script
+fi
 
 # Instala as dependências necessárias para executar o script
 log::info "Verificando dependências..."
-packages::install "dialog"
+installer::install_package "dialog"
 log::info "Todas dependências verificadas com sucesso!"
 
 # Inicia o Dialog de navegação
