@@ -61,7 +61,7 @@ test::packages::is_installed() {
     packages::is_installed "apt"
     test::calc_step_result "1" "$?" "passed_tests"
 
-    # Teste 2: pacote testepackageinstalled existe, deve retornar true
+    # Teste 2: pacote testepackageinstalled existe, deve retornar false
     ! packages::is_installed "testepackageinstalled"
     test::calc_step_result "2" "$?" "passed_tests"
 
