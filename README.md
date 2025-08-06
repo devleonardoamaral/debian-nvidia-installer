@@ -34,15 +34,15 @@ rm ./nvidia-installer_0.0.1.deb
 
 > 💡 Usar `apt install ./arquivo.deb` garante que dependências sejam instaladas corretamente.
 
-# Desinstalação
+# Desisntalação
 
 ```bash
 # Remove o pacote e suas dependências
 sudo apt remove nvidia-installer
 ```
---- 
+---
 
-# Como compilar manualmente
+# Como empacotar manualmente
 
 1. Clone este repositório:
 
