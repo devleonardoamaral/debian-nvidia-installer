@@ -72,19 +72,7 @@ packages::check_sources_components() {
 
 # Atualiza a lista de pacotes
 packages::update() {
-    local ret
-    log::info "Atualizando lista de pacotes..."
-
     apt update
-    ret=$?
-
-    if (( $ret == 0 )); then
-        log::info "Lista de pacotes atualizada com sucesso."
-        return $ret
-    fi
-
-    log::warn "Falha ao atualizar lista de pacotes."
-    return $ret
 }
 
 # Verifica se um pacote está instalado.

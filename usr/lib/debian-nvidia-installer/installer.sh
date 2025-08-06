@@ -31,8 +31,14 @@ installer::install_package() {
 
     log::info "Pacote $pkg não encontrado no sistema. Iniciando instalação..."
 
+    log::info "Atualizando lista de pacotes..."
+
     # Tenta atualizar, mas continua mesmo se falhar
-    packages::update || log::warn "Continuando com lista de pacotes desatualizada."
+    if packages::update; then
+        log::info "Lista de pacotes atualizada com sucesso."
+    else
+        log::warn "Falha ao atualizar lista de pacotes."
+    fi
 
     # Caso de sucesso na instalação
     if packages::install "$pkg"; then
