@@ -40,6 +40,7 @@ rm ./nvidia-installer_0.0.1.deb
 # Remove o pacote e suas dependências
 sudo apt remove nvidia-installer
 ```
+--- 
 
 # Como compilar manualmente
 
