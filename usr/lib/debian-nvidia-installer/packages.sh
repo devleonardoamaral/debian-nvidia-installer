@@ -21,10 +21,19 @@
 # Verifica os componentes do sources.list
 # Verifica se os $parametros[@] existem em cada entrada deb|deb-src do sources.list
 packages::check_sources_components() {
-    local sources_file="/etc/apt/sources.list"
-    local results=0
-    local lines=0
-    local components_found=0
+    local sources_file results lines components_found
+
+    if [ -n "$1" ]; then
+        sources_file="$1"
+    else
+        sources_file="/etc/apt/sources.list"
+    fi
+
+    shift
+
+    results=0
+    lines=0
+    components_found=0
 
     # Lê linha por linha do arquivo até o final
     while IFS= read -r line; do
