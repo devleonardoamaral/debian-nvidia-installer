@@ -6,7 +6,7 @@ interativa em modo texto (TUI). Automatiza etapas como instalação de pacotes,
 verificação de compatibilidade e configuração do ambiente gráfico.
 
 
-## Instalação
+# Instalação
 
 Você pode instalar o `nvidia-installer` baixando o pacote `.deb` a partir da seção **[Releases](https://github.com/devleonardoamaral/debian-nvidia-installer/releases)** deste repositório.
 
@@ -36,14 +36,14 @@ rm ./nvidia-installer_0.0.1.deb
 
 > 💡 Usar `apt install ./arquivo.deb` garante que dependências sejam instaladas corretamente.
 
-## Desinstalação
+# Desinstalação
 
 ```bash
 # Remove o pacote e suas dependências
 sudo apt remove nvidia-installer
 ```
 
-## Como compilar o pacote manualmente
+# Como compilar manualmente
 
 1. Clone este repositório:
 
