@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+
+# debian-nvidia-installer - NVIDIA Driver Installer for Debian (TUI)
+# Copyright (C) 2025 Leonardo Amaral
+#
+# This file is part of debian-nvidia-installer.
+#
+# debian-nvidia-installer is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# debian-nvidia-installer is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with debian-nvidia-installer. If not, see <https://www.gnu.org/licenses/gpl-3.0.html>.
+
+
+# Detecta se está em modo desenvolvimento ou produção
+if [[ -n "$DEVENV" ]]; then
+    echo "——— EXECUTANDO EM MODO DESENVOLVIMENTO ———"
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../lib/debian-nvidia-installer" && pwd -P)"
+else
+    SCRIPT_DIR="/usr/lib/debian-nvidia-installer"
+fi
+
+declare -g SCRIPT_DIR
+
+# Importação dos módulos
+for file in "$SCRIPT_DIR"/*.sh; do source "$file"; done
+for file in "$SCRIPT_DIR"/tui/*.sh; do source "$file"; done
+
+# Garante que o script só seja executado com privilégios root
+if ! utils::check_sudo; then
+    log::warn "Este script requer privilégios de root."
+    log::info "Solicitando privilégios de root..."
+    utils::force_sudo "@" # Reexecuta o script
+    exit 1
+fi
+
+# Instala as dependências necessárias para executar o script
+log::info "Verificando dependências..."
+installer::install_package "dialog"
+log::info "Todas dependências verificadas com sucesso!"
+
+# Inicia o Dialog de navegação
+tui::navigate::main
+
+# Limpeza / Encerramento
+log::info "Execução encerrada!"
+exit 0
