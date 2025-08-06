@@ -1,4 +1,4 @@
-# Debian Nvidia Installer
+# debian-nvidia-installer
 
 Instalador de drivers NVIDIA com TUI em Bash
 A ferramenta permite instalar drivers NVIDIA no Debian usando uma interface
