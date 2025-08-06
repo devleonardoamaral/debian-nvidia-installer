@@ -18,8 +18,6 @@ Você pode instalar o `nvidia-installer` baixando o pacote `.deb` a partir da se
 
 > 💡 Compatível com gerenciadores como GDebi, Discover (KDE), GNOME Software, etc.
 
----
-
 ### Opção 2: Terminal (Recomendado)
 
 ```bash
