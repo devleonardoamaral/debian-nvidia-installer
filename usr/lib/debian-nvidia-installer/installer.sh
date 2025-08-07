@@ -480,8 +480,9 @@ installer::uninstall_nvidia() {
         return 1
     fi
 
+    # Reinstala o nouveau como fallback
     if ! apt install --reinstall xserver-xorg-core xserver-xorg-video-nouveau; then
-        log::critical "Falha na reinstalação do driver nouveau!"
+        log::critical "Falha na reinstalação do nouveau!"
     fi
 
     log::info "Desinstalação dos drivers da Nvidia concluída."
