@@ -133,3 +133,8 @@ packages::is_installed() {
 packages::install() {
     apt install -y "$1"
 }
+
+# Desisntala um pacote do sistema
+packages::remove() {
+    apt purge -y "$1"
+}

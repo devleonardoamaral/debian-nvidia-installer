@@ -51,12 +51,114 @@ installer::install_package() {
     return 1
 }
 
-installer::install_nvidia_open() {
-    tui::show_dialog "Aviso" "Iniciando instalação dos Drivers Open da NVIDIA" "Continuar"
+installer::remove_package() {
+    local pkg="$1"
+
+    log::info "Removendo pacote $pkg..."
+
+    if ! packages::remove "$pkg"; then
+        log::error "Falha ao remover pacote $pkg."
+        return 1
+    fi
+
+    log::info "Pacote $pkg removido com sucesso." 
+
+    return 0
 }
 
 installer::install_nvidia_proprietary() {
-    tui::show_dialog "Aviso" "Iniciando instalação dos Drivers Proprietary da NVIDIA" "Continuar"
+    if ! tui::show_yesno "Aviso" "Você está prestes a instalar o driver do flavor Proprietário da Nvidia.\n\nDeseja continuar?" "Confirmar" "Cancelar"; then
+        log::info "Instalação cancelada pelo usuário."
+        return 1
+    fi
+
+    log::info "Instalando drivers da Nvidia..."
+
+    if ! installer::install_package "nvidia-kernel-dkms"; then
+        log::critical "Falha na instalação do pacote do driver: nvidia-kernel-dkms"
+        return 1
+    fi
+
+    if ! installer::install_package "nvidia-driver"; then
+        log::critical "Falha na instalação do pacote do driver: nvidia-driver"
+        return 1
+    fi
+
+    if ! installer::install_package "firmware-misc-nonfree"; then
+        log::critical "Falha na instalação do pacote do driver: firmware-misc-nonfree"
+        return 1
+    fi
+    
+    log::info "Drivers instalados com sucesso!"
+    tui::show_msgbox "" "Instalação concluída com sucesso!"
+    return 0
+}
+
+installer::install_nvidia_open() {
+    if ! tui::show_yesno "Aviso" "Você está prestes a instalar o driver do flavor Open Source da Nvidia.\n\nDeseja continuar?" "Confirmar" "Cancelar"; then
+        log::info "Instalação cancelada pelo usuário."
+        return 1
+    fi
+
+    log::info "Instalando drivers da Nvidia..."
+
+    if ! installer::install_package "nvidia-open-kernel-dkms"; then
+        log::critical "Falha na instalação do pacote do driver: nvidia-open-kernel-dkms"
+        return 1
+    fi
+
+    if ! installer::install_package "nvidia-driver"; then
+        log::critical "Falha na instalação do pacote do driver: nvidia-driver"
+        return 1
+    fi
+
+    if ! installer::install_package "firmware-misc-nonfree"; then
+        log::critical "Falha na instalação do pacote do driver: firmware-misc-nonfree"
+        return 1
+    fi
+    
+    log::info "Drivers instalados com sucesso!"
+    tui::show_msgbox "" "Instalação concluída com sucesso!"
+    return 0
+}
+
+installer::install_pre_requisites() {
+    local ARCH KERNEL VERSION HEADER_PKG
+    ARCH=$(uname -m)
+    KERNEL=$(uname -r)
+
+    case "$ARCH" in
+        "i386"|"i686")
+            if [[ "$KERNEL" == *"686-pae"* ]]; then
+                HEADER_PKG="linux-headers-686-pae"
+            else
+                HEADER_PKG="linux-headers-686"
+            fi
+            ;;
+        "x86_64")
+            HEADER_PKG="linux-headers-amd64"
+            ;;
+        *)
+            log::critical "Arquitetura não suportada: $ARCH"
+            tui::show_msgbox "Erro" "Arquitetura $ARCH não é suportada!" "Abortar"
+            exit 1
+            ;;
+    esac
+
+    log::info "Instalando pré-requisitos para $ARCH..."
+
+    if ! installer::install_package "mokutil"; then
+        log::critical "Falha na instalação do pacote mokutil. Abortando."
+        return 1
+    fi
+
+    if ! installer::install_package "$HEADER_PKG"; then
+        log::critical "Falha na instalação do pacote ${HEADER_PKG}. Abortando."
+        return 1
+    fi
+    
+    log::info "Pré-requisitos instalados com sucesso!"
+    return 0
 }
 
 installer::install_nvidia() {
@@ -73,17 +175,43 @@ installer::install_nvidia() {
         while IFS= read -r line; do
             log::info "\t - ${line}"
         done <<< "$nvidia_gpus"
+
+        tui::show_msgbox "GPUs Nvidia detectadas:" "$nvidia_gpus"
     else
         log::error "Nenhuma GPU Nvidia detectada no sistema."
-        tui::show_dialog "Aviso" "Nenhuma GPU Nvidia detectada no sistema." "Abortar"
-        NAV_RESTART=0
-        return 1 # encerra a função antes de continuar
+        tui::show_msgbox "Erro" "Nenhuma GPU Nvidia detectada no sistema." "Abortar"
+        NAVIGATION_STATUS=0
+        return 1
+    fi
+
+    if ! installer::install_pre_requisites; then
+        dialog "Erro" "Falha na instalação dos pré-requisitos." "Abortar"
+        NAVIGATION_STATUS=0
+        return 1
     fi
 
     tui::navigate::flavors
-    return 0
 }
 
 installer::uninstall_nvidia() {
-    tui::show_dialog "Aviso" "Iniciando desinstalação dos Drivers NVIDIA" "Continuar"
+    if ! tui::show_yesno "Aviso" "Você está prestes a desinstalar o driver da Nvidia.\n\nDeseja continuar?" "Confirmar" "Cancelar"; then
+        log::info "Desinstalação cancelada pelo usuário."
+        return 1
+    fi
+
+    log::info "Iniciando desinstalação dos drivers da Nvidia!"
+
+    if ! installer::remove_package "*nvidia*" && installer::installer::remove_package "libnvoptix1"; then
+        log::critical "Falha na desinstalação dos drivers da Nvidia!"
+        return 1
+    fi
+
+    if ! apt install --reinstall xserver-xorg-core xserver-xorg-video-nouveau; then
+        log::critical "Falha na reinstalação do driver nouveau!"
+    fi
+
+    log::info "Desinstalação dos drivers da Nvidia concluída."
+    tui::show_msgbox "" "Desinstalação concluída!"
+    tui::show_msgbox "AVISO" "Reinicie o sistema para que as alterações sejam aplicadas."
+    return 0
 }

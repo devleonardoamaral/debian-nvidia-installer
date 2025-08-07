@@ -43,9 +43,7 @@ log::error() {
 
 # Log crítico (saída de erro + encerra script)
 log::critical() {
-    echo -e "${LOG_ESC_BOLD_RED}CRITICAL:${LOG_ESC_RESET}${LOG_ESC_BOLD} $1 ${LOG_ESC_RESET}" >&2
-    echo -e "${LOG_ESC_BOLD_RED}Execução abortada!${LOG_ESC_RESET}" >&2
-    exit 1
+    echo -e "${LOG_ESC_BOLD_RED}CRITICAL: $1 ${LOG_ESC_RESET}" >&2
 }
 
 # Input de usuário. Armazena o valor do input na variável passada como parâmetro.

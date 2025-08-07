@@ -1,9 +1,5 @@
 #!/usr/bin/env bash
 
-# NAVIGATION_STATUS 0 : Navegação encerrada
-# NAVIGATION_STATUS 1 : Navegação em andamento
-declare -ig NAVIGATION_STATUS=1
-
 tui::navigate::main() {
     while true; do       
         NAVIGATION_STATUS=1
@@ -41,7 +37,7 @@ tui::navigate::flavors() {
         2) installer::install_nvidia_open ;;
         3)
             log::info "Operação cancelada pelo usuário."
-            tui::show_dialog "Aviso" "Operação cancelada"
+            tui::show_msgbox "Aviso" "Operação cancelada"
             NAVIGATION_STATUS=0
             return
             ;;
