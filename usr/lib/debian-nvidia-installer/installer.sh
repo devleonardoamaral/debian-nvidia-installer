@@ -367,14 +367,14 @@ setup_mok() {
     tui::show_msgbox "MOK - Requer senha" \
         "Você precisará criar uma senha para a chave MOK.\n\nAnote essa senha com segurança, pois ela será exigida após reinicialização."
 
-    if ! sudo dkms generate_mok; then
+    if ! dkms generate_mok; then
         log::critical "Falha ao gerar a chave MOK."
         log::input _ "Pressione Enter para continuar..."
         return 1
     fi
 
     log::info "Importando chave MOK..."
-    if ! sudo mokutil --import "$mok_pub_path"; then
+    if ! mokutil --import "$mok_pub_path"; then
         log::critical "Falha ao importar chave MOK."
         log::input _ "Pressione Enter para continuar..."
         return 1
