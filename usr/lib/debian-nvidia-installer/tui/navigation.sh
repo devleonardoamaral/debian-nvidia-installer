@@ -25,8 +25,9 @@ tui::navigate::extras() {
     case $(tui::menu::extras) in
         1) installer::install_cuda ;;
         2) installer::install_optix ;;
-        3) installer::enable_drm ;;
-        # 4) Volta ao menu principal por padrão
+        3) installer::switch_nvidia_drm ;;
+        4) installer::switch_nvidia_pvma ;;
+        # 5) Volta ao menu principal por padrão
     esac
     return
 }
@@ -37,7 +38,6 @@ tui::navigate::flavors() {
         2) installer::install_nvidia_open ;;
         3)
             log::info "Operação cancelada pelo usuário."
-            tui::show_msgbox "Aviso" "Operação cancelada"
             NAVIGATION_STATUS=0
             return
             ;;

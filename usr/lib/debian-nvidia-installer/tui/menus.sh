@@ -13,11 +13,12 @@ tui::menu::main() {
 tui::menu::extras() {
     local choice
     choice=$(tui::show_menu "EXTRAS" "Selecione uma opção:" \
-            1 "Instalar CUDA" \
-            2 "Instalar OptiX" \
-            3 "Ativar DRM modeset" \
-            4 "Voltar")
-    echo "${choice:-4}"
+            1 "Instalar/Desinstalar CUDA" \
+            2 "Instalar/Desinstalar OptiX" \
+            3 "Ativar/Desativar Nvidia DRM" \
+            4 "Ativar/Desativar PreserveVideoMemoryAllocations" \
+            5 "Voltar")
+    echo "${choice:-5}"
 }
 
 tui::menu::flavors() {
