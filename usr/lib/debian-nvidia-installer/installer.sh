@@ -473,16 +473,20 @@ installer::uninstall_nvidia() {
         return 1
     fi
 
-    log::info "Iniciando desinstalação dos drivers da Nvidia!"
+    log::info "Iniciando desinstalação dos drivers da Nvidia..."
 
-    if ! installer::remove_package "*nvidia*" && installer::installer::remove_package "libnvoptix1"; then
+    if ! installer::remove_package "*nvidia*"; then
         log::critical "Falha na desinstalação dos drivers da Nvidia!"
         return 1
     fi
 
+    installer::remove_package "libnvoptix1"
+
     # Reinstala o nouveau como fallback
     if ! apt install --reinstall xserver-xorg-core xserver-xorg-video-nouveau; then
         log::critical "Falha na reinstalação do nouveau!"
+        log::input _ "Pressione Enter para continuar..."
+        return 1
     fi
 
     log::info "Desinstalação dos drivers da Nvidia concluída."
