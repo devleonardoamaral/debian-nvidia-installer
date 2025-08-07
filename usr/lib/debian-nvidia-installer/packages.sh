@@ -21,53 +21,102 @@
 # Verifica os componentes do sources.list
 # Verifica se os $parametros[@] existem em cada entrada deb|deb-src do sources.list
 packages::check_sources_components() {
-    local sources_file results lines components_found
+    local sources_file="/etc/apt/sources.list"
 
     if [ -n "$1" ]; then
         sources_file="$1"
-    else
-        sources_file="/etc/apt/sources.list"
     fi
-
+    
     shift
 
-    results=0
-    lines=0
-    components_found=0
+    local valid_lines_with_components=0
+    local total_valid_lines=0
+    local matched_components=0
 
-    # Lê linha por linha do arquivo até o final
-    while IFS= read -r line; do
+    # Lê o arquivo linha por linha
+    while IFS= read -r current_line; do
 
-        # Verifica se a linha começa com deb|deb-src e um espaço
-        if [[ "$line" =~ ^(deb|deb-src)[[:space:]] ]]; then
-            ((lines++)) # Conta as linhas válidas
-            components_found=0 # Reseta o contador a cada nova linha válida
+        # Verifica se a linha começa com "deb" ou "deb-src"
+        if [[ "$current_line" =~ ^(deb|deb-src)[[:space:]] ]]; then
+            ((total_valid_lines++))
+            matched_components=0
 
-            # Extraí os componentes do final do source em um array
-            read -ra extracted_components <<< "$(grep -oP '^(deb|deb-src)\s+\S+\s+\S+\s+\S+\s+\K.*' <<< "$line")"
+            # Extrai os componentes (últimos campos da linha)
+            read -ra current_components <<< "$(echo "$current_line" | cut -d' ' -f5-)"
             
-            # Percorre os parametros de entrada e compara se todos existem no array de componentes
-            for param in "$@"; do
-                for comp in "${extracted_components[@]}"; do
-                    if [[ "$param" == "$comp" ]]; then
-                        ((components_found++))
+            # Verifica se todos os componentes esperados estão presentes na linha
+            for required_component in "$@"; do
+                for found_component in "${current_components[@]}"; do
+                    if [[ "$required_component" == "$found_component" ]]; then
+                        ((matched_components++))
                         break
                     fi
                 done
             done
 
-            # Salva o resultado da verificação
-            if [[ "$components_found" -eq "$#" ]]; then
-                ((results++))
+            # Se todos os componentes obrigatórios estiverem presentes, conta como válida
+            if [[ "$matched_components" -eq "$#" ]]; then
+                ((valid_lines_with_components++))
             fi
         fi
-    done < "$sources_file" || return 1 # Retorna 1 como fallback, caso o arquivo não seja encontrado
+    done < "$sources_file" || return 1 # Fallback se o arquivo não existir
 
-    if [[ "$lines" -eq "$results" ]]; then
-        return 0 # Todos os parametros existem em todas as linhas de source do arquivo
+    # Retorna sucesso apenas se todas as linhas válidas tiverem todos os componentes
+    if [[ "$total_valid_lines" -eq "$valid_lines_with_components" ]]; then
+        return 0
     else
-        return 1 # Uma ou mais linhas possuem componentes faltando
+        return 1
     fi
+}
+
+# Adiciona novos componentes ao sources.list e atualiza a lista pacotes
+packages::add_sources_components() {    
+    local sources_file="/etc/apt/sources.list"
+
+    if [ -n "$1" ]; then
+        sources_file="$1"
+    fi
+
+    shift
+
+    local temp_file=$(mktemp)
+    local changed=0
+
+    # Lê o arquivo linha por linha
+    while IFS= read -r line; do
+        if [[ "$line" =~ ^(deb|deb-src)[[:space:]] ]]; then
+            # Extrai a base da linha (URL/distro) e componentes atuais
+            base=$(echo "$line" | awk '{print $1, $2, $3, $4}')
+            current_components=$(echo "$line" | cut -d' ' -f5-)
+
+            # Verifica componentes faltantes
+            missing_components=""
+            for comp in "$@"; do
+                if [[ ! " $current_components " =~ [[:space:]]$comp[[:space:]] ]]; then
+                    missing_components+=" $comp"
+                fi
+            done
+
+            # Se há componentes faltando na linha, ela é reconstruída
+            if [[ -n "$missing_components" ]]; then
+                new_line="${base} ${current_components}${missing_components}"
+                new_line=$(echo "$new_line" | xargs) # Remove espaços duplicados
+                echo "$new_line" >> "$temp_file"
+                changed=1
+                continue
+            fi
+        fi
+        echo "$line" >> "$temp_file"
+    done < "$sources_file"
+
+    if [[ $changed -eq 1 ]]; then
+        cp "$temp_file" "$sources_file" || { rm -f "$temp_file"; return 1; }
+        chmod 644 "$sources_file"
+        packages::update || return 1
+    fi
+
+    rm -f "$temp_file"
+    return 0
 }
 
 # Atualiza a lista de pacotes
