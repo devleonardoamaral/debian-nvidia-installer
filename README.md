@@ -5,6 +5,15 @@ A ferramenta permite instalar drivers NVIDIA no Debian usando uma interface
 interativa em modo texto (TUI). Automatiza etapas como instalação de pacotes,
 verificação de compatibilidade e configuração do ambiente gráfico.
 
+# Como executar
+
+Após a instalação, você pode iniciar o instalador diretamente pelo terminal com o seguinte comando:
+
+```bash
+sudo debian-nvidia-installer
+```
+
+> ⚠️ **É necessário executar como root**, pois a ferramenta realiza alterações no sistema, como instalação de pacotes e modificação de arquivos de configuração.
 
 # Instalação
 
