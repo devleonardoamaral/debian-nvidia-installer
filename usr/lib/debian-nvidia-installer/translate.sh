@@ -24,6 +24,7 @@ declare -g SCRIPT_LANG="en"
 # Lista de traduções (arrays associativos)
 declare -A T_PT_BR=(
     # Botões TUI
+    ["tui.ok"]="Ok"
     ["tui.confirm"]="Confirmar"
     ["tui.abort"]="Abortar"
     ["tui.cancel"]="Cancelar"
@@ -36,10 +37,14 @@ declare -A T_PT_BR=(
     ["log.dependencies.verifying"]="Verificando e instalando dependências..."
     ["log.dependencies.ok"]="Todas as dependências estão instaladas."
     ["log.dependencies.failed"]="Falha ao instalar dependências."
+
+    ["log.operation.canceled.byuser"]="Operação cancelada pelo usuário."
+    ["log.operation.canceled.byfailure"]="Operação falhou."
 )
 
 declare -A T_EN=(
     # TUI Buttons
+    ["tui.ok"]="Ok"
     ["tui.confirm"]="Confirm"
     ["tui.abort"]="Abort"
     ["tui.cancel"]="Cancel"
@@ -47,11 +52,14 @@ declare -A T_EN=(
     # Logs
     ["log.script.exit"]="Exiting script..."
     ["log.script.pause"]="Press ENTER to continue..."
-
+    
     ["log.rootaccess.required"]="Root privileges are required."
     ["log.dependencies.verifying"]="Checking and installing dependencies..."
     ["log.dependencies.ok"]="All dependencies are installed."
     ["log.dependencies.failed"]="Failed to install dependencies."
+
+    ["log.operation.canceled.byuser"]="Operation canceled by the user."
+    ["log.operation.canceled.byfailure"]="Operation failed."
 )
 
 
