@@ -55,7 +55,7 @@ declare -A T_EN=(
 )
 
 
-# Detecta idioma
+# Detecta idioma do sistema operacional.
 tr::detect_language() {
     local sys_lang="${LANG%%.*}"  # Remove .UTF-8 e afins
     case "$sys_lang" in
@@ -65,7 +65,7 @@ tr::detect_language() {
     esac
 }
 
-# Função para traduzir
+# Retorna a tradução da chave na linguagem atual ou a própria chave se não existir.
 tr::t() {
     local key="$1"
     case "$SCRIPT_LANG" in
