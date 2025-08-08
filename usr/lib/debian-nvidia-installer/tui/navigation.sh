@@ -38,7 +38,6 @@ tui::navigate::flavors() {
         2) installer::install_nvidia_open ;;
         3)
             log::info "Operação cancelada pelo usuário."
-            NAVIGATION_STATUS=0
             return
             ;;
     esac
