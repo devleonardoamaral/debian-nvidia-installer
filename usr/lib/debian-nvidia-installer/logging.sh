@@ -33,7 +33,7 @@ log::setup_logger() {
 
     if [[ ! -d "$log_dir" ]]; then
         sudo mkdir -p "$log_dir"
-        sudo chmod 744 "$log_dir"
+        sudo chmod 755 "$log_dir"
     fi
 
     # Cria ou esvazia o arquivo de log
