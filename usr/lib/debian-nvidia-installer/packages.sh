@@ -121,7 +121,7 @@ packages::add_sources_components() {
 
 # Atualiza a lista de pacotes
 packages::update() {
-    apt update
+    apt-get update | tee -a /dev/fd/3
 }
 
 # Verifica se um pacote está instalado.
@@ -131,10 +131,10 @@ packages::is_installed() {
 
 # Instala um pacote no sistema
 packages::install() {
-    apt install -y "$1"
+    apt-get install -y "$1" | tee -a /dev/fd/3
 }
 
 # Desisntala um pacote do sistema
 packages::remove() {
-    apt purge -y "$1"
+    apt-get purge -y "$1" | tee -a /dev/fd/3
 }
