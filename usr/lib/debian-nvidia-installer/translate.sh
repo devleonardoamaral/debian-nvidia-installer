@@ -73,3 +73,18 @@ tr::t() {
         en)    echo "${T_EN[$key]:-$key}" ;;
     esac
 }
+
+# Retorna a tradução da chave substituindo os placeholders %1, %2, ... pelos argumentos.
+tr::t_args() {
+    local string
+    string="$(tr::t "$1")"
+    shift
+
+    local counter=1
+    for argv in "$@"; do
+        string="${string//%$counter/$argv}"
+        (( counter++ ))
+    done
+
+    echo "$string"
+}
