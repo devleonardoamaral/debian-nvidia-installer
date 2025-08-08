@@ -52,7 +52,7 @@ tr::detect_language
 # Garante que o script só seja executado com privilégios root
 if ! utils::check_sudo; then
     log::warn "$(tr::t "log.rootaccess.required")"
-    utils::force_sudo # Reexecuta o script
+    utils::force_sudo "$@" # Reexecuta o script
     script::exit "" 1
 fi
 
