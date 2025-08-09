@@ -47,7 +47,7 @@ script::exit() {
 log::setup_logger "$LOG_DIR" "debian-nvidia-installer.log"
 
 # Define o idioma do script com base no sistema
-if [[ ! -n "$DEVENV" ]]; then
+if [ -z "$FORCE_LANG" ] || (( FORCE_LANG == 0 ));; then
     tr::detect_language
 fi
 
@@ -68,7 +68,4 @@ else
 fi
 
 # Inicia o Dialog de navegação
-tui::navigate::main
-
-# Limpeza / Encerramento
-script::exit
+tui::navigate::main && script::exit || script::exit

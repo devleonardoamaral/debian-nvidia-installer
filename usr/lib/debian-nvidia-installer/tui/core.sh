@@ -18,10 +18,6 @@
 # You should have received a copy of the GNU General Public License
 # along with debian-nvidia-installer. If not, see <https://www.gnu.org/licenses/gpl-3.0.html>.
 
-# NAVIGATION_STATUS 0 : Navegação encerrada
-# NAVIGATION_STATUS 1 : Navegação em andamento
-declare -ig NAVIGATION_STATUS=1
-
 # Configurações globais do Dialog
 DIALOG_OPTS=(
     --keep-tite
@@ -39,7 +35,7 @@ tui::show_menu() {
     choice="$(dialog "${DIALOG_OPTS[@]}" \
            --no-cancel \
            --title "$title" \
-           --ok-label "$(tr::t "tui.confirm")" \
+           --ok-label "$(tr::t "tui.button.confirm")" \
            --menu "$prompt" \
            15 50 10 \
            "${menu_items[@]}" 2>&1 1>/dev/tty)"
@@ -53,7 +49,7 @@ tui::show_menu() {
 tui::show_msgbox() {
     local title="$1"
     local message="$2"
-    local ok_label="${3:-"$(tr::t "tui.ok")"}"
+    local ok_label="${3:-"$(tr::t "tui.button.ok")"}"
 
     dialog "${DIALOG_OPTS[@]}" \
            --no-cancel \
@@ -69,8 +65,8 @@ tui::show_msgbox() {
 tui::show_yesno() {
     local title="$1"
     local message="$2"
-    local yes_label="${3:-"$(tr::t "tui.confirm")"}"
-    local no_label="${4:-"$(tr::t "tui.cancel")"}"
+    local yes_label="${3:-"$(tr::t "tui.button.confirm")"}"
+    local no_label="${4:-"$(tr::t "tui.button.cancel")"}"
 
     dialog "${DIALOG_OPTS[@]}" \
            --title "$title" \
