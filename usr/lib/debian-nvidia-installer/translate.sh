@@ -84,7 +84,7 @@ declare -A T_PT_BR=(
     ["tui.msgbox.installer.secureboot.mok.abort"]="Configure a chave MOK manualmente ou desative o Secure Boot para continuar.\n\nConsulte:\nhttps://wiki.debian.org/SecureBoot"
 
     # Logs
-    ["log.script.exit"]="Ecerrando script..."
+    ["log.script.exit"]="Encerrando script..."
     ["log.script.pause"]="Pressione ENTER para continuar..."
 
     ["log.install.success"]="Instalação concluída com sucesso."
