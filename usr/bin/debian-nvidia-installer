@@ -18,37 +18,54 @@
 # You should have received a copy of the GNU General Public License
 # along with debian-nvidia-installer. If not, see <https://www.gnu.org/licenses/gpl-3.0.html>.
 
+# Variáveis globais
+declare -g SCRIPT_DIR
+declare -g LOG_DIR="/var/log/debian-nvidia-installer"
 
 # Detecta se está em modo desenvolvimento ou produção
 if [[ -n "$DEVENV" ]]; then
-    echo "——— EXECUTANDO EM MODO DESENVOLVIMENTO ———"
+    echo "——— DEVELOPMENT MODE ———"
     SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../lib/debian-nvidia-installer" && pwd -P)"
 else
     SCRIPT_DIR="/usr/lib/debian-nvidia-installer"
 fi
 
-declare -g SCRIPT_DIR
-
 # Importação dos módulos
 for file in "$SCRIPT_DIR"/*.sh; do source "$file"; done
 for file in "$SCRIPT_DIR"/tui/*.sh; do source "$file"; done
 
-# Garante que o script só seja executado com privilégios root
-if ! utils::check_sudo; then
-    log::warn "Este script requer privilégios de root."
-    log::info "Solicitando privilégios de root..."
-    utils::force_sudo "@" # Reexecuta o script
-    exit 1
+# Limpeza / Encerramento
+script::exit() {
+    local exit_msg
+    exit_msg="$(tr::t "log.script.exit")"
+    log::info "${1:-$exit_msg}"
+    log::input _ "$(tr::t "log.script.pause")"
+    exit "${2:-0}"
+}
+
+# Configura arquivos de logging
+log::setup_logger "$LOG_DIR" "debian-nvidia-installer.log"
+
+# Define o idioma do script com base no sistema
+if [ -z "$FORCE_LANG" ] || (( FORCE_LANG == 0 )); then
+    tr::detect_language
 fi
 
-# Instala as dependências necessárias para executar o script
-log::info "Verificando dependências..."
-installer::install_package "dialog"
-log::info "Todas dependências verificadas com sucesso!"
+# Garante que o script só seja executado com privilégios root
+if ! utils::check_sudo; then
+    log::warn "$(tr::t "log.rootaccess.required")"
+    utils::force_sudo "$@" # Reexecuta o script
+    script::exit "" 1
+fi
+
+# Verifica e instala pacotes obrigatórios para execução do script
+log::info "$(tr::t "log.dependencies.verifying")"
+if installer::install_package "dialog"; then
+    log::info "$(tr::t "log.dependencies.ok")"
+else
+    log::critical "$(tr::t "log.dependencies.failed")"
+    script::exit "" 1
+fi
 
 # Inicia o Dialog de navegação
-tui::navigate::main
-
-# Limpeza / Encerramento
-log::info "Execução encerrada!"
-exit 0
+tui::navigate::main && script::exit || script::exit

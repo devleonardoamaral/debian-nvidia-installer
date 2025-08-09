@@ -26,31 +26,57 @@ declare -r LOG_ESC_BOLD_MAGENTA='\x1b[1;35m'    # Magenta com negrito
 declare -r LOG_ESC_BOLD='\033[1m'               # Negrito
 declare -r LOG_ESC_RESET='\033[0m'              # Reset
 
+# Configura o descritor e o arquivo de logging
+log::setup_logger() {
+    local log_dir="$1"
+    local log_filename="$2"
+
+    if [[ ! -d "$log_dir" ]]; then
+        sudo mkdir -p "$log_dir"
+        sudo chmod 755 "$log_dir"
+    fi
+
+    # Cria ou esvazia o arquivo de log
+    : > "$log_dir/$log_filename"
+
+    # Abre o descritor 3 para o arquivo de log
+    exec 3>>"$log_dir/$log_filename"
+
+    # Define permissões do arquivo de log
+    sudo chmod 744 "$log_dir/$log_filename"
+}
+
 # Log info (saída padrão)
 log::info() {
-    echo -e "${LOG_ESC_BOLD_BLUE}Info:${LOG_ESC_RESET} $1" >&2
+    echo -e "[$(date "+%Y-%m-%d %H:%M:%S")] Info: $1" >&3
+    echo -e "${LOG_ESC_BOLD_BLUE}Info:${LOG_ESC_RESET} $1"
 }
 
 # Log warning (saída de erro)
 log::warn() {
-    echo -e "${LOG_ESC_BOLD_YELLOW}Warn:${LOG_ESC_RESET}${LOG_ESC_BOLD} $1 ${LOG_ESC_RESET}" >&2
+    echo -e "[$(date "+%Y-%m-%d %H:%M:%S")] Warn: $1" >&3
+    echo -e "${LOG_ESC_BOLD_YELLOW}Warn:${LOG_ESC_RESET}${LOG_ESC_BOLD} $1 ${LOG_ESC_RESET}"
 }
 
 # Log error (saída de erro)
 log::error() {
-    echo -e "${LOG_ESC_BOLD_RED}Erro:${LOG_ESC_RESET}${LOG_ESC_BOLD} $1 ${LOG_ESC_RESET}" >&2
+    echo -e "[$(date "+%Y-%m-%d %H:%M:%S")] Error: $1" >&3
+    echo -e "${LOG_ESC_BOLD_RED}Error:${LOG_ESC_RESET}${LOG_ESC_BOLD} $1 ${LOG_ESC_RESET}"
 }
 
 # Log crítico (saída de erro + encerra script)
 log::critical() {
-    echo -e "${LOG_ESC_BOLD_RED}CRITICAL: $1 ${LOG_ESC_RESET}" >&2
+    echo -e "[$(date "+%Y-%m-%d %H:%M:%S")] CRITICAL: $1" >&3
+    echo -e "${LOG_ESC_BOLD_RED}CRITICAL: $1 ${LOG_ESC_RESET}"
 }
 
 # Input de usuário. Armazena o valor do input na variável passada como parâmetro.
 log::input() {
     local __varname=$1
     shift
-    echo -ne "${LOG_ESC_BOLD_MAGENTA}>>>${LOG_ESC_RESET}${LOG_ESC_BOLD} $* ${LOG_ESC_RESET}" >&2
+    echo -ne "[$(date "+%Y-%m-%d %H:%M:%S")] >>> $1" >&3
+    echo -ne "${LOG_ESC_BOLD_MAGENTA}>>>${LOG_ESC_RESET}${LOG_ESC_BOLD} $* ${LOG_ESC_RESET}"
     read -r user_input
+    echo -e "$user_input" >&3
     printf -v "$__varname" '%s' "$user_input"
 }
