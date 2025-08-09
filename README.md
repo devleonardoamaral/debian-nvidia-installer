@@ -1,70 +1,77 @@
+Aqui está a versão em inglês do seu README:
+
+---
+
 # debian-nvidia-installer
 
-Instalador de drivers NVIDIA com TUI em Bash
-A ferramenta permite instalar drivers NVIDIA no Debian usando uma interface
-interativa em modo texto (TUI). Automatiza etapas como instalação de pacotes,
-verificação de compatibilidade e configuração do ambiente gráfico.
+NVIDIA driver installer with a Bash TUI. This tool allows you to install NVIDIA drivers on Debian using an interactive text-based interface (TUI).
+It automates steps such as package installation, compatibility checks, and graphics environment configuration.
 
-# Como executar
+# How to Run
 
-Após a instalação, você pode iniciar o instalador diretamente pelo terminal com o seguinte comando:
+After installation, you can start the installer directly from the terminal with:
 
 ```bash
 sudo debian-nvidia-installer
 ```
 
-> ⚠️ **É necessário executar como root**, pois a ferramenta realiza alterações no sistema, como instalação de pacotes e modificação de arquivos de configuração.
+> ⚠️ **You must run it as root**, since the tool performs system changes, such as installing packages and modifying configuration files.
 
-# Instalação
+# Installation
 
-Você pode instalar o `nvidia-installer` baixando o pacote `.deb` a partir da seção **[Releases](https://github.com/devleonardoamaral/debian-nvidia-installer/releases)** deste repositório.
+You can install `nvidia-installer` by downloading the `.deb` package from the **[Releases](https://github.com/devleonardoamaral/debian-nvidia-installer/releases)** section of this repository.
 
-### Opção 1: Interface gráfica (GUI)
+### Option 1: Graphical Interface (GUI)
 
-1. Baixe o arquivo `.deb`.
-2. Dê **dois cliques** sobre o arquivo.
-3. No gerenciador de pacotes do sistema, clique em **“Instalar”**.
+1. Download the `.deb` file.
+2. **Double-click** the file.
+3. In your system’s package manager, click **“Install”**.
 
-> 💡 Compatível com gerenciadores como GDebi, Discover (KDE), GNOME Software, etc.
+> 💡 Compatible with package managers like GDebi, Discover (KDE), GNOME Software, etc.
 
-### Opção 2: Terminal (Recomendado)
+### Option 2: Terminal (Recommended)
 
 ```bash
-# Copia o arquivo para /tmp (diretório temporário) para evitar problemas relacionados a permissões
+# Move the file to /tmp (temporary directory) to avoid permission-related issues
 mv ./nvidia-installer_0.0.1.deb /tmp/
 cd /tmp
 
-# Instala o pacote e resolve dependências automaticamente
+# Install the package and automatically resolve dependencies
 sudo apt install ./nvidia-installer_0.0.1.deb
 
-# Limpa o arquivo após a instalação (opcional)
+# Clean up the file after installation (optional)
 rm ./nvidia-installer_0.0.1.deb
 ```
 
-> 💡 Usar `apt install ./arquivo.deb` garante que dependências sejam instaladas corretamente.
+> 💡 Using `apt install ./file.deb` ensures that dependencies are installed correctly.
 
-# Desinstalação
+# Uninstallation
 
 ```bash
-# Remove o pacote e suas dependências
+# Remove the package and its dependencies
 sudo apt remove nvidia-installer
 ```
+
 ---
 
-# Como empacotar manualmente
+# How to Build the Package Manually
 
-1. Clone este repositório:
+1. Clone this repository:
 
 ```bash
 git clone https://github.com/devleonardoamaral/debian-nvidia-installer.git
 ```
 
-2. Compile o pacote `.deb` com as permissões corretas:
+2. Build the `.deb` package with the correct permissions:
 
 ```bash
 dpkg-deb --build --root-owner-group debian-nvidia-installer
 ```
 
-> 💡 A opção `--root-owner-group` garante que todos os arquivos dentro do pacote tenham proprietário e grupo `root`, conforme esperado para pacotes Debian.
+> 💡 The `--root-owner-group` option ensures that all files inside the package have `root` as their owner and group, as expected for Debian packages.
 
-3. O arquivo `debian-nvidia-installer.deb` será gerado na pasta atual, pronto para instalação.
+3. The file `debian-nvidia-installer.deb` will be generated in the current directory, ready for installation.
+
+---
+
+Para a versão em **Português do Brasil**, veja [README.pt_BR.md](README.pt_BR.md)
