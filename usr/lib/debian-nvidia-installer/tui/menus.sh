@@ -2,31 +2,31 @@
 
 tui::menu::main() {
     local choice
-    choice=$(tui::show_menu "MENU PRINCIPAL" "Escolha uma ação:" \
-            1 "Instalar Drivers" \
-            2 "Desinstalar Drivers" \
-            3 "Extras" \
-            4 "Sair")
+    choice=$(tui::show_menu "$(tr::t "tui.title.main")" "$(tr::t "tui.menutitle.selectoption")" \
+            1 "$(tr::t "tui.install.drivers")" \
+            2 "$(tr::t "tui.uninstall.drivers")"\
+            3 "$(tr::t "tui.extras")" \
+            4 "$(tr::t "tui.exit")")
     echo "${choice:-4}"
 }
 
 tui::menu::extras() {
     local choice
-    choice=$(tui::show_menu "EXTRAS" "Selecione uma opção:" \
-            1 "Instalar/Desinstalar CUDA" \
-            2 "Instalar/Desinstalar OptiX" \
-            3 "Ativar/Desativar Nvidia DRM" \
-            4 "Ativar/Desativar PreserveVideoMemoryAllocations" \
-            5 "Voltar")
+    choice=$(tui::show_menu "$(tr::t "tui.title.extras")" "$(tr::t "tui.menutitle.selectoption")" \
+            1 "$(tr::t "tui.install.cuda")" \
+            2 "$(tr::t "tui.install.optix")" \
+            3 "$(tr::t "tui.switch.nvidiadrm")" \
+            4 "$(tr::t "tui.switch.pvma")" \
+            5 "$(tr::t "tui.exit")")
     echo "${choice:-5}"
 }
 
 tui::menu::flavors() {
     local choice
-    choice=$(tui::show_menu "INSTALAÇÃO NVIDIA" "Selecione um dos flavors para instalar:" \
-    1 "Driver Proprietário" \
-    2 "Driver Open Source" \
-    3 "Voltar")
+    choice=$(tui::show_menu "" "$(tr::t "tui.menutitle.selectflavor")" \
+    1 "$(tr::t "tui.install.proprietary")" \
+    2 "$(tr::t "tui.install.open")" \
+    3 "$(tr::t "tui.exit")")
 
     echo "${choice:-3}"
 }

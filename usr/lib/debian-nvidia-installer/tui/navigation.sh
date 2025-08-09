@@ -9,14 +9,13 @@ tui::navigate::main() {
             2) installer::uninstall_nvidia ;;
             3) tui::navigate::extras ;;
             4) 
-                log::info "Interface encerrada pelo usuário."
                 break 
             ;;
         esac
         
         # Pausa para visualização de resultados no final da navegação
         if ! (( NAVIGATION_STATUS )); then
-            log::input _ "Pressione Enter para continuar..."
+            log::input _ "$(tr::t "log.script.pause")"
         fi
     done
 }
@@ -37,7 +36,6 @@ tui::navigate::flavors() {
         1) installer::install_nvidia_proprietary ;;
         2) installer::install_nvidia_open ;;
         3)
-            log::info "Operação cancelada pelo usuário."
             return
             ;;
     esac

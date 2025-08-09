@@ -23,11 +23,33 @@ declare -g SCRIPT_LANG="en"
 
 # Lista de traduções (arrays associativos)
 declare -A T_PT_BR=(
-    # Botões TUI
+    # TUI Títulos
+    ["tui.menutitle.selectoption"]="Selecione uma opção:"
+
+    # TUI Botões
     ["tui.ok"]="Ok"
     ["tui.confirm"]="Confirmar"
     ["tui.abort"]="Abortar"
     ["tui.cancel"]="Cancelar"
+    ["tui.exit"]="Sair"
+
+    # TUI Main
+    ["tui.title.main"]="DEBIAN NVIDIA INSTALLER"
+    ["tui.install.drivers"]="Instalar Drivers"
+    ["tui.uninstall.drivers"]="Desinstalar Drivers"
+    ["tui.extras"]="Extras"
+
+    # TUI Extras
+    ["tui.title.extras"]="EXTRAS"
+    ["tui.install.cuda"]="CUDA Toolkit"
+    ["tui.install.optix"]="OptiX"
+    ["tui.switch.nvidiadrm"]="Nvidia DRM"
+    ["tui.switch.pvma"]="Preserve Video Memory Allocations"
+
+    # TUI Flavors
+    ["tui.menutitle.selectflavor"]="Selecione um dos flavors para instalar:"
+    ["tui.install.proprietary"]="Driver Proprietário"
+    ["tui.install.open"]="Driver Open Source"    
 
     # Logs
     ["log.script.exit"]="Ecerrando script..."
@@ -42,12 +64,35 @@ declare -A T_PT_BR=(
     ["log.operation.canceled.byfailure"]="Operação falhou."
 )
 
+# Translation list (associative arrays)
 declare -A T_EN=(
+    # TUI Titles
+    ["tui.menutitle.selectoption"]="Select an option:"
+
     # TUI Buttons
     ["tui.ok"]="Ok"
     ["tui.confirm"]="Confirm"
     ["tui.abort"]="Abort"
     ["tui.cancel"]="Cancel"
+    ["tui.exit"]="Exit"
+
+    # TUI Main
+    ["tui.title.main"]="DEBIAN NVIDIA INSTALLER"
+    ["tui.install.drivers"]="Install Drivers"
+    ["tui.uninstall.drivers"]="Uninstall Drivers"
+    ["tui.extras"]="Extras"
+
+    # TUI Extras
+    ["tui.title.extras"]="EXTRAS"
+    ["tui.install.cuda"]="CUDA Toolkit"
+    ["tui.install.optix"]="OptiX"
+    ["tui.switch.nvidiadrm"]="Nvidia DRM"
+    ["tui.switch.pvma"]="Preserve Video Memory Allocations"
+
+    # TUI Flavors
+    ["tui.menutitle.selectflavor"]="Select one of the flavors to install:"
+    ["tui.install.proprietary"]="Proprietary Driver"
+    ["tui.install.open"]="Open Source Driver"
 
     # Logs
     ["log.script.exit"]="Exiting script..."
