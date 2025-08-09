@@ -232,7 +232,7 @@ installer::install_nvidia() {
     
     local nvidia_gpus
 
-    log::info "P$(tr::t "log.installer.install.nvidia.verify.gpu.start")"
+    log::info "$(tr::t "log.installer.install.nvidia.verify.gpu.start")"
     nvidia_gpus="$(nvidia::fetch_nvidia_gpus)"
 
     if [[ -n "$nvidia_gpus" ]]; then
