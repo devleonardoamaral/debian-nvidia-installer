@@ -47,7 +47,7 @@ script::exit() {
 log::setup_logger "$LOG_DIR" "debian-nvidia-installer.log"
 
 # Define o idioma do script com base no sistema
-if [ -z "$FORCE_LANG" ] || (( FORCE_LANG == 0 ));; then
+if [ -z "$FORCE_LANG" ] || (( FORCE_LANG == 0 )); then
     tr::detect_language
 fi
 
