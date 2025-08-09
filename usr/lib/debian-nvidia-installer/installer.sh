@@ -142,6 +142,17 @@ installer::install_pre_requisites() {
             ;;
     esac
 
+    if ! packages::check_sources_components "" "contrib" "non-free" "non-free-firmware"; then
+        log::info "$(tr::t "log.installer.pre.sources.missing")"
+        if ! packages::add_sources_components "" "contrib" "non-free" "non-free-firmware"; then
+            log::info "$(tr::t "log.installer.pre.sources.failure")"
+            log::critical "$(tr::t "log.operation.canceled.byfailure")"
+            return 1
+        fi
+    fi
+
+    log::info "$(tr::t "log.installer.pre.sources.success")"
+
     log::info "$(tr::t_args "log.installer.installprerequisites.start" "$ARCH")"
 
     if ! installer::install_package "mokutil"; then

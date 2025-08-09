@@ -153,6 +153,10 @@ declare -A T_PT_BR=(
 
     ["log.extra.pvma.action.on"]="PreserveVideoMemoryAllocations foi ATIVADO."
     ["log.extra.pvma.action.off"]="PreserveVideoMemoryAllocations foi DESATIVADO."
+
+    ["log.installer.pre.sources.missing"]="Componentes ausentes no sources.list. Adicionando componentes..."
+    ["log.installer.pre.sources.failure"]="Falha ao adicionar componentes no sources.list."
+    ["log.installer.pre.sources.success"]="Componentes do sources.list: OK"
 )
 
 # Translation list (associative arrays)
@@ -287,6 +291,10 @@ declare -A T_EN=(
 
     ["log.extra.pvma.action.on"]="PreserveVideoMemoryAllocations has been ENABLED."
     ["log.extra.pvma.action.off"]="PreserveVideoMemoryAllocations has been DISABLED."
+
+    ["log.installer.pre.sources.missing"]="Missing components in sources.list. Adding components..."
+    ["log.installer.pre.sources.failure"]="Failed to add components to sources.list."
+    ["log.installer.pre.sources.success"]="sources.list components: OK"
 )
 
 
