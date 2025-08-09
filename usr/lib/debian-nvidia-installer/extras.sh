@@ -62,7 +62,7 @@ extra::install_cuda() {
     done
 
     log::info "$(tr::t "log.install.success")"
-    tui::show_msgbox "" "$(tr::t "log.install.success")"
+    tui::show_msgbox "$(tr::t "tui.title.warn")" "$(tr::t "tui.msgbox.restartrequired")"
     return 0
 }
 
@@ -97,7 +97,7 @@ extra::install_optix() {
     fi
 
     log::info "$(tr::t "log.install.success")"
-    tui::show_msgbox "" "$(tr::t "log.install.success")"
+    tui::show_msgbox "$(tr::t "tui.title.warn")" "$(tr::t "tui.msgbox.restartrequired")"
     return 0
 }
 
