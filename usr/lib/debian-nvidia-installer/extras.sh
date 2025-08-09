@@ -116,14 +116,14 @@ extra::switch_nvidia_drm() {
     current_state=$(cat "$drm_file")
 
     if [[ "$current_state" == "Y" ]]; then
-        log::info "$(tr:t "log.extra.drm.status.on")"
+        log::info "$(tr::t "log.extra.drm.status.on")"
         
         if tui::show_yesno "$(tr::t "tui.title.warn")" "$(tr::t "tui.yesno.extra.drm.deactivate.confirm")"; then
             if [[ -f "$conf_file" ]] && grep -qF "$modeset_line" "$conf_file"; then
                 sed -i "\|^$modeset_line$|d" "$conf_file"
                 log::info "$(tr::t_args "log.config.write.remove" "$modeset_line" "$conf_file")"
             fi
-            log::info "$(tr:t "log.extra.drm.action.off")"
+            log::info "$(tr::t "log.extra.drm.action.off")"
             tui::show_msgbox "$(tr::t "tui.title.warn")" "$(tr::t "tui.msgbox.restartrequired")"
             log::input _ "$(tr::t "log.script.pause")"
         else
@@ -132,14 +132,14 @@ extra::switch_nvidia_drm() {
         fi
 
     elif [[ "$current_state" == "N" ]]; then
-        log::info "$(tr:t "log.extra.drm.status.off")"
+        log::info "$(tr::t "log.extra.drm.status.off")"
 
         if tui::show_yesno "$(tr::t "tui.title.warn")" "$(tr::t "tui.yesno.extra.drm.activate.confirm")"; then
             if ! grep -qF "$modeset_line" "$conf_file"; then
                 echo "$modeset_line" >> "$conf_file"
                 log::info "$(tr::t_args "log.config.write.add" "$modeset_line" "$conf_file")"
             fi
-            log::info "$(tr:t "log.extra.drm.action.on")"
+            log::info "$(tr::t "log.extra.drm.action.on")"
             tui::show_msgbox "$(tr::t "tui.title.warn")" "$(tr::t "tui.msgbox.restartrequired")"
             log::input _ "$(tr::t "log.script.pause")"
         else
@@ -158,7 +158,7 @@ extra::switch_nvidia_pvma() {
     if [[ -f "$conf_file" ]] && grep -qF "$pvma_line" "$conf_file"; then
         log::info "$(tr::t "log.extra.pvma.status.on")"
 
-        if tui::show_yesno "$(tr::t "tui.title.warn")" "O recurso PreserveVideoMemoryAllocations já está ativado.\n\nDeseja DESATIVÁ-LO?"; then
+        if tui::show_yesno "$(tr::t "tui.title.warn")" "$(tr::t "tui.yesno.extra.pvma.deactivate.confirm")"; then
             if grep -qF "$pvma_line" "$conf_file"; then
                 sed -i "\|^$pvma_line$|d" "$conf_file"
                 log::info "$(tr::t_args "log.config.write.remove" "$modeset_line" "$conf_file")"
@@ -173,7 +173,7 @@ extra::switch_nvidia_pvma() {
     else
         log::info "$(tr::t "log.extra.pvma.status.off")"
 
-        if tui::show_yesno "$(tr::t "tui.title.warn")" "O recurso PreserveVideoMemoryAllocations está desativado.\n\nDeseja ATIVÁ-LO?"; then
+        if tui::show_yesno "$(tr::t "tui.title.warn")" "$(tr::t "tui.yesno.extra.pvma.activate.confirm")"; then
             echo "$pvma_line" >> "$conf_file"
             log::info "$(tr::t_args "log.config.write.add" "$modeset_line" "$conf_file")"
             log::info "$(tr::t "log.extra.pvma.action.on")"

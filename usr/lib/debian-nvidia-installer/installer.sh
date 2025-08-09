@@ -216,7 +216,7 @@ installer::check_secure_boot() {
             setup_mok
         else
             log::info "$(tr::t "log.operation.canceled.byuser")"
-            tui::show_msgbox "$(tr::t "tui.title.warn")" "$(tr:t "tui.msgbox.installer.secureboot.mok.abort")"
+            tui::show_msgbox "$(tr::t "tui.title.warn")" "$(tr::t "tui.msgbox.installer.secureboot.mok.abort")"
             return 1
         fi
     else

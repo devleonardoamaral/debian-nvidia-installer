@@ -69,6 +69,9 @@ declare -A T_PT_BR=(
     ["tui.yesno.extra.drm.activate.confirm"]="DRM da NVIDIA está desativado.\n\nDeseja ATIVÁ-LO?"
     ["tui.yesno.extra.drm.deactivate.confirm"]="DRM da NVIDIA está ativado.\n\nDeseja DESATIVÁ-LO?"
 
+    ["tui.yesno.extra.pvma.activate.confirm"]="O recurso PreserveVideoMemoryAllocations está desativado.\n\nDeseja ATIVÁ-LO?"
+    ["tui.yesno.extra.pvma.deactivate.confirm"]="O recurso PreserveVideoMemoryAllocations já está ativado.\n\nDeseja DESATIVÁ-LO?"
+
     # TUI msgbox
     ["tui.msgbox.restartrequired"]="Reinicie o sistema para que as alterações sejam aplicadas."
 
@@ -199,6 +202,9 @@ declare -A T_EN=(
 
     ["tui.yesno.extra.drm.activate.confirm"]="NVIDIA DRM is disabled.\n\nDo you want to ENABLE it?"
     ["tui.yesno.extra.drm.deactivate.confirm"]="NVIDIA DRM is enabled.\n\nDo you want to DISABLE it?"
+
+    ["tui.yesno.extra.pvma.activate.confirm"]="The PreserveVideoMemoryAllocations feature is currently disabled.\n\nDo you want to ENABLE it?"
+    ["tui.yesno.extra.pvma.deactivate.confirm"]="The PreserveVideoMemoryAllocations feature is currently enabled.\n\nDo you want to DISABLE it?"
 
     # TUI msgbox
     ["tui.msgbox.restartrequired"]="Restart the system for the changes to take effect."
