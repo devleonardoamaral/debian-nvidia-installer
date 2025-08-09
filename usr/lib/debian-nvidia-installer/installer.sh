@@ -21,47 +21,46 @@
 installer::install_package() {
     local pkg="$1"
 
-    log::info "Verificando pacote: $pkg..."
+    log::info "$(tr::t_args "log.installer.installpackage.verifying" "$pkg")"
     
     # Verifica se o pacote já está instalado antes de continuar
     if packages::is_installed "$pkg"; then
-        log::info "Pacote $pkg já instalado. Instalação ignorada."
+        log::info "$(tr::t_args "log.installer.installpackage.skipping" "$pkg")"
         return 0
     fi
 
-    log::info "Pacote $pkg não encontrado no sistema. Iniciando instalação..."
-
-    log::info "Atualizando lista de pacotes..."
+    log::info "$(tr::t_args "log.installer.installpackage.installing" "$pkg")"
+    log::info "$(tr::t "log.installer.update.start")"
 
     # Tenta atualizar, mas continua mesmo se falhar
     if packages::update; then
-        log::info "Lista de pacotes atualizada com sucesso."
+        log::info "$(tr::t "log.installer.update.success")"
     else
-        log::warn "Falha ao atualizar lista de pacotes."
+        log::warn "$(tr::t "log.installer.update.failure")"
     fi
 
     # Caso de sucesso na instalação
     if packages::install "$pkg"; then
-        log::info "Pacote $pkg instalado com sucesso."
+        log::info "$(tr::t_args "log.installer.installpackage.success" "$pkg")"
         return 0
     fi
     
     # Caso de falha na instalação
-    log::error "Falha na instalação de $pkg."
+    log::error "$(tr::t_args "log.installer.installpackage.failure" "$pkg")"
     return 1
 }
 
 installer::remove_package() {
     local pkg="$1"
 
-    log::info "Removendo pacote $pkg..."
+    log::info "$(tr::t_args "log.installer.removepackage.start" "$pkg")"
 
     if ! packages::remove "$pkg"; then
-        log::error "Falha ao remover pacote $pkg."
+        log::error "$(tr::t_args "log.installer.removepackage.failue" "$pkg")"
         return 1
     fi
 
-    log::info "Pacote $pkg removido com sucesso." 
+    log::info "$(tr::t_args "log.installer.removepackage.success" "$pkg")"
 
     return 0
 }

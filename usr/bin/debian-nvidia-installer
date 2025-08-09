@@ -47,7 +47,9 @@ script::exit() {
 log::setup_logger "$LOG_DIR" "debian-nvidia-installer.log"
 
 # Define o idioma do script com base no sistema
-tr::detect_language
+if [[ ! -n "$DEVENV" ]]; then
+    tr::detect_language
+fi
 
 # Garante que o script só seja executado com privilégios root
 if ! utils::check_sudo; then
