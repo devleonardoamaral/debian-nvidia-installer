@@ -23,7 +23,7 @@ sudo debian-nvidia-installer
 
 # Instalação
 
-Você pode instalar o `nvidia-installer` baixando o pacote `.deb` a partir da seção **[Releases](https://github.com/devleonardoamaral/debian-nvidia-installer/releases)** deste repositório.
+Você pode instalar o `debian-nvidia-installer` baixando o pacote `.deb` a partir da seção **[Releases](https://github.com/devleonardoamaral/debian-nvidia-installer/releases)** deste repositório.
 
 ### Opção 1: Interface gráfica (GUI)
 
@@ -37,14 +37,14 @@ Você pode instalar o `nvidia-installer` baixando o pacote `.deb` a partir da se
 
 ```bash
 # Copia o arquivo para /tmp (diretório temporário) para evitar problemas relacionados a permissões
-mv ./nvidia-installer_0.0.1.deb /tmp/
+mv ./debian-nvidia-installer_X.X.X.deb /tmp/
 cd /tmp
 
 # Instala o pacote e resolve dependências automaticamente
-sudo apt install ./nvidia-installer_0.0.1.deb
+sudo apt install ./debian-nvidia-installer_X.X.X.deb
 
 # Limpa o arquivo após a instalação (opcional)
-rm ./nvidia-installer_0.0.1.deb
+rm ./debian-nvidia-installer_X.X.X.deb
 ```
 
 > 💡 Usar `apt install ./arquivo.deb` garante que dependências sejam instaladas corretamente.
@@ -53,7 +53,7 @@ rm ./nvidia-installer_0.0.1.deb
 
 ```bash
 # Remove o pacote e suas dependências
-sudo apt remove nvidia-installer
+sudo apt remove debian-nvidia-installer
 ```
 ---
 
