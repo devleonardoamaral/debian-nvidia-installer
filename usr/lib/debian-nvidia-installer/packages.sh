@@ -121,7 +121,7 @@ packages::add_sources_components() {
 
 # Atualiza a lista de pacotes
 packages::update() {
-    apt-get update 1>&1 1>&3
+    apt-get update | tee -a /dev/fd/3
     return ${PIPESTATUS[0]}
 }
 
