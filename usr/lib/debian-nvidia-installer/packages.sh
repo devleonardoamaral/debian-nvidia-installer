@@ -121,7 +121,8 @@ packages::add_sources_components() {
 
 # Atualiza a lista de pacotes
 packages::update() {
-    apt-get update | tee -a /dev/fd/3
+    apt-get update 1>&1 1>&3
+    return ${PIPESTATUS[0]}
 }
 
 # Verifica se um pacote está instalado.
@@ -132,9 +133,11 @@ packages::is_installed() {
 # Instala um pacote no sistema
 packages::install() {
     apt-get install -y "$1" | tee -a /dev/fd/3
+    return ${PIPESTATUS[0]}
 }
 
 # Desisntala um pacote do sistema
 packages::remove() {
     apt-get purge -y "$1" | tee -a /dev/fd/3
+    return ${PIPESTATUS[0]}
 }
