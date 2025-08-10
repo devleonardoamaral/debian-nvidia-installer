@@ -157,6 +157,8 @@ declare -A T_PT_BR=(
     ["log.installer.pre.sources.missing"]="Componentes ausentes no sources.list. Adicionando componentes..."
     ["log.installer.pre.sources.failure"]="Falha ao adicionar componentes no sources.list."
     ["log.installer.pre.sources.success"]="Componentes do sources.list: OK"
+
+    ["log.installer.pre.addi386arch"]="Adicionando arquitetura i386 ao sistema (requerido para alguns pacotes da Nvidia)..."
 )
 
 # Translation list (associative arrays)
@@ -295,6 +297,8 @@ declare -A T_EN=(
     ["log.installer.pre.sources.missing"]="Missing components in sources.list. Adding components..."
     ["log.installer.pre.sources.failure"]="Failed to add components to sources.list."
     ["log.installer.pre.sources.success"]="sources.list components: OK"
+
+    ["log.installer.pre.addi386arch"]="Adding i386 architecture to the system (required for some NVIDIA packages)..."
 )
 
 
