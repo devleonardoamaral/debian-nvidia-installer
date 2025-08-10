@@ -133,6 +133,7 @@ installer::install_pre_requisites() {
             fi
             ;;
         "x86_64")
+            dpkg --add-architecture i386
             HEADER_PKG="linux-headers-amd64"
             ;;
         *)
