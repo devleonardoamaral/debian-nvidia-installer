@@ -30,3 +30,37 @@ utils::force_sudo() {
     shift
     exec sudo --preserve-env "$self" "$@"
 }
+
+# Verifica se uma arquitetura multiarch está habilitada
+utils::multiarch::check() {
+    local arch="$1"
+
+    if [[ -z "$arch" ]]; then
+        return 255
+    fi
+
+    if ! dpkg --print-foreign-architectures | grep -q "^$arch\$"; then
+        return 1
+    fi
+
+    return 0
+}
+
+# Habilita uma arquitetura multiarch
+utils::multiarch::enable() {
+    local arch="$1"
+
+    if [[ -z "$arch" ]]; then
+        return 255
+    fi
+
+    if utils::multiarch::check "$arch"; then
+        return 0
+    fi
+
+    if ! dpkg --add-architecture "$arch"; then
+        return 1
+    fi
+
+    return 0
+}

@@ -31,41 +31,53 @@ else
 fi
 
 # Importação dos módulos
+for file in "$SCRIPT_DIR"/translate/*.sh; do source "$file"; done
 for file in "$SCRIPT_DIR"/*.sh; do source "$file"; done
 for file in "$SCRIPT_DIR"/tui/*.sh; do source "$file"; done
 
 # Limpeza / Encerramento
 script::exit() {
     local exit_msg
-    exit_msg="$(tr::t "log.script.exit")"
+    exit_msg="$(tr::t "default.script.exit")"
     log::info "${1:-$exit_msg}"
-    log::input _ "$(tr::t "log.script.pause")"
+    log::input _ "$(tr::t "default.script.pause")"
     exit "${2:-0}"
 }
+
+script::requeriments() {
+    # Garante que o script só seja executado com privilégios root
+    if ! utils::check_sudo; then
+        log::warn "$(tr::t "default.script.rootaccess.required")"
+        utils::force_sudo "$@" # Reexecuta o script
+        script::exit "" 1
+    fi
+
+    # Verifica e instala pacotes obrigatórios para execução do script
+    log::info "$(tr::t "script::requirements.verifying")"
+    if installer::install_package "dialog"; then
+        log::info "$(tr::t "script::requirements.success")"
+    else
+        log::critical "$(tr::t "script::requirements.failure")"
+        script::exit "" 1
+    fi
+}
+
+tr::add "pt_BR" "script::requirements.verifying" "Verificando dependências do script..."
+tr::add "pt_BR" "script::requirements.success" "Dependências verificadas com sucesso."
+tr::add "pt_BR" "script::requirements.failure" "Falha ao verificar dependências."
+
+tr::add "en_US" "script::requirements.verifying" "Verifying script dependencies..."
+tr::add "en_US" "script::requirements.success" "Dependencies verified successfully."
+tr::add "en_US" "script::requirements.failure" "Failed to verify dependencies."
 
 # Configura arquivos de logging
 log::setup_logger "$LOG_DIR" "debian-nvidia-installer.log"
 
 # Define o idioma do script com base no sistema
-if [ -z "$FORCE_LANG" ] || (( FORCE_LANG == 0 )); then
-    tr::detect_language
-fi
-
-# Garante que o script só seja executado com privilégios root
-if ! utils::check_sudo; then
-    log::warn "$(tr::t "log.rootaccess.required")"
-    utils::force_sudo "$@" # Reexecuta o script
-    script::exit "" 1
-fi
-
-# Verifica e instala pacotes obrigatórios para execução do script
-log::info "$(tr::t "log.dependencies.verifying")"
-if installer::install_package "dialog"; then
-    log::info "$(tr::t "log.dependencies.ok")"
-else
-    log::critical "$(tr::t "log.dependencies.failed")"
-    script::exit "" 1
-fi
+tr::detect_language
 
 # Inicia o Dialog de navegação
-tui::navigate::main && script::exit || script::exit
+tui::navigate::main
+
+# Encerramento do script
+script::exit

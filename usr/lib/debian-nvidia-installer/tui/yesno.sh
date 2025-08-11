@@ -18,35 +18,36 @@
 # You should have received a copy of the GNU General Public License
 # along with debian-nvidia-installer. If not, see <https://www.gnu.org/licenses/gpl-3.0.html>.
 
-tui::navigate::main() {
-    while true; do       
-        NAVIGATION_STATUS=1
+# Caixa de diálogo personalizada
+tui::yeno::custom() {
+    local title="$1"
+    local message="$2"
+    local yes_label="$3"
+    local no_label="$4"
 
-        case $(tui::menu::main) in
-            1) installer::install_nvidia ;;
-            2) installer::uninstall_nvidia ;;
-            3) tui::navigate::posinstall ;;
-            4) break ;; # Encerra a navegação
-        esac
-    done
+    tui::show_yesno "$title" "$message" "$yes_label" "$no_label"
 }
 
-tui::navigate::posinstall() {
-    case $(tui::menu::posinstall) in
-        1) posinstall::install_cuda ;;
-        2) posinstall::install_optix ;;
-        3) posinstall::switch_nvidia_drm ;;
-        4) posinstall::switch_nvidia_pvma ;;
-        # 5) Volta ao menu principal por padrão
-    esac
-    return
+# Caixa de diálogo de confirmação com botões "Sim" e "Não"
+tui::yeno::default() {
+    local title="$1"
+    local message="$2"
+
+    tui::yeno::custom \
+        "$title" \
+        "$message" \
+        "$(tr::t "default.tui.button.yes")" \
+        "$(tr::t "default.tui.button.no")"
 }
 
-tui::navigate::flavors() {
-    case $(tui::menu::flavors) in
-        1) installer::install_nvidia_proprietary ;;
-        2) installer::install_nvidia_open ;;
-        # 3) Volta ao menu principal por padrão
-    esac
-    return
+# Caixa de diálogo de confirmação com botões "Confirmar" e "Cancelar"
+tui::yesno::confirmcancel() {
+    local title="$1"
+    local message="$2"
+
+    tui::yeno::custom \
+        "$title" \
+        "$message" \
+        "$(tr::t "default.tui.button.confirm")" \
+        "$(tr::t "default.tui.button.cancel")"
 }
