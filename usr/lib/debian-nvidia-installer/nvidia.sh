@@ -63,7 +63,7 @@ nvidia::set_drm() {
         return 1
     fi
 
-    if ! grub::update-grub; then
+    if ! grub::update_grub; then
         echo "Failed to update GRUB configuration." >&2
         return 1
     fi
