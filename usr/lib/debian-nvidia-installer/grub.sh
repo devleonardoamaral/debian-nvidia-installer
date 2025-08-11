@@ -20,146 +20,32 @@
 
 declare -g GRUB_FILE="/etc/default/grub"
 
-# Função para adicionar parâmetros ao GRUB_CMDLINE_LINUX_DEFAULT
-grub::add_kernel_parameters() {
-    local params_array=("$@")
+# Função para adicionar ou modificar parâmetros do kernel no GRUB
+grub::add_kernel_parameter() {
+    local file="$GRUB_FILE"
+    local param_name="$1"
+    local sep="$2"
+    local param_value="$3"
 
-    # Verifica se os parâmetros foram fornecidos
-    if [[ ${#params_array[@]} -eq 0 ]]; then
-        echo "No kernel parameters provided." >&2
+    if [[ ! -f "$file" ]]; then
+        echo "File $file does not exist." >&2
         return 1
     fi
 
-    # Verifica se o arquivo grub existe
-    if [ ! -f "$GRUB_FILE" ]; then
-        echo "Grub file not found: \"$GRUB_FILE\"." >&2
+    # Escape para regex (se quiser algo mais robusto)
+    local escaped_param_name
+    escaped_param_name=$(printf '%s\n' "$param_name" | sed 's/[][\/.^$*]/\\&/g')
+
+    if grep -qE "^\s*GRUB_CMDLINE_LINUX_DEFAULT=\"[^\"]*\b${escaped_param_name}${sep}" "$file"; then
+        sed -i.bak -E "s|(^GRUB_CMDLINE_LINUX_DEFAULT=\"[^\"]*\b${escaped_param_name}${sep})[^ \"']*|\1${param_value}|" "$file"
+    else
+        sed -i.bak -E "s|^(GRUB_CMDLINE_LINUX_DEFAULT=\"[^\"]*)\"|\1 ${param_name}${sep}${param_value}\"|" "$file"
+    fi
+
+    if [[ $? -ne 0 ]]; then
+        echo "Failed to add/update kernel parameter in $file" >&2
         return 1
     fi
-
-    local tempfile="$(mktemp)"
-    local changed=0
-
-    # Filtra os parâmetros para evitar duplicatas
-    while IFS= read -r line; do
-        if [[ $line =~ ^GRUB_CMDLINE_LINUX_DEFAULT=\"([^\"]*)\" ]]; then
-            read -ra existing_params <<< "${BASH_REMATCH[1]}"
-            local new_params=()
-
-            # Verifica se os parâmetros já existem
-            for param in "${params_array[@]}"; do
-                if [[ ! " ${existing_params[@]} " =~ " ${param} " ]]; then
-                    new_params+=("$param")
-                fi
-            done
-
-            # Adiciona os novos parâmetros ao GRUB_CMDLINE_LINUX_DEFAULT
-            if [[ ${#new_params[@]} -gt 0 ]]; then
-                echo "Added parameters: \"${new_params[*]}\" to GRUB_CMDLINE_LINUX_DEFAULT." >&2
-                changed=1
-                local new_params_str=$(IFS=' '; echo "${new_params[*]}")
-                echo "$(echo "$line" | sed "s/^GRUB_CMDLINE_LINUX_DEFAULT=\"\(.*\)\"/GRUB_CMDLINE_LINUX_DEFAULT=\"\1 $new_params_str\"/")" >> "$tempfile"
-            else
-                echo "$line" >> "$tempfile"
-            fi
-        else
-            echo "$line" >> "$tempfile"
-        fi
-    done < "$GRUB_FILE"
-
-    # Verifica se houve alterações
-    if [[ "$changed" -eq 0 ]]; then
-        echo "Nothing changed, all parameters already exist." >&2
-        rm -f "$tempfile"
-        return 0
-    fi
-
-    # Substitui o arquivo original pelo temporário
-    echo "Changes made to $GRUB_FILE, updating file." >&2
-    if ! mv "$tempfile" "$GRUB_FILE"; then
-        echo "Failed to update grub file: \"$GRUB_FILE\"." >&2
-        rm -f "$tempfile"
-        return 1
-    fi
-
-    # Mantém as permissões e propriedade do arquivo grub
-    chmod 644 "$GRUB_FILE"
-    chown root:root "$GRUB_FILE"
-    
-    return 0
-}
-
-# Função para remover parâmetros do GRUB_CMDLINE_LINUX_DEFAULT
-grub::remove_kernel_parameters() {
-    local params_array=("$@")
-
-    # Verifica se os parâmetros foram fornecidos
-    if [[ ${#params_array[@]} -eq 0 ]]; then
-        echo "No kernel parameters provided." >&2
-        return 1
-    fi
-
-    # Verifica se o arquivo grub existe
-    if [ ! -f "$GRUB_FILE" ]; then
-        echo "Grub file not found: \"$GRUB_FILE\"." >&2
-        return 1
-    fi
-
-    local tempfile="$(mktemp)"
-
-    # Remove os parâmetros do GRUB_CMDLINE_LINUX_DEFAULT
-    while IFS= read -r line; do
-        if [[ $line =~ ^GRUB_CMDLINE_LINUX_DEFAULT=\"([^\"]*)\" ]]; then
-            read -ra existing_params <<< "${BASH_REMATCH[1]}"
-
-            local filtered_params=()
-            local changed=0
-
-            for param in "${existing_params[@]}"; do
-                local keep=1
-        
-                for existing_param in "${params_array[@]}"; do                  
-                    if [[ "$existing_param" == "$param" ]]; then
-                        echo "Removing parameter: $param" >&2
-                        keep=0
-                        changed=1
-                        break
-                    fi
-                done
-
-                if (( keep )); then
-                    filtered_params+=("$param")
-                fi
-            done
-
-            local filtered_params_str="${filtered_params[*]}"
-            local new_line
-            new_line="$(sed "s/^GRUB_CMDLINE_LINUX_DEFAULT=\".*\"/GRUB_CMDLINE_LINUX_DEFAULT=\"$filtered_params_str\"/" <<< "$line")"
-
-            echo "$new_line" >> "$tempfile"
-        else
-            echo "$line" >> "$tempfile"
-        fi
-
-    done < "$GRUB_FILE"
-
-    # Verifica se houve alterações
-    if [[ "$changed" -eq 0 ]]; then
-        echo "Nothing changed, all specified parameters were not found." >&2
-        rm -f "$tempfile"
-        return 0
-    fi
-
-    # Substitui o arquivo original pelo temporário
-    echo "Changes made to $GRUB_FILE, updating file." >&2
-    if ! mv "$tempfile" "$GRUB_FILE"; then
-        echo "Failed to update grub file: \"$GRUB_FILE\"." >&2
-        rm -f "$tempfile"
-        return 1
-    fi
-
-    # Mantém as permissões e propriedade do arquivo grub
-    chmod 644 "$GRUB_FILE"
-    chown root:root "$GRUB_FILE"
 
     return 0
 }
