@@ -19,7 +19,7 @@
 # along with debian-nvidia-installer. If not, see <https://www.gnu.org/licenses/gpl-3.0.html>.
 
 # Caixa de diálogo personalizada
-tui::yeno::custom() {
+tui::yesno::custom() {
     local title="$1"
     local message="$2"
     local yes_label="$3"
@@ -29,11 +29,11 @@ tui::yeno::custom() {
 }
 
 # Caixa de diálogo de confirmação com botões "Sim" e "Não"
-tui::yeno::default() {
+tui::yesno::default() {
     local title="$1"
     local message="$2"
 
-    tui::yeno::custom \
+    tui::yesno::custom \
         "$title" \
         "$message" \
         "$(tr::t "default.tui.button.yes")" \
@@ -45,7 +45,7 @@ tui::yesno::confirmcancel() {
     local title="$1"
     local message="$2"
 
-    tui::yeno::custom \
+    tui::yesno::custom \
         "$title" \
         "$message" \
         "$(tr::t "default.tui.button.confirm")" \
