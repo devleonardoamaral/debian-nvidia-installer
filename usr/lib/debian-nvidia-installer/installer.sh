@@ -411,10 +411,11 @@ installer::uninstall_nvidia() {
 
     # Reinstala o nouveau como fallback
     log::info "$(tr::t "installer::uninstall_nvidia.reinstall.nouveau.start")"
-    apt-get install --reinstall xserver-xorg-core xserver-xorg-video-nouveau
+    packages::update
+    apt-get install --reinstall xserver-xorg-core xserver-xorg-video-nouveau | tee -a /dev/fd/3
     log::info "$(tr::t "installer::uninstall_nvidia.reinstall.nouveau.success")"
 
-    apt-get autoremove -y --purge
+    apt-get autoremove -y --purge | tee -a /dev/fd/3
 
     log::info "$(tr::t "installer::uninstall_nvidia.success")"
     tui::msgbox::warn "$(tr::t "installer::uninstall_nvidia.success")"
