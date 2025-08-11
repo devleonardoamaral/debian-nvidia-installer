@@ -36,7 +36,7 @@ nvidia::is_drm_enabled() {
     fi
 
     local modeset
-    modeset=$(cat "$drm_file")
+    modeset="$(cat "$file")"
 
     case "$modeset" in
         Y) echo 1 ;;
@@ -52,7 +52,7 @@ nvidia::set_drm() {
     local value="$1"
     local file="$GRUB_FILE"
     
-    if grub::add_kernel_parameters "nvidia-drm.modeset=$value"; then
+    if grub::add_kernel_parameter "nvidia-drm.modeset" "=" "$value"; then
         if [[ "$value" == "1" ]]; then
             echo "NVIDIA DRM enabled." >&2
         else
@@ -110,7 +110,7 @@ nvidia::get_option() {
 
     if [ ! -f "$file" ]; then
         echo "File not found: $file" >&2
-        return 1
+        return 2
     fi
 
     # Pega a primeira linha que contém o módulo e a opção
@@ -145,7 +145,7 @@ nvidia::get_pvma() {
 
 # Função para alterar a opção NVreg_PreserveVideoMemoryAllocations no arquivo de configuração
 nvidia::change_option_pvma() {
-    nvidia::change_option "$NVIDIA_OPTIONS_FILE" "nvidia-current" "NVreg_PreserveVideoMemoryAllocations" "$2"
+    nvidia::change_option "$NVIDIA_OPTIONS_FILE" "nvidia-current" "NVreg_PreserveVideoMemoryAllocations" "$1"
 }
 
 # Função para obter a opção NVreg_EnableS0ixPowerManagement do arquivo de configuração
@@ -155,5 +155,5 @@ nvidia::get_s0ixpm() {
 
 # Função para alterar a opção NVreg_EnableS0ixPowerManagement no arquivo de configuração
 nvidia::change_option_s0ixpm() {
-    nvidia::change_option "$NVIDIA_OPTIONS_FILE" "nvidia-current" "NVreg_EnableS0ixPowerManagement" "$2"
+    nvidia::change_option "$NVIDIA_OPTIONS_FILE" "nvidia-current" "NVreg_EnableS0ixPowerManagement" "$1"
 }
