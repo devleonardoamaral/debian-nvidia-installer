@@ -27,7 +27,7 @@ posinstall::install_cuda() {
     # Verifica quais pacotes já estão instalados
     for pkg in "${pkgs[@]}"; do
         if packages::is_installed "$pkg"; then
-            INSTALLED+=("$pkg")
+            installed_pkgs+=("$pkg")
         fi
     done
 
@@ -51,6 +51,7 @@ posinstall::install_cuda() {
 
             log::info "$(tr::t "posinstall::install_cuda.uninstall.success")"
             tui::msgbox::need_restart # Exibe aviso que é necessário reiniciar
+            log::input _ "$(tr::t "default.script.pause")"
             return 0
         else
             log::info "$(tr::t "default.script.canceled.byuser")"
@@ -74,6 +75,7 @@ posinstall::install_cuda() {
 
             log::info "$(tr::t "posinstall::install_cuda.install.success")"
             tui::msgbox::need_restart # Exibe aviso que é necessário reiniciar
+            log::input _ "$(tr::t "default.script.pause")"
             return 0
         else
             log::info "$(tr::t "default.script.canceled.byuser")"
@@ -166,12 +168,13 @@ posinstall::switch_nvidia_drm() {
     log::info "$(tr::t "posinstall::switch_nvidia_drm.start")"
 
     modeset="$(nvidia::is_drm_enabled)"
+    echo "DEBUG Modeset: $modeset"
     
     if [[ "$modeset" -eq 1 ]]; then
         log::info "$(tr::t "posinstall::switch_nvidia_drm.status.on")"
 
         if tui::yesno::default "" "$(tr::t "tui.yesno.extra.nvidia.drm.deactivate.confirm")"; then
-            if nvidia::set_drm 1; then
+            if nvidia::set_drm 0 >/dev/null; then
                 log::info "$(tr::t "posinstall::switch_nvidia_drm.action.off")"
                 tui::msgbox::need_restart # Exibe aviso que é necessário reiniciar
                 log::input _ "$(tr::t "default.script.pause")"
@@ -189,7 +192,7 @@ posinstall::switch_nvidia_drm() {
         log::info "$(tr::t "posinstall::switch_nvidia_drm.status.off")"
 
         if tui::yesno::default "" "$(tr::t "tui.yesno.extra.nvidia.drm.activate.confirm")"; then
-            if nvidia::set_drm 0; then
+            if nvidia::set_drm 1 >/dev/null; then
                 log::info "$(tr::t "posinstall::switch_nvidia_drm.action.on")"
                 tui::msgbox::need_restart # Exibe aviso que é necessário reiniciar
                 log::input _ "$(tr::t "default.script.pause")"
@@ -235,9 +238,13 @@ posinstall::switch_nvidia_pvma() {
     log::info "$(tr::t "posinstall::switch_nvidia_pvma.start")"
 
     local pvma_status
-    if pvma_status=$(nvidia::get_pvma); then
-        log::error "$(tr::t "posinstall::switch_nvidia_pvma.status.error")"
-        return 1
+    if ! pvma_status=$(nvidia::get_pvma); then
+        if [[ $? -eq 2 ]]; then
+            log::error "$(tr::t "posinstall::switch_nvidia_pvma.status.error")"
+            log::input _ "$(tr::t "default.script.pause")"
+            return 1
+        fi
+        pvma_status=0
     fi
 
     if [[ -z "$pvma_status" ]] || [[ "$pvma_status" -eq 0 ]]; then
