@@ -306,10 +306,8 @@ installer::check_secure_boot() {
         tui::msgbox::warn "$(tr::t "installer::check_secure_boot.mok.missing")"
 
         if tui::yesno::default "$(tr::t "default.tui.title.warn")" "$(tr::t "installer::check_secure_boot.mok.prompt")"; then
-            if ! installer::setup_mok; then
-                log::critical "$(tr::t "default.script.canceled.byfailure")"
-                script::exit "" 1
-            fi
+            installer::setup_mok
+            script::exit "$(tr::t "default.script.restartrequired")" 0
         else
             log::info "$(tr::t "default.script.canceled.byuser")"
             tui::msgbox::warn "$(tr::t "installer::check_secure_boot.mok.abortedbyuser")"
@@ -363,7 +361,13 @@ installer::install_nvidia() {
         return 1
     fi
 
-    if ! (installer::install_pre_requisites && installer::check_secure_boot); then
+    if ! installer::install_pre_requisites; then
+        log::critical "$(tr::t "default.script.canceled.byfailure")"
+        log::input _ "$(tr::t "default.script.pause")"
+        return 1
+    fi
+
+    if ! installer::check_secure_boot; then
         log::critical "$(tr::t "default.script.canceled.byfailure")"
         log::input _ "$(tr::t "default.script.pause")"
         return 1
