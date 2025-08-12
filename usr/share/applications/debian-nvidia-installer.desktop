@@ -1,0 +1,14 @@
+[Desktop Entry]
+Name=Debian Nvidia Installer
+Name[pt_BR]=Instalador Nvidia para Debian
+Name[en_US]=Debian Nvidia Installer
+
+Comment=Gerenciador de drivers da Nvidia para Debian
+Comment[pt_BR]=Gerenciador de drivers da Nvidia para Debian
+Comment[en_US]=Nvidia driver manager for Debian
+
+Exec=pkexec /usr/bin/debian-nvidia-installer
+Icon=utilities-terminal
+Terminal=true
+Type=Application
+Categories=Utility;
