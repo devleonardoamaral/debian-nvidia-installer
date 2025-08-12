@@ -399,6 +399,11 @@ installer::uninstall_nvidia() {
 
     installer::remove_package "libnvoptix1"
 
+    # Remove pacotes não utilizados
+    apt-get autoremove -y --purge | tee -a /dev/fd/3
+
+    # Reinstala o nouveau como fallback após remover o driver nvidia
+    log::info "$(tr::t "installer::uninstall_nvidia.reinstall.nouveau.start")"
     # Remove o blacklist do nouveau
     log::info "$(tr::t "installer::uninstall_nvidia.remove.nouveau.blacklist.start")"
     if [[ -L /etc/modprobe.d/nvidia-blacklists-nouveau.conf ]]; then
@@ -408,15 +413,17 @@ installer::uninstall_nvidia() {
             log::error "$(tr::t "installer::uninstall_nvidia.remove.nouveau.blacklist.failure")"
         fi
     fi
-
-    # Reinstala o nouveau como fallback
-    log::info "$(tr::t "installer::uninstall_nvidia.reinstall.nouveau.start")"
+    # Atualiza os repositórios
     packages::update
-    apt-get install --reinstall xserver-xorg-core xserver-xorg-video-nouveau | tee -a /dev/fd/3
+    # Reinstala o driver nouveau
+    apt-get install --reinstall -y xserver-xorg-core xserver-xorg-video-nouveau | tee -a /dev/fd/3
+    # Reinstala o firmware necessário para o nouveau
+    apt-get install -y firmware-misc-nonfree firmware-nvidia-graphics | tee -a /dev/fd/3 
+    # Atualiza o initramfs para garantir que o nouveau seja carregado corretamente
+    update-initramfs -u | tee -a /dev/fd/3 
     log::info "$(tr::t "installer::uninstall_nvidia.reinstall.nouveau.success")"
 
-    apt-get autoremove -y --purge | tee -a /dev/fd/3
-
+    # Mensagem de sucesso
     log::info "$(tr::t "installer::uninstall_nvidia.success")"
     tui::msgbox::warn "$(tr::t "installer::uninstall_nvidia.success")"
     tui::msgbox::need_restart # Exibe aviso que é necessário reiniciar
