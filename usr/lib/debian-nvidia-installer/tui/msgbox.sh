@@ -55,3 +55,15 @@ tui::msgbox::warn() {
         "$message" \
         "$(tr::t "default.tui.button.ok")"
 }
+
+# Caixa de diálogo de aviso
+tui::msgbox::optimus_incompatible() {
+    local message="$1"
+    tui::msgbox::custom \
+        "$(tr::t "default.tui.title.warn")" \
+        "$(tr::t "tui::msgbox::optimus_incompatible")\n\n$message" \
+        "$(tr::t "default.tui.button.ok")"
+}
+
+tr::add "pt_BR" "tui::msgbox::optimus_incompatible" "Esta funcionalidade não é compatível com sistemas Optimus. Para saber como identificar se seu dispositivo utiliza hardware Optimus, confira a documentação: https://wiki.debian.org/NVIDIA%20Optimus"
+tr::add "en_US" "tui::msgbox::optimus_incompatible" "This feature is not compatible with Optimus systems. To learn how to identify if your device uses Optimus hardware, check the documentation: https://wiki.debian.org/NVIDIA%20Optimus"

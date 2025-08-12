@@ -235,6 +235,8 @@ posinstall::switch_nvidia_pvma() {
     local module="nvidia-current"
     local option="NVreg_PreserveVideoMemoryAllocations"
 
+    tui::msgbox::optimus_incompatible
+
     log::info "$(tr::t "posinstall::switch_nvidia_pvma.start")"
 
     local pvma_status
