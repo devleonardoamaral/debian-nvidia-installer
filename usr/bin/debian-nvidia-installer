@@ -73,11 +73,11 @@ tr::add "en_US" "script::requirements.failure" "Failed to verify dependencies."
 # Configura arquivos de logging
 log::setup_logger "$LOG_DIR" "debian-nvidia-installer.log"
 
-# Verifica requisitos do script
-script::requeriments "$@"
-
 # Define o idioma do script com base no sistema
 tr::detect_language
+
+# Verifica requisitos do script
+script::requeriments "$@"
 
 # Inicia o Dialog de navegação
 tui::navigate::main
