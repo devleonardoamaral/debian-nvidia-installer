@@ -3,19 +3,21 @@
 NVIDIA driver installer with a Bash TUI. This tool allows you to install NVIDIA drivers on Debian using an interactive text-based interface (TUI).
 It automates steps such as package installation, compatibility checks, and graphics environment configuration.
 
-# Requirements
+### Requirements
 
-* **Debian Trixie** distribution  
-* Bash-compatible shell  
+* **Debian Trixie** distribution
+* Compatible **NVIDIA graphics card** — supports GPUs from the GeForce, Quadro, and RTX lines. **Tesla models are not supported at this time.**
+* Bash-compatible shell
 * Administrator privileges (sudo/root)
 
-After installation, you can start the installer directly from the terminal with:
+# How to Run
+
+After installation, you can start the script through the shortcut in the applications menu or via the terminal by running the command:
 
 ```bash
 sudo debian-nvidia-installer
 ```
-
-> ⚠️ **You must run it as root**, since the tool performs system changes, such as installing packages and modifying configuration files.
+> ⚠️ **It is necessary to run as root**, as the tool makes system changes such as installing packages and modifying configuration files.
 
 # Installation
 

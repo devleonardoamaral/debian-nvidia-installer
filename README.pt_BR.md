@@ -8,12 +8,13 @@ verificação de compatibilidade e configuração do ambiente gráfico.
 ### Requisitos
 
 * Distribuição **Debian Trixie**
+* Placa gráfica **NVIDIA compatível** — suporta GPUs das linhas GeForce, Quadro e RTX. **Modelos Tesla não são suportados no momento**.
 * Shell compatível com Bash
 * Privilégios de administrador (sudo/root)
 
 # Como executar
 
-Após a instalação, você pode iniciar o instalador diretamente pelo terminal com o seguinte comando:
+Após a instalação, você pode iniciar o script através do atalho na lista de aplicativos ou através do terminal executando o comando:
 
 ```bash
 sudo debian-nvidia-installer
