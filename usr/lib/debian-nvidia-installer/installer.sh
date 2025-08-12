@@ -306,10 +306,10 @@ installer::check_secure_boot() {
         tui::msgbox::warn "$(tr::t "installer::check_secure_boot.mok.missing")"
 
         if tui::yesno::default "$(tr::t "default.tui.title.warn")" "$(tr::t "installer::check_secure_boot.mok.prompt")"; then
-            installer::setup_mok || {
-                log::critical "$(tr::t "installer::check_secure_boot.mok.setup.failure")"
+            if ! installer::setup_mok; then
+                log::critical "$(tr::t "default.script.canceled.byfailure")"
                 script::exit "" 1
-            }
+            fi
         else
             log::info "$(tr::t "default.script.canceled.byuser")"
             tui::msgbox::warn "$(tr::t "installer::check_secure_boot.mok.abortedbyuser")"
