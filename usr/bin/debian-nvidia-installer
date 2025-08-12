@@ -40,9 +40,13 @@ script::exit() {
     local exit_msg
     exit_msg="$(tr::t "default.script.exit")"
     log::info "${1:-$exit_msg}"
+    echo "$(tr::t_args "script::exit.informlogpath" "$LOG_DIR/debian-nvidia-installer.log")"
     log::input _ "$(tr::t "default.script.pause")"
     exit "${2:-0}"
 }
+
+tr::add "pt_BR" "script::exit.informlogpath" "O resumo da última execução do script está disponível em: %1"
+tr::add "en_US" "script::exit.informlogpath" "The summary of the last script execution is available at: %1"
 
 script::requeriments() {
     # Garante que o script só seja executado com privilégios root
@@ -75,6 +79,32 @@ log::setup_logger "$LOG_DIR" "debian-nvidia-installer.log"
 
 # Define o idioma do script com base no sistema
 tr::detect_language
+
+tr::add "pt_BR" "default.script.welcome" "\
+Bem-vindo ao Debian NVIDIA Installer!
+
+Este instalador é distribuído sob a licença GPLv3.
+
+Repositório do projeto:
+https://github.com/devleonardoamaral/debian-nvidia-installer
+
+----------------------
+
+"
+
+tr::add "en_US" "default.script.welcome" "\
+Welcome to the Debian NVIDIA Installer!
+
+This installer is released under the GPLv3 license.
+
+Project repository:
+https://github.com/devleonardoamaral/debian-nvidia-installer
+
+----------------------
+
+"
+
+echo -e "$(tr::t "default.script.welcome")"
 
 # Verifica requisitos do script
 script::requeriments "$@"
