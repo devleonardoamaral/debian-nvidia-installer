@@ -74,7 +74,7 @@ installer::remove_package() {
     log::info "$(tr::t_args "installer::remove_package.start" "$pkg")"
 
     if ! packages::remove "$pkg"; then
-        log::error "$(tr::t_args "installer::remove_package.failue" "$pkg")"
+        log::error "$(tr::t_args "installer::remove_package.failure" "$pkg")"
         return 1
     fi
 
@@ -83,11 +83,11 @@ installer::remove_package() {
 }
 
 tr::add "pt_BR" "installer::remove_package.start" "Iniciando a remoção do pacote: %1"
-tr::add "pt_BR" "installer::remove_package.failue" "Falha ao remover o pacote %1."
+tr::add "pt_BR" "installer::remove_package.failure" "Falha ao remover o pacote %1."
 tr::add "pt_BR" "installer::remove_package.success" "Pacote %1 removido com sucesso."
 
 tr::add "en_US" "installer::remove_package.start" "Starting removal of package: %1"
-tr::add "en_US" "installer::remove_package.failue" "Failed to remove package %1."
+tr::add "en_US" "installer::remove_package.failure" "Failed to remove package %1."
 tr::add "en_US" "installer::remove_package.success" "Package %1 removed successfully."
 
 installer::install_nvidia_proprietary() {
