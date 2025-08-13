@@ -412,6 +412,11 @@ installer::uninstall_nvidia() {
 
     log::info "$(tr::t "installer::uninstall_nvidia.start")"
 
+    # Remove o modeset da Nvidia dos parâmetros do Kernel
+    grub::remove_kernel_parameter "nvidia-drm.modeset" "=" "[0-9]+" | tee -a /dev/fd/3
+    grub::update
+
+    # Desinstala os drivers da Nvidia
     if ! installer::remove_package "*nvidia*"; then
         log::critical "$(tr::t "installer::uninstall_nvidia.failure")"
     fi
