@@ -25,7 +25,7 @@ installer::install_package() {
     
     # Verifica se o pacote já está instalado antes de continuar
     if packages::is_installed "$pkg"; then
-        log::info "$(tr::t_args "installer::install_package.missing" "$pkg")"
+        log::info "$(tr::t_args "installer::install_package.ok" "$pkg")"
         return 0
     fi
 
@@ -51,7 +51,7 @@ installer::install_package() {
 }
 
 tr::add "pt_BR" "installer::install_package.verifying" "Verificando se o pacote está instalado..."
-tr::add "pt_BR" "installer::install_package.missing" "O pacote já está instalado."
+tr::add "pt_BR" "installer::install_package.ok" "O pacote está instalado."
 tr::add "pt_BR" "installer::install_package.install.start" "Iniciando a instalação do pacote: %1"
 tr::add "pt_BR" "installer::install_package.update.start" "Iniciando a atualização dos repositórios..."
 tr::add "pt_BR" "installer::install_package.update.success" "Repositórios atualizados com sucesso."
@@ -60,7 +60,7 @@ tr::add "pt_BR" "installer::install_package.install.success" "Pacote %1 instalad
 tr::add "pt_BR" "installer::install_package.install.failure" "Falha ao instalar o pacote %1."
 
 tr::add "en_US" "installer::install_package.verifying" "Verifying if the package is installed..."
-tr::add "en_US" "installer::install_package.missing" "The package is already installed."
+tr::add "en_US" "installer::install_package.ok" "The package is installed."
 tr::add "en_US" "installer::install_package.install.start" "Starting installation of package: %1"
 tr::add "en_US" "installer::install_package.update.start" "Starting repository update..."
 tr::add "en_US" "installer::install_package.update.success" "Repositories updated successfully."
