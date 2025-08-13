@@ -111,6 +111,5 @@ script::requirements "$@"
 
 # Inicia o Dialog de navegação
 tui::navigate::main
-
-# Encerramento do script
-script::exit
+ret=$?
+script::exit "" "$ret"
