@@ -55,6 +55,41 @@ grub::add_kernel_parameter() {
     return 0
 }
 
+# Função para remover um parâmetro do kernel no GRUB
+grub::remove_kernel_parameter() {
+    local file="$GRUB_FILE"
+    local param_name
+    param_name="$(utils::escape_chars "$1")"
+    local sep
+    sep="$(utils::escape_chars "$2")"
+    local param_value
+    param_value="$3"
+
+    if [[ ! -f "$file" ]]; then
+        echo "File $file does not exist." >&2
+        return 1
+    fi
+
+    # Remove o parâmetro com valor opcional (=valor)
+    sed -i.bak -E "/^[[:space:]]*GRUB_CMDLINE_LINUX_DEFAULT=/s/([\" ])${param_name}${sep}${param_value}([\" ])/\1\2/g" "$file"
+
+    # Remove espaços duplos
+    sed -i -E "/^[[:space:]]*GRUB_CMDLINE_LINUX_DEFAULT=/s/  +/ /g" "$file"
+
+    # Remove espaços antes das aspas finais
+    sed -i -E "/^[[:space:]]*GRUB_CMDLINE_LINUX_DEFAULT=/s/[[:space:]]+\"/\"/" "$file"
+
+    # Remove espaços depois da aspas iniciais
+    sed -i -E "/^[[:space:]]*GRUB_CMDLINE_LINUX_DEFAULT=/s/=\"[[:space:]]+/=\"/" "$file"
+
+    if [[ $? -ne 0 ]]; then
+        echo "Failed to remove kernel parameter in $file" >&2
+        return 1
+    fi
+
+    return 0
+}
+
 # Atualiza o GRUB
 grub::update_grub() {
     update-grub | tee -a /dev/fd/3
