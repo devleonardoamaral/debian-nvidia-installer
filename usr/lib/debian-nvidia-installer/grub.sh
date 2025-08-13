@@ -99,7 +99,7 @@ grub::remove_kernel_parameter() {
 }
 
 # Atualiza o GRUB
-grub::update_grub() {
+grub::update() {
     update-grub | tee -a /dev/fd/3
     return ${PIPESTATUS[0]}
 }
