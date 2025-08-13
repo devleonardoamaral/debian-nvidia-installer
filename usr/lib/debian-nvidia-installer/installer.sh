@@ -317,7 +317,7 @@ installer::check_secure_boot() {
             return 0
         fi
 
-        log::warning "$(tr::t "installer::check_secure_boot.mok.missing")"
+        log::warn "$(tr::t "installer::check_secure_boot.mok.missing")"
         tui::msgbox::warn "$(tr::t "installer::check_secure_boot.mok.missing")"
 
         if tui::yesno::default "$(tr::t "default.tui.title.warn")" "$(tr::t "installer::check_secure_boot.mok.prompt")"; then

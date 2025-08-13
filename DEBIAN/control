@@ -1,5 +1,5 @@
 Package: debian-nvidia-installer
-Version: 0.4.0
+Version: 0.4.1
 Section: utils
 Priority: optional
 Architecture: all
