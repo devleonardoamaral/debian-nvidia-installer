@@ -312,7 +312,7 @@ installer::check_secure_boot() {
     if mokutil --sb-state | grep -q "enabled"; then
         log::info "$(tr::t "installer::check_secure_boot.enabled")"
 
-        if [[ -f "$mok_pub_path" ]] && mokutil --test-key "$mok_pub_path" | grep -q "is already enrolled"; then
+        if [[ -f "$mok_pub_path" ]] && mokutil --test-key "$mok_pub_path" | grep -iq "already enrolled"; then
             log::info "$(tr::t "installer::check_secure_boot.mok.already_enrolled")"
             return 0
         fi
