@@ -20,6 +20,11 @@
 
 declare -g GRUB_FILE="/etc/default/grub"
 
+utils::escape_chars() {
+    local string="$1"
+    printf '%s\n' "$string" | sed 's/[][\/.^$*?()+]/\\&/g'
+}
+
 # Função para adicionar ou modificar parâmetros do kernel no GRUB
 grub::add_kernel_parameter() {
     local file="$GRUB_FILE"
