@@ -48,7 +48,7 @@ script::exit() {
 tr::add "pt_BR" "script::exit.informlogpath" "O resumo da última execução do script está disponível em: %1"
 tr::add "en_US" "script::exit.informlogpath" "The summary of the last script execution is available at: %1"
 
-script::requeriments() {
+script::requirements() {
     # Garante que o script só seja executado com privilégios root
     if ! utils::check_sudo; then
         log::warn "$(tr::t "default.script.rootaccess.required")"
@@ -107,7 +107,7 @@ https://github.com/devleonardoamaral/debian-nvidia-installer
 echo -e "$(tr::t "default.script.welcome")"
 
 # Verifica requisitos do script
-script::requeriments "$@"
+script::requirements "$@"
 
 # Inicia o Dialog de navegação
 tui::navigate::main
