@@ -207,6 +207,21 @@ installer::install_pre_requisites() {
         log::critical "$(tr::t "default.script.canceled.byfailure")"
         return 1
     fi
+
+    # Configura o dracut caso ele esteja instalado
+    if packages::is_installed "dracut"; then
+        local filename="10-nvidia.conf"
+        local directory="/etc/dracut.conf.d"
+        local content='install_items+=" /etc/modprobe.d/nvidia-blacklists-nouveau.conf /etc/modprobe.d/nvidia.conf /etc/modprobe.d/nvidia-options.conf "' 
+        
+        # Garante a existência do diretório do dracut
+        mkdir -p "$directory"
+
+        # Adiciona a configuração caso ela não exista no arquivo
+        if ! grep -qxF "$content" "$directory/$filename" 2>/dev/null; then
+            echo "$content" | sudo tee -a "$directory/$filename"
+        fi
+    fi
     
     log::info "$(tr::t "installer::install_pre_requisites.install.success")"
 
