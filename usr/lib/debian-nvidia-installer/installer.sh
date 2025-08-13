@@ -417,11 +417,22 @@ installer::uninstall_nvidia() {
     grub::update
 
     # Desinstala os drivers da Nvidia
-    if ! installer::remove_package "*nvidia*"; then
-        log::critical "$(tr::t "installer::uninstall_nvidia.failure")"
+    local pkgs=()
+    mapfile -t pkgs < <(dpkg -l | awk '/nvidia/ && $2 != "debian-nvidia-installer" {print $2}')
+
+    if packages::is_installed "libnvoptix1"; then
+        pkgs+=("libnvoptix1")
     fi
 
-    installer::remove_package "libnvoptix1"
+    if [ "${#pkgs[@]}" -gt 0 ]; then
+        apt purge -y "${pkgs[@]}" | tee -a /dev/fd/3
+        uninst_status="${PIPESTATUS[0]}"
+        if [ "$uninst_status" -ne 0 ]; then
+            log::critical "$(tr::t "installer::uninstall_nvidia.failure")"
+        fi
+    else
+        log::info "$(tr::t "installer::uninstall_nvidia.no_packages")"
+    fi
 
     # Remove pacotes não utilizados
     apt-get autoremove -y --purge | tee -a /dev/fd/3
@@ -463,6 +474,7 @@ tr::add "pt_BR" "installer::uninstall_nvidia.reinstall.nouveau.start" "Reinstala
 tr::add "pt_BR" "installer::uninstall_nvidia.reinstall.nouveau.success" "Driver nouveau reinstalado com sucesso."
 tr::add "pt_BR" "installer::uninstall_nvidia.success" "Driver NVIDIA desinstalado com sucesso."
 tr::add "pt_BR" "installer::uninstall_nvidia.failure" "Falha durante a desinstalação do driver NVIDIA."
+tr::add "pt_BR" "installer::uninstall_nvidia.no_packages" "Nenhum pacote NVIDIA encontrado para desinstalar."
 
 tr::add "en_US" "installer::uninstall_nvidia.tui.yesno.uninstall.confirm" "You are about to uninstall the NVIDIA driver from the system.\n\nDo you want to continue?"
 tr::add "en_US" "installer::uninstall_nvidia.start" "Starting NVIDIA driver uninstallation..."
@@ -473,3 +485,4 @@ tr::add "en_US" "installer::uninstall_nvidia.reinstall.nouveau.start" "Reinstall
 tr::add "en_US" "installer::uninstall_nvidia.reinstall.nouveau.success" "Nouveau driver reinstalled successfully."
 tr::add "en_US" "installer::uninstall_nvidia.success" "NVIDIA driver uninstalled successfully."
 tr::add "en_US" "installer::uninstall_nvidia.failure" "Failure during NVIDIA driver uninstallation."
+tr::add "en_US" "installer::uninstall_nvidia.no_packages" "No NVIDIA packages found to uninstall."
