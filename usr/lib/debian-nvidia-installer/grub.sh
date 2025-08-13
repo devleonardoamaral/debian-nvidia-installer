@@ -28,23 +28,31 @@ utils::escape_chars() {
 # Função para adicionar ou modificar parâmetros do kernel no GRUB
 grub::add_kernel_parameter() {
     local file="$GRUB_FILE"
-    local param_name="$1"
-    local sep="$2"
-    local param_value="$3"
 
     if [[ ! -f "$file" ]]; then
         echo "File $file does not exist." >&2
         return 1
     fi
 
-    # Escape para regex (se quiser algo mais robusto)
-    local escaped_param_name
-    escaped_param_name=$(printf '%s\n' "$param_name" | sed 's/[][\/.^$*]/\\&/g')
+    local param_name
+    param_name="$(utils::escape_chars "$1")"
 
-    if grep -qE "^\s*GRUB_CMDLINE_LINUX_DEFAULT=\"[^\"]*\b${escaped_param_name}${sep}" "$file"; then
-        sed -i.bak -E "s|(^GRUB_CMDLINE_LINUX_DEFAULT=\"[^\"]*\b${escaped_param_name}${sep})[^ \"']*|\1${param_value}|" "$file"
+    local sep
+    sep="$(utils::escape_chars "$2")"
+
+    local param_value
+    param_value="$(utils::escape_chars "$3")"
+
+    # Verifica se o parâmetro já existe
+    if grep -E "^[[:space:]]*GRUB_CMDLINE_LINUX_DEFAULT=\"[^\"]*${param_name}${sep}[^\"]*\"" "$file" | \
+        grep -qE "(\"|[[:space:]])${param_name}${sep}"; then
+        # Atualiza o parâmetro existente com o novo valor
+        sed -i.bak -E "/^[[:space:]]*GRUB_CMDLINE_LINUX_DEFAULT=/s/([\" ])(${param_name}${sep})([^\" ]*)?/\1\2${param_value}/g" "$file"
     else
-        sed -i.bak -E "s|^(GRUB_CMDLINE_LINUX_DEFAULT=\"[^\"]*)\"|\1 ${param_name}${sep}${param_value}\"|" "$file"
+        # Adiciona o parâmetro no final
+        sed -i.bak -E "/^[[:space:]]*GRUB_CMDLINE_LINUX_DEFAULT=/s/(^[[:space:]]*GRUB_CMDLINE_LINUX_DEFAULT=\"[^\"]*)/\1 ${param_name}${sep}${param_value}/" "$file"
+        # Remove espaços depois da aspas iniciais
+        sed -i -E "/^[[:space:]]*GRUB_CMDLINE_LINUX_DEFAULT=/s/=\"[[:space:]]+/=\"/" "$file"
     fi
 
     if [[ $? -ne 0 ]]; then
