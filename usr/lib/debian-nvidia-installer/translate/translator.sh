@@ -117,6 +117,8 @@ tr::detect_language() {
     # Se a variável FORCE_LANG estiver definida, usa seu valor.
     # Caso contrário, detecta o idioma do sistema.
     if [[ -v FORCE_LANG && -n "$FORCE_LANG" ]]; then
+        # Remove espaços de FORCE_LANG
+        FORCE_LANG="$(echo "$FORCE_LANG" | tr -d ' ')"
         tr::setup_lang "$FORCE_LANG"
     else
         tr::setup_lang "${LANG%%.*}"  # Remove .UTF-8 e afins
