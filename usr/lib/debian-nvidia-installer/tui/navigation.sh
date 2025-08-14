@@ -25,17 +25,27 @@ tui::navigate::main() {
         case $(tui::menu::main) in
             1) installer::install_nvidia ;;
             2) installer::uninstall_nvidia ;;
-            3) tui::navigate::posinstall ;;
+            3) 
+                if nvidia::is_driver_installed; then
+                    tui::navigate::posinstall
+                else
+                    tui::msgbox::warn "$(tr::t "tui::navigate::main.drivernotinstalled")"
+                fi
+                ;;
             4) break ;; # Encerra a navegação
         esac
     done
 }
 
+tr::add "pt_BR" "tui::navigate::main.drivernotinstalled" "Não foi possível detectar o driver da NVIDIA no sistema.\n\nInstale o driver e reinicie o sistema para que o driver seja carregado antes de acessar as opções pós-instalação."
+
+tr::add "en_US" "tui::navigate::main.drivernotinstalled" "Could not detect the NVIDIA driver on the system.\n\nInstall the driver and restart the system so that the driver is loaded before accessing the post-installation options."
+
 tui::navigate::posinstall() {
     case $(tui::menu::posinstall) in
-        1) posinstall::install_cuda ;;
-        2) posinstall::install_optix ;;
-        3) posinstall::switch_nvidia_pvma ;;
+        1) posinstall::install_cuda_toolkit ;;
+        2) posinstall::switch_nvidia_pvma ;;
+        3) posinstall::switch_nvidia_s0ixpm ;;
         # 4) Volta ao menu principal por padrão
     esac
     return

@@ -51,28 +51,26 @@ tui::menu::posinstall() {
 
     choice=$(tui::show_menu "$(tr::t "tui.menu.posinstall.title")" "$(tr::t "tui.menu.posinstall.subtitle")" \
         1 "$(tr::t "tui.menu.posinstall.option.cuda")" \
-        2 "$(tr::t "tui.menu.posinstall.option.optix")" \
-        3 "$(tr::t "tui.menu.posinstall.option.switchpvma")" \
+        2 "$(tr::t "tui.menu.posinstall.option.switchpvma")" \
+        3 "$(tr::t "tui.menu.posinstall.option.s0ixpm")"
         4 "$(tr::t "default.tui.button.exit")")
     ret="$?"
 
-    echo "${choice:-5}"
+    echo "${choice:-4}"
     return "$ret"
 }
 
 tr::add "pt_BR" "tui.menu.posinstall.title" "OPÇÕES PÓS-INSTALAÇÃO"
 tr::add "pt_BR" "tui.menu.posinstall.subtitle" "Selecione uma opção:"
-tr::add "pt_BR" "tui.menu.posinstall.option.cuda" "CUDA"
-tr::add "pt_BR" "tui.menu.posinstall.option.optix" "OptiX"
-tr::add "pt_BR" "tui.menu.posinstall.option.switchnvidiadrm" "Alternar NVIDIA DRM"
+tr::add "pt_BR" "tui.menu.posinstall.option.cuda" "CUDA Toolkit"
 tr::add "pt_BR" "tui.menu.posinstall.option.switchpvma" "Alternar PreservedVideoMemoryAllocation"
+tr::add "pt_BR" "tui.menu.posinstall.option.s0ixpm" "Alternar S0ix Power Management"
 
 tr::add "en_US" "tui.menu.posinstall.title" "POST-INSTALLATION OPTIONS"
 tr::add "en_US" "tui.menu.posinstall.subtitle" "Select an option:"
-tr::add "en_US" "tui.menu.posinstall.option.cuda" "CUDA"
-tr::add "en_US" "tui.menu.posinstall.option.optix" "OptiX"
-tr::add "en_US" "tui.menu.posinstall.option.switchnvidiadrm" "Switch NVIDIA DRM"
+tr::add "en_US" "tui.menu.posinstall.option.cuda" "CUDA Toolkit"
 tr::add "en_US" "tui.menu.posinstall.option.switchpvma" "Switch PreservedVideoMemoryAllocation"
+tr::add "pt_BR" "tui.menu.posinstall.option.s0ixpm" "Switch S0ix Power Management"
 
 tui::menu::flavors() {
     local choice

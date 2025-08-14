@@ -19,8 +19,75 @@
 # along with debian-nvidia-installer. If not, see <https://www.gnu.org/licenses/gpl-3.0.html>.
 
 declare -g NVIDIA_DRM_FILE="/sys/module/nvidia_drm/parameters/modeset"
-declare -g NVIDIA_OPTIONS_FILE="/etc/modprobe.d/nvidia-options.conf"
-declare -g NVIDIA_CUDA_MODESET="/etc/modprobe.d/nvidia-modeset.conf"
+declare -g NVIDIA_OPTIONS_DEBIAN="/etc/modprobe.d/nvidia-options.conf"
+declare -g NVIDIA_OPTIONS_DEFAULT="/etc/modprobe.d/nvidia.conf"
+declare -g NVIDIA_MODESET_CUDA="/etc/modprobe.d/nvidia-modeset.conf"
+
+# Verifica se o driver NVIDIA está instalado
+nvidia::is_driver_installed() {
+    command -v nvidia-smi &>/dev/null
+}
+
+nvidia::get_source_alias() {
+    origin_repo="$(apt-cache policy "nvidia-driver" | grep 'http' | head -n1 | awk '{print $2}')"
+
+    case "$origin_repo" in
+        *developer.download.nvidia.com* )
+            echo "cuda"
+            ;;
+        *deb.debian.org* )
+            echo "debian"
+            ;;
+        * )
+            echo "unknown"
+            ;;
+    esac
+}
+
+nvidia::get_nvidia_module() {
+    local source="$1"
+
+    case "$1" in
+        cuda )
+            echo "nvidia"
+            ;;
+        debian )
+            echo "nvidia-current"
+            ;;
+        * )
+            echo "nvidia"
+    esac
+}
+
+nvidia::get_modeset_file() {
+    local source="$1"
+
+    case "$1" in
+        cuda )
+            echo "$NVIDIA_MODESET_CUDA"
+            ;;
+        debian )
+            echo "$NVIDIA_OPTIONS_DEBIAN"
+            ;;
+        * )
+            echo "$NVIDIA_OPTIONS_DEFAULT"
+    esac
+}
+
+nvidia::get_options_file() {
+    local source="$1"
+
+    case "$1" in
+        cuda )
+            echo "$NVIDIA_OPTIONS_DEFAULT"
+            ;;
+        debian )
+            echo "$NVIDIA_OPTIONS_DEBIAN"
+            ;;
+        * )
+            echo "$NVIDIA_OPTIONS_DEFAULT"
+    esac
+}
 
 # Função para buscar GPUs NVIDIA usando lspci
 nvidia::fetch_nvidia_gpus() {
@@ -69,6 +136,10 @@ nvidia::change_option() {
     local module="$2"
     local option="$3"
     local value="$4"
+
+    module="$(utils::escape_chars "$2")"
+    option="$(utils::escape_chars "$3")"
+    value="$(utils::escape_chars "$4")"
 
     if [ ! -f "$file" ]; then
         echo "File not found: $file" >&2
@@ -131,25 +202,25 @@ nvidia::enable_option() {
 }
 
 nvidia::enable_modeset() {
-    nvidia::change_option "$NVIDIA_OPTIONS_FILE" "nvidia-drm" "modeset" "1"
+    nvidia::change_option "$(nvidia::get_options_file "$(nvidia::get_source_alias)")" "nvidia-drm" "modeset" "1"
 }
 
 # Função para obter a opção NVreg_PreserveVideoMemoryAllocations do arquivo de configuração
 nvidia::get_pvma() {
-    nvidia::get_option "$NVIDIA_OPTIONS_FILE" "nvidia-current" "NVreg_PreserveVideoMemoryAllocations"
+    nvidia::get_option "$(nvidia::get_options_file "$(nvidia::get_source_alias)")" "$(nvidia::get_nvidia_module "$(nvidia::get_source_alias)")" "NVreg_PreserveVideoMemoryAllocations"
 }
 
 # Função para alterar a opção NVreg_PreserveVideoMemoryAllocations no arquivo de configuração
 nvidia::change_option_pvma() {
-    nvidia::change_option "$NVIDIA_OPTIONS_FILE" "nvidia-current" "NVreg_PreserveVideoMemoryAllocations" "$1"
+    nvidia::change_option "$(nvidia::get_options_file "$(nvidia::get_source_alias)")" "$(nvidia::get_nvidia_module "$(nvidia::get_source_alias)")" "NVreg_PreserveVideoMemoryAllocations" "$1"
 }
 
 # Função para obter a opção NVreg_EnableS0ixPowerManagement do arquivo de configuração
 nvidia::get_s0ixpm() {
-    nvidia::get_option "$NVIDIA_OPTIONS_FILE" "nvidia-current" "NVreg_EnableS0ixPowerManagement"
+    nvidia::get_option "$(nvidia::get_options_file "$(nvidia::get_source_alias)")" "$(nvidia::get_nvidia_module "$(nvidia::get_source_alias)")" "NVreg_EnableS0ixPowerManagement"
 }
 
 # Função para alterar a opção NVreg_EnableS0ixPowerManagement no arquivo de configuração
 nvidia::change_option_s0ixpm() {
-    nvidia::change_option "$NVIDIA_OPTIONS_FILE" "nvidia-current" "NVreg_EnableS0ixPowerManagement" "$1"
+    nvidia::change_option "$(nvidia::get_options_file "$(nvidia::get_source_alias)")" "$(nvidia::get_nvidia_module "$(nvidia::get_source_alias)")" "NVreg_EnableS0ixPowerManagement" "$1"
 }
