@@ -160,6 +160,118 @@ tr::add "pt_BR" "installer::install_debian_opensource.success" "Driver NVIDIA Op
 tr::add "en_US" "installer::install_debian_opensource.tui.yesno.opendriver.confirm" "You are about to install the Open Source NVIDIA driver.\n\nDo you want to continue?"
 tr::add "en_US" "installer::install_debian_opensource.success" "Open Source NVIDIA Driver installed successfully."
 
+installer::install_cuda_proprietary() {
+    local temp_download_file="/tmp/cudakeyring.deb"
+    trap 'rm -f "$temp_download_file"' RETURN
+
+    if ! tui::yesno::default "$(tr::t "default.tui.title.warn")" "$(tr::t "installer::install_cuda_proprietary.tui.yesno.cuda.proprietary.confirm")"; then
+        log::info "$(tr::t "default.script.canceled.byuser")"
+        return 255
+    fi
+
+    if [[ ! -f "$temp_download_file" ]]; then
+        wget -O "$temp_download_file" https://developer.download.nvidia.com/compute/cuda/repos/debian12/x86_64/cuda-keyring_1.1-1_all.deb | tee -a /dev/fd/3 
+        if [[ "${PIPESTATUS[0]}" -ne 0 ]]; then
+            log::critical "$(tr::t "installer::install_cuda_proprietary.repo.download.failure")"
+            log::input _ "$(tr::t "default.script.pause")"
+            return 1
+        fi
+    fi
+
+    if ! packages::install "$temp_download_file"; then
+        log::critical "$(tr::t "installer::install_cuda_proprietary.repo.install.failure")"
+        log::input _ "$(tr::t "default.script.pause")"
+        return 1
+    fi
+
+    if ! packages::update; then
+        log::critical "$(tr::t "installer::install_cuda_proprietary.packages.update.failure")"
+        log::input _ "$(tr::t "default.script.pause")"
+        return 1
+    fi
+
+    if ! packages::install "cuda-drivers"; then
+        log::critical "$(tr::t "installer::install_cuda_proprietary.failure")"
+        log::input _ "$(tr::t "default.script.pause")"
+        return 1
+    fi
+
+    log::info "$(tr::t "installer::install_cuda_proprietary.success")"
+    tui::msgbox::custom "" "$(tr::t "installer::install_cuda_proprietary.success")"
+    tui::msgbox::need_restart
+    return 0
+}
+
+tr::add "pt_BR" "installer::install_cuda_proprietary.tui.yesno.cuda.proprietary.confirm" "Você está prestes a instalar o driver Proprietário da NVIDIA fornecido pelo repositóri CUDA.\n\nDeseja continuar?"
+tr::add "pt_BR" "installer::install_cuda_proprietary.repo.download.failure" "Download do cuda-keyring falhou. Operação abortada."
+tr::add "pt_BR" "installer::install_cuda_proprietary.repo.install.failure" "Instalação do cuda-keyring falhou. Operação abortada."
+tr::add "pt_BR" "installer::install_cuda_proprietary.packages.update.failure" "Atualização da lista de pacotes locais falhou. Operação abortada."
+tr::add "pt_BR" "installer::install_cuda_proprietary.failure" "Instalação dos drivers Nvidia falhou. Operação abortada."
+tr::add "pt_BR" "installer::install_cuda_proprietary.success" "Driver NVIDIA instalado com sucesso."
+
+tr::add "en_US" "installer::install_cuda_proprietary.tui.yesno.cuda.proprietary.confirm" "You are about to install the NVIDIA Proprietary driver provided by the CUDA repository.\n\nDo you want to continue?"
+tr::add "en_US" "installer::install_cuda_proprietary.repo.download.failure" "Failed to download the cuda-keyring. Operation aborted."
+tr::add "en_US" "installer::install_cuda_proprietary.repo.install.failure" "Failed to install the cuda-keyring. Operation aborted."
+tr::add "en_US" "installer::install_cuda_proprietary.packages.update.failure" "Failed to update the local package list. Operation aborted."
+tr::add "en_US" "installer::install_cuda_proprietary.failure" "Failed to install the NVIDIA drivers. Operation aborted."
+tr::add "en_US" "installer::install_cuda_proprietary.success" "NVIDIA Driver installed successfully."
+
+installer::install_cuda_opensource() {
+    local temp_download_file="/tmp/cudakeyring.deb"
+    trap 'rm -f "$temp_download_file"' RETURN
+
+    if ! tui::yesno::default "$(tr::t "default.tui.title.warn")" "$(tr::t "installer::install_cuda_opensource.tui.yesno.cuda.proprietary.confirm")"; then
+        log::info "$(tr::t "default.script.canceled.byuser")"
+        return 255
+    fi
+
+    if [[ ! -f "$temp_download_file" ]]; then
+        wget -O "$temp_download_file" https://developer.download.nvidia.com/compute/cuda/repos/debian12/x86_64/cuda-keyring_1.1-1_all.deb | tee -a /dev/fd/3 
+        if [[ "${PIPESTATUS[0]}" -ne 0 ]]; then
+            log::critical "$(tr::t "installer::install_cuda_opensource.repo.download.failure")"
+            log::input _ "$(tr::t "default.script.pause")"
+            return 1
+        fi
+    fi
+
+    if ! packages::install "$temp_download_file"; then
+        log::critical "$(tr::t "installer::install_cuda_opensource.repo.install.failure")"
+        log::input _ "$(tr::t "default.script.pause")"
+        return 1
+    fi
+
+    if ! packages::update; then
+        log::critical "$(tr::t "installer::install_cuda_opensource.packages.update.failure")"
+        log::input _ "$(tr::t "default.script.pause")"
+        return 1
+    fi
+
+    if ! packages::install "nvidia-open"; then
+        log::critical "$(tr::t "installer::install_cuda_opensource.failure")"
+        log::input _ "$(tr::t "default.script.pause")"
+        return 1
+    fi
+
+    log::info "$(tr::t "installer::install_cuda_opensource.success")"
+    tui::msgbox::custom "" "$(tr::t "installer::install_cuda_opensource.success")"
+    tui::msgbox::need_restart
+    return 0
+}
+
+tr::add "pt_BR" "installer::install_cuda_opensource.tui.yesno.cuda.proprietary.confirm" "Você está prestes a instalar o driver de Código Aberto da NVIDIA fornecido pelo repositóri CUDA.\n\nDeseja continuar?"
+tr::add "pt_BR" "installer::install_cuda_opensource.repo.download.failure" "Download do cuda-keyring falhou. Operação abortada."
+tr::add "pt_BR" "installer::install_cuda_opensource.repo.install.failure" "Instalação do cuda-keyring falhou. Operação abortada."
+tr::add "pt_BR" "installer::install_cuda_opensource.packages.update.failure" "Atualização da lista de pacotes locais falhou. Operação abortada."
+tr::add "pt_BR" "installer::install_cuda_opensource.failure" "Instalação dos drivers Nvidia falhou. Operação abortada."
+tr::add "pt_BR" "installer::install_cuda_opensource.success" "Driver NVIDIA instalado com sucesso."
+
+tr::add "en_US" "installer::install_cuda_opensource.tui.yesno.cuda.proprietary.confirm" "You are about to install the NVIDIA Open Source driver provided by the CUDA repository.\n\nDo you want to continue?"
+tr::add "en_US" "installer::install_cuda_opensource.repo.download.failure" "Failed to download the cuda-keyring. Operation aborted."
+tr::add "en_US" "installer::install_cuda_opensource.repo.install.failure" "Failed to install the cuda-keyring. Operation aborted."
+tr::add "en_US" "installer::install_cuda_opensource.packages.update.failure" "Failed to update the local package list. Operation aborted."
+tr::add "en_US" "installer::install_cuda_opensource.failure" "Failed to install the NVIDIA drivers. Operation aborted."
+tr::add "en_US" "installer::install_cuda_opensource.success" "NVIDIA Driver installed successfully."
+
 installer::install_pre_requisites() {
     local ARCH KERNEL VERSION HEADER_PKG
     ARCH=$(uname -m)
