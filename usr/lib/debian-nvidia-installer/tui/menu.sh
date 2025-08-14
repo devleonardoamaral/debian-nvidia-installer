@@ -80,19 +80,25 @@ tui::menu::flavors() {
     local ret
 
     choice=$(tui::show_menu "" "$(tr::t "tui.driverflavors.subtitle")" \
-        1 "$(tr::t "tui.menu.driverflavors.option.installproprietary")" \
-        2 "$(tr::t "tui.menu.driverflavors.option.installopensource")" \
-        3 "$(tr::t "default.tui.button.exit")")
+        1 "$(tr::t "tui.menu.driverflavors.option.install.debian.proprietary")" \
+        2 "$(tr::t "tui.menu.driverflavors.option.install.debian.opensource")" \
+        3 "$(tr::t "tui.menu.driverflavors.option.install.cuda.proprietary")" \
+        4 "$(tr::t "tui.menu.driverflavors.option.install.cuda.opensource")" \
+        5 "$(tr::t "default.tui.button.exit")")
     ret="$?"
 
-    echo "${choice:-3}"
+    echo "${choice:-5}"
     return "$ret"
 }
 
-tr::add "pt_BR" "tui.driverflavors.subtitle" "Selecione o tipo de driver:"
-tr::add "pt_BR" "tui.menu.driverflavors.option.installproprietary" "Instalar Driver Proprietário"
-tr::add "pt_BR" "tui.menu.driverflavors.option.installopensource" "Instalar Driver Open Source"
+tr::add "pt_BR" "tui.driverflavors.subtitle" "Selecione qual driver insalar:"
+tr::add "pt_BR" "tui.menu.driverflavors.option.install.debian.proprietary" "v550 Proprietário [Debian Repo]"
+tr::add "pt_BR" "tui.menu.driverflavors.option.install.debian.opensource" "v550 Código Aberto [Debian Repo]"
+tr::add "pt_BR" "tui.menu.driverflavors.option.install.cuda.proprietary" "v580 Proprietário [Cuda Repo]"
+tr::add "pt_BR" "tui.menu.driverflavors.option.install.cuda.opensource" "v580 Código Aberto [Cuda Repo]"
 
-tr::add "en_US" "tui.driverflavors.subtitle" "Select the type of driver:"
-tr::add "en_US" "tui.menu.driverflavors.option.installproprietary" "Install Proprietary Driver"
-tr::add "en_US" "tui.menu.driverflavors.option.installopensource" "Install Open Source Driver"
+tr::add "en_US" "tui.driverflavors.subtitle" "Select which driver to install:"
+tr::add "en_US" "tui.menu.driverflavors.option.install.debian.proprietary" "v550 Proprietary [Debian Repo]"
+tr::add "en_US" "tui.menu.driverflavors.option.install.debian.opensource" "v550 Open Source [Debian Repo]"
+tr::add "en_US" "tui.menu.driverflavors.option.install.cuda.proprietary" "v580 Proprietary [Cuda Repo]"
+tr::add "en_US" "tui.menu.driverflavors.option.install.cuda.opensource" "v580 Open Source [Cuda Repo]"

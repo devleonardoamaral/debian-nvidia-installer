@@ -90,8 +90,8 @@ tr::add "en_US" "installer::remove_package.start" "Starting removal of package: 
 tr::add "en_US" "installer::remove_package.failure" "Failed to remove package %1."
 tr::add "en_US" "installer::remove_package.success" "Package %1 removed successfully."
 
-installer::install_nvidia_proprietary() {
-    if ! tui::yesno::default "$(tr::t "default.tui.title.warn")" "$(tr::t "installer::install_nvidia_proprietary.tui.yesno.proprietarydriver.confirm")"; then
+installer::install_debian_proprietary() {
+    if ! tui::yesno::default "$(tr::t "default.tui.title.warn")" "$(tr::t "installer::install_debian_proprietary.tui.yesno.proprietarydriver.confirm")"; then
         log::info "$(tr::t "default.script.canceled.byuser")"
         return 255
     fi
@@ -111,20 +111,20 @@ installer::install_nvidia_proprietary() {
         return 1
     fi
     
-    log::info "$(tr::t "installer::install_nvidia_proprietary.success")"
-    tui::msgbox::custom "" "$(tr::t "installer::install_nvidia_proprietary.success")"
+    log::info "$(tr::t "installer::install_debian_proprietary.success")"
+    tui::msgbox::custom "" "$(tr::t "installer::install_debian_proprietary.success")"
     tui::msgbox::need_restart # Exibe aviso que é necessário reiniciar
     return 0
 }
 
-tr::add "pt_BR" "installer::install_nvidia_proprietary.tui.yesno.proprietarydriver.confirm" "Você está prestes a instalar o driver proprietário da NVIDIA.\n\nDeseja continuar?"
-tr::add "pt_BR" "installer::install_nvidia_proprietary.success" "Driver NVIDIA Proprietário instalado com sucesso."
+tr::add "pt_BR" "installer::install_debian_proprietary.tui.yesno.proprietarydriver.confirm" "Você está prestes a instalar o driver proprietário da NVIDIA.\n\nDeseja continuar?"
+tr::add "pt_BR" "installer::install_debian_proprietary.success" "Driver NVIDIA Proprietário instalado com sucesso."
 
-tr::add "en_US" "installer::install_nvidia_proprietary.tui.yesno.proprietarydriver.confirm" "You are about to install the proprietary NVIDIA driver.\n\nDo you want to continue?"
-tr::add "en_US" "installer::install_nvidia_proprietary.success" "Proprietary NVIDIA Driver installed successfully."
+tr::add "en_US" "installer::install_debian_proprietary.tui.yesno.proprietarydriver.confirm" "You are about to install the proprietary NVIDIA driver.\n\nDo you want to continue?"
+tr::add "en_US" "installer::install_debian_proprietary.success" "Proprietary NVIDIA Driver installed successfully."
 
-installer::install_nvidia_open() {
-    if ! tui::yesno::default "$(tr::t "default.tui.title.warn")" "$(tr::t "installer::install_nvidia_open.tui.yesno.opendriver.confirm")"; then
+installer::install_debian_opensource() {
+    if ! tui::yesno::default "$(tr::t "default.tui.title.warn")" "$(tr::t "installer::install_debian_opensource.tui.yesno.opendriver.confirm")"; then
         log::info "$(tr::t "default.script.canceled.byuser")"
         return 255
     fi
@@ -144,17 +144,17 @@ installer::install_nvidia_open() {
         return 1
     fi
     
-    log::info "$(tr::t "installer::install_nvidia_open.success")"
-    tui::msgbox::custom "" "$(tr::t "installer::install_nvidia_open.success")"
+    log::info "$(tr::t "installer::install_debian_opensource.success")"
+    tui::msgbox::custom "" "$(tr::t "installer::install_debian_opensource.success")"
     tui::msgbox::need_restart
     return 0
 }
 
-tr::add "pt_BR" "installer::install_nvidia_open.tui.yesno.opendriver.confirm" "Você está prestes a instalar o driver Open Source da NVIDIA.\n\nDeseja continuar?"
-tr::add "pt_BR" "installer::install_nvidia_open.success" "Driver NVIDIA Open Source instalado com sucesso."
+tr::add "pt_BR" "installer::install_debian_opensource.tui.yesno.opendriver.confirm" "Você está prestes a instalar o driver Open Source da NVIDIA.\n\nDeseja continuar?"
+tr::add "pt_BR" "installer::install_debian_opensource.success" "Driver NVIDIA Open Source instalado com sucesso."
 
-tr::add "en_US" "installer::install_nvidia_open.tui.yesno.opendriver.confirm" "You are about to install the Open Source NVIDIA driver.\n\nDo you want to continue?"
-tr::add "en_US" "installer::install_nvidia_open.success" "Open Source NVIDIA Driver installed successfully."
+tr::add "en_US" "installer::install_debian_opensource.tui.yesno.opendriver.confirm" "You are about to install the Open Source NVIDIA driver.\n\nDo you want to continue?"
+tr::add "en_US" "installer::install_debian_opensource.success" "Open Source NVIDIA Driver installed successfully."
 
 installer::install_pre_requisites() {
     local ARCH KERNEL VERSION HEADER_PKG

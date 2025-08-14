@@ -44,9 +44,11 @@ tui::navigate::posinstall() {
 
 tui::navigate::flavors() {
     case $(tui::menu::flavors) in
-        1) installer::install_nvidia_proprietary ;;
-        2) installer::install_nvidia_open ;;
-        # 3) Volta ao menu principal por padrão
+        1) installer::install_debian_proprietary ;;
+        2) installer::install_debian_opensource ;;
+        3) installer::install_cuda_proprietary ;;
+        4) installer::install_cuda_opensource ;;
+        # 5) Volta ao menu principal por padrão
     esac
     return
 }
