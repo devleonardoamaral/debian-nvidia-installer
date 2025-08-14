@@ -18,6 +18,12 @@
 # You should have received a copy of the GNU General Public License
 # along with debian-nvidia-installer. If not, see <https://www.gnu.org/licenses/gpl-3.0.html>.
 
+# Escapa caracteres que podem quebrar regex
+utils::escape_chars() {
+    local string="$1"
+    printf '%s\n' "$string" | sed 's/[][\/.^$*?()+]/\\&/g'
+}
+
 # Verifica se o script está sendo executado com privilégios sudo
 utils::check_sudo() {
     [[ "$EUID" -eq 0 ]]
