@@ -523,7 +523,7 @@ installer::install_nvidia() {
     tui::navigate::flavors
 }
 
-tr::add "pt_BR" "installer::install_nvidia.verify.already.installed" "Os drivers da NVIDIA já estão instalados no seu sistema. Para instalar outra versão, primeiro desinstale o driver atual utilizando a opção "Desinstalar Drivers NVIDIA" no menu principal."
+tr::add "pt_BR" "installer::install_nvidia.verify.already.installed" "Os drivers da NVIDIA já estão instalados no seu sistema. Para instalar outra versão, primeiro desinstale o driver atual utilizando a opção \"Desinstalar Drivers NVIDIA\" no menu principal."
 tr::add "pt_BR" "installer::install_nvidia.start" "Iniciando a instalação do driver NVIDIA..."
 tr::add "pt_BR" "installer::install_nvidia.verify.gpu.start" "Verificando a presença de GPUs NVIDIA no sistema..."
 tr::add "pt_BR" "installer::install_nvidia.verify.gpu.found" "GPUs NVIDIA encontradas:"
