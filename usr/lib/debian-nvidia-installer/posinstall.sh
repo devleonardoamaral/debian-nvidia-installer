@@ -39,7 +39,7 @@ posinstall::install_cuda_toolkit::install() {
             for pkg in "${installed_pkgs[@]}"; do
                 log::info "$(tr::t_args "posinstall::install_cuda.uninstall.pkg.start" "$pkg")"
 
-                if ! installer::remove_package "$pkg"; then
+                if ! packages::purge "$pkg"; then
                     log::critical "$(tr::t "default.script.canceled.byfailure")"
                     log::input _ "$(tr::t "default.script.pause")"
                     return 1

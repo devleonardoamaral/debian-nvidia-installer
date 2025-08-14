@@ -562,7 +562,7 @@ installer::uninstall_nvidia() {
 
     # Desinstala os pacotes encontrados ou pula a desistalação
     if [ "${#pkgs[@]}" -gt 0 ]; then
-        apt purge -y --autoremove -V "${pkgs[@]}" | tee -a /dev/fd/3
+        packages::purge "${pkgs[@]}"
     else
         log::info "$(tr::t "installer::uninstall_nvidia.no_packages")"
     fi
