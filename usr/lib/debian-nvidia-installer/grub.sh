@@ -28,35 +28,38 @@ utils::escape_chars() {
 # Função para adicionar ou modificar parâmetros do kernel no GRUB
 grub::add_kernel_parameter() {
     local file="$GRUB_FILE"
+    local param_name sep param_value ret
+
+    param_name="$(utils::escape_chars "$1")"
+    sep="$(utils::escape_chars "$2")"
+    param_value="$(utils::escape_chars "$3")"
+
+    ret=0
 
     if [[ ! -f "$file" ]]; then
         echo "File $file does not exist." >&2
         return 1
     fi
 
-    local param_name
-    param_name="$(utils::escape_chars "$1")"
-
-    local sep
-    sep="$(utils::escape_chars "$2")"
-
-    local param_value
-    param_value="$(utils::escape_chars "$3")"
+    # Cria um backup do arquivo GRUB
+    cp "$file" "$file.bak"
 
     # Verifica se o parâmetro já existe
     if grep -E "^[[:space:]]*GRUB_CMDLINE_LINUX_DEFAULT=\"[^\"]*${param_name}${sep}[^\"]*\"" "$file" | \
         grep -qE "(\"|[[:space:]])${param_name}${sep}"; then
         # Atualiza o parâmetro existente com o novo valor
-        sed -i.bak -E "/^[[:space:]]*GRUB_CMDLINE_LINUX_DEFAULT=/s/([\" ])(${param_name}${sep})([^\" ]*)?/\1\2${param_value}/g" "$file"
+        sed -i -E "/^[[:space:]]*GRUB_CMDLINE_LINUX_DEFAULT=/s/([\" ])(${param_name}${sep})([^\" ]*)?/\1\2${param_value}/g" "$file"
+        ret="$?"
     else
         # Adiciona o parâmetro no final
-        sed -i.bak -E "/^[[:space:]]*GRUB_CMDLINE_LINUX_DEFAULT=/s/(^[[:space:]]*GRUB_CMDLINE_LINUX_DEFAULT=\"[^\"]*)/\1 ${param_name}${sep}${param_value}/" "$file"
+        sed -i -E "/^[[:space:]]*GRUB_CMDLINE_LINUX_DEFAULT=/s/(^[[:space:]]*GRUB_CMDLINE_LINUX_DEFAULT=\"[^\"]*)/\1 ${param_name}${sep}${param_value}/" "$file"
+        ret="$?"
         # Remove espaços depois da aspas iniciais
         sed -i -E "/^[[:space:]]*GRUB_CMDLINE_LINUX_DEFAULT=/s/=\"[[:space:]]+/=\"/" "$file"
     fi
 
-    if [[ $? -ne 0 ]]; then
-        echo "Failed to add/update kernel parameter in $file" >&2
+    if [[ "$ret" -ne 0 ]]; then
+        echo "Failed to add/update kernel parameter in GRUB file: $file" >&2
         return 1
     fi
 
@@ -66,36 +69,42 @@ grub::add_kernel_parameter() {
 # Função para remover um parâmetro do kernel no GRUB
 grub::remove_kernel_parameter() {
     local file="$GRUB_FILE"
-    local param_name
+    local param_name sep param_value
+
     param_name="$(utils::escape_chars "$1")"
-    local sep
     sep="$(utils::escape_chars "$2")"
-    local param_value
     param_value="$3"
 
     if [[ ! -f "$file" ]]; then
-        echo "File $file does not exist." >&2
-        return 1
+        echo "GRUB file $file not found." >&2
+        return 2
     fi
 
-    # Remove o parâmetro com valor opcional (=valor)
-    sed -i.bak -E "/^[[:space:]]*GRUB_CMDLINE_LINUX_DEFAULT=/s/([\" ])${param_name}${sep}${param_value}([\" ])/\1\2/g" "$file"
+    # Cria um backup do arquivo GRUB
+    cp "$file" "$file.bak"
 
-    # Remove espaços duplos
-    sed -i -E "/^[[:space:]]*GRUB_CMDLINE_LINUX_DEFAULT=/s/  +/ /g" "$file"
+    # Verifica se o parâmetro existe antes de modificar
+    if grep -E "^[[:space:]]*GRUB_CMDLINE_LINUX_DEFAULT=\"[^\"]*${param_name}${sep}${param_value}[^\"]*\"" "$file" | \
+            grep -qE "(\"|[[:space:]])${param_name}${sep}${param_value}(\"|[[:space:]])"; then
 
-    # Remove espaços antes das aspas finais
-    sed -i -E "/^[[:space:]]*GRUB_CMDLINE_LINUX_DEFAULT=/s/[[:space:]]+\"/\"/" "$file"
+        # Remove o parâmetro (com valor opcional)
+        sed -i -E "/^[[:space:]]*GRUB_CMDLINE_LINUX_DEFAULT=/s/([\" ])${param_name}${sep}${param_value}([\" ])/\1\2/g" "$file"
+            
+        # Remove espaços duplos
+        sed -i -E "/^[[:space:]]*GRUB_CMDLINE_LINUX_DEFAULT=/s/  +/ /g" "$file"
 
-    # Remove espaços depois da aspas iniciais
-    sed -i -E "/^[[:space:]]*GRUB_CMDLINE_LINUX_DEFAULT=/s/=\"[[:space:]]+/=\"/" "$file"
+        # Remove espaços antes das aspas finais
+        sed -i -E "/^[[:space:]]*GRUB_CMDLINE_LINUX_DEFAULT=/s/[[:space:]]+\"/\"/" "$file"
 
-    if [[ $? -ne 0 ]]; then
-        echo "Failed to remove kernel parameter in $file" >&2
+        # Remove espaços depois da aspas iniciais
+        sed -i -E "/^[[:space:]]*GRUB_CMDLINE_LINUX_DEFAULT=/s/=\"[[:space:]]+/=\"/" "$file"
+
+        echo "Changes have been applied to the GRUB file: $file" >&2
+        return 0
+    else
+        echo "There were no changes to the GRUB file: $file" >&2
         return 1
     fi
-
-    return 0
 }
 
 # Atualiza o GRUB
