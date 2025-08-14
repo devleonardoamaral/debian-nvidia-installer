@@ -70,7 +70,7 @@ tr::add "en_US" "tui.menu.posinstall.title" "POST-INSTALLATION OPTIONS"
 tr::add "en_US" "tui.menu.posinstall.subtitle" "Select an option:"
 tr::add "en_US" "tui.menu.posinstall.option.cuda" "CUDA Toolkit"
 tr::add "en_US" "tui.menu.posinstall.option.switchpvma" "Switch PreservedVideoMemoryAllocation"
-tr::add "pt_BR" "tui.menu.posinstall.option.s0ixpm" "Switch S0ix Power Management"
+tr::add "en_US" "tui.menu.posinstall.option.s0ixpm" "Switch S0ix Power Management"
 
 tui::menu::flavors() {
     local choice
