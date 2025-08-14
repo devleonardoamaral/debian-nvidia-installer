@@ -421,10 +421,10 @@ installer::uninstall_nvidia() {
     # Verifica quais pacotes da Nvidia estão instalados
     # Garante que os firwares não sejam removidos e nem o próprio script
     local pkgs=()
-    mapfile -t pkgs < <(dpkg -l | awk '( \
-        $2 ~ /nvidia/ || $2 ~ /libxnv/ || $2 ~ /^libnv/) \
-        && $2 != "debian-nvidia-installer" \
-        && $2 !~ /firmware/ {print $2}')
+    mapfile -t pkgs < <(dpkg -l | awk '($2 ~ /nvidia/ || $2 ~ /^libxnv/ || $2 ~ /^libnv/ || $2 ~ /^cuda-keyring$/) && $2 != "debian-nvidia-installer" && $2 !~ /firmware/ {print $2}')
+
+    # Remove o repositório CUDA, caso ele exista
+    nvidia::remove_cuda_repo | tee -a /dev/fd/3
 
     # Desinstala os pacotes encontrados ou pula a desistalação
     if [ "${#pkgs[@]}" -gt 0 ]; then

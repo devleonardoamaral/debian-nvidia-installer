@@ -27,6 +27,21 @@ nvidia::fetch_nvidia_gpus() {
         | sed -E 's/.*NVIDIA Corporation (.*)/\1/I'
 }
 
+nvidia::remove_cuda_repo() {
+    local dir="/etc/apt/sources.list.d"
+    local file
+
+    # Procura o arquivo do repositório CUDA para a arquitetura atual
+    file="$(ls "$dir" | grep -E "^cuda-[^-]*-$(uname -m)\.list" | head -n 1)"
+
+    if [[ -n "$file" ]]; then
+        sudo rm -f "$dir/$file"
+        echo "Removed CUDA repository: $dir/$file" >&2
+    else
+        echo "No CUDA repository found to remove." >&2
+    fi
+}
+
 # Função para verficar se o DRM está habilitado
 nvidia::is_drm_enabled() {
     local file="$NVIDIA_DRM_FILE"
