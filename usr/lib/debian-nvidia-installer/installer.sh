@@ -450,7 +450,7 @@ installer::uninstall_nvidia() {
     # Reinstala o driver Nouveau
     apt-get install --reinstall -y xserver-xorg-core xserver-xorg-video-nouveau | tee -a /dev/fd/3
     # Garante que o firmware necessário para o Nouveau utilizar a Nvidia esteja presente
-    apt-get install -y firmware-misc-nonfree firmware-nvidia-graphics | tee -a /dev/fd/3 
+    apt-get install -y firmware-misc-nonfree firmware-nvidia-graphics firmware-nvidia-gsp | tee -a /dev/fd/3 
     # Atualiza o initramfs para garantir que o Nouveau seja carregado corretamente
     update-initramfs -u | tee -a /dev/fd/3 
 
