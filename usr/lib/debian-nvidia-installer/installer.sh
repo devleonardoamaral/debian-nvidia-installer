@@ -405,6 +405,7 @@ tr::add "en_US" "installer::install_nvidia.verify.gpu.msgbox.title" "NVIDIA GPUs
 
 # Função principal para desinstalação do driver NVIDIA
 installer::uninstall_nvidia() {
+    # Exibe a mensagem para o usuário escolher se quer continuar a operação
     if ! tui::yesno::default "$(tr::t "default.tui.title.warn")" "$(tr::t "installer::uninstall_nvidia.tui.yesno.uninstall.confirm")"; then
         log::info "$(tr::t "default.script.canceled.byuser")"
         return 255
@@ -412,50 +413,47 @@ installer::uninstall_nvidia() {
 
     log::info "$(tr::t "installer::uninstall_nvidia.start")"
 
-    # Remove o modeset da Nvidia dos parâmetros do Kernel
+    # Remove o modeset da Nvidia dos parâmetros do Kernel no GRUB
     grub::remove_kernel_parameter "nvidia-drm.modeset" "=" "[0-9]+" | tee -a /dev/fd/3
+    # Atualiza o GRUB
     grub::update
 
-    # Desinstala os drivers da Nvidia
+    # Verifica quais pacotes da Nvidia estão instalados
+    # Garante que os firwares não sejam removidos e nem o próprio script
     local pkgs=()
-    mapfile -t pkgs < <(dpkg -l | awk '/nvidia/ && $2 != "debian-nvidia-installer" {print $2}')
+    mapfile -t pkgs < <(dpkg -l | awk '( \
+        $2 ~ /nvidia/ || $2 ~ /libxnv/ || $2 ~ /^libnv/) \
+        && $2 != "debian-nvidia-installer" \
+        && $2 !~ /firmware/ {print $2}')
 
-    if packages::is_installed "libnvoptix1"; then
-        pkgs+=("libnvoptix1")
-    fi
-
+    # Desinstala os pacotes encontrados ou pula a desistalação
     if [ "${#pkgs[@]}" -gt 0 ]; then
-        apt purge -y "${pkgs[@]}" | tee -a /dev/fd/3
-        uninst_status="${PIPESTATUS[0]}"
-        if [ "$uninst_status" -ne 0 ]; then
-            log::critical "$(tr::t "installer::uninstall_nvidia.failure")"
-        fi
+        apt purge -y --autoremove -V "${pkgs[@]}" | tee -a /dev/fd/3
     else
         log::info "$(tr::t "installer::uninstall_nvidia.no_packages")"
     fi
-
-    # Remove pacotes não utilizados
-    apt-get autoremove -y --purge | tee -a /dev/fd/3
-
-    # Reinstala o nouveau como fallback após remover o driver nvidia
+    
     log::info "$(tr::t "installer::uninstall_nvidia.reinstall.nouveau.start")"
-    # Remove o blacklist do nouveau
     log::info "$(tr::t "installer::uninstall_nvidia.remove.nouveau.blacklist.start")"
-    if [[ -L /etc/modprobe.d/nvidia-blacklists-nouveau.conf ]]; then
-        if rm /etc/modprobe.d/nvidia-blacklists-nouveau.conf; then
+
+    # Remove o blacklist do driver Nouveau
+    if [[ -e /etc/modprobe.d/nvidia-blacklists-nouveau.conf ]]; then
+        if rm -f /etc/modprobe.d/nvidia-blacklists-nouveau.conf; then
             log::info "$(tr::t "installer::uninstall_nvidia.remove.nouveau.blacklist.success")"
         else
             log::error "$(tr::t "installer::uninstall_nvidia.remove.nouveau.blacklist.failure")"
         fi
     fi
+
     # Atualiza os repositórios
     packages::update
-    # Reinstala o driver nouveau
+    # Reinstala o driver Nouveau
     apt-get install --reinstall -y xserver-xorg-core xserver-xorg-video-nouveau | tee -a /dev/fd/3
-    # Reinstala o firmware necessário para o nouveau
+    # Garante que o firmware necessário para o Nouveau utilizar a Nvidia esteja presente
     apt-get install -y firmware-misc-nonfree firmware-nvidia-graphics | tee -a /dev/fd/3 
-    # Atualiza o initramfs para garantir que o nouveau seja carregado corretamente
+    # Atualiza o initramfs para garantir que o Nouveau seja carregado corretamente
     update-initramfs -u | tee -a /dev/fd/3 
+
     log::info "$(tr::t "installer::uninstall_nvidia.reinstall.nouveau.success")"
 
     # Mensagem de sucesso
@@ -473,7 +471,6 @@ tr::add "pt_BR" "installer::uninstall_nvidia.remove.nouveau.blacklist.failure" "
 tr::add "pt_BR" "installer::uninstall_nvidia.reinstall.nouveau.start" "Reinstalando o driver nouveau..."
 tr::add "pt_BR" "installer::uninstall_nvidia.reinstall.nouveau.success" "Driver nouveau reinstalado com sucesso."
 tr::add "pt_BR" "installer::uninstall_nvidia.success" "Driver NVIDIA desinstalado com sucesso."
-tr::add "pt_BR" "installer::uninstall_nvidia.failure" "Falha durante a desinstalação do driver NVIDIA."
 tr::add "pt_BR" "installer::uninstall_nvidia.no_packages" "Nenhum pacote NVIDIA encontrado para desinstalar."
 
 tr::add "en_US" "installer::uninstall_nvidia.tui.yesno.uninstall.confirm" "You are about to uninstall the NVIDIA driver from the system.\n\nDo you want to continue?"
@@ -484,5 +481,4 @@ tr::add "en_US" "installer::uninstall_nvidia.remove.nouveau.blacklist.failure" "
 tr::add "en_US" "installer::uninstall_nvidia.reinstall.nouveau.start" "Reinstalling the nouveau driver..."
 tr::add "en_US" "installer::uninstall_nvidia.reinstall.nouveau.success" "Nouveau driver reinstalled successfully."
 tr::add "en_US" "installer::uninstall_nvidia.success" "NVIDIA driver uninstalled successfully."
-tr::add "en_US" "installer::uninstall_nvidia.failure" "Failure during NVIDIA driver uninstallation."
 tr::add "en_US" "installer::uninstall_nvidia.no_packages" "No NVIDIA packages found to uninstall."
