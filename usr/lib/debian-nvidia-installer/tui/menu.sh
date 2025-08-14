@@ -52,7 +52,7 @@ tui::menu::posinstall() {
     choice=$(tui::show_menu "$(tr::t "tui.menu.posinstall.title")" "$(tr::t "tui.menu.posinstall.subtitle")" \
         1 "$(tr::t "tui.menu.posinstall.option.cuda")" \
         2 "$(tr::t "tui.menu.posinstall.option.switchpvma")" \
-        3 "$(tr::t "tui.menu.posinstall.option.s0ixpm")"
+        3 "$(tr::t "tui.menu.posinstall.option.s0ixpm")" \
         4 "$(tr::t "default.tui.button.exit")")
     ret="$?"
 
