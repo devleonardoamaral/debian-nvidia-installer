@@ -52,15 +52,20 @@ nvidia::set_drm() {
     local value="$1"
     local file="$GRUB_FILE"
     
-    if grub::add_kernel_parameter "nvidia-drm.modeset" "=" "$value"; then
-        if [[ "$value" == "1" ]]; then
+    if [[ "$value" == "1" ]]; then
+        if grub::add_kernel_parameter "nvidia-drm.modeset" "=" "$value"; then
             echo "NVIDIA DRM enabled." >&2
         else
-            echo "NVIDIA DRM disabled." >&2
+            echo "Failed to set NVIDIA DRM mode." >&2
+            return 1
         fi
     else
-        echo "Failed to set NVIDIA DRM mode." >&2
-        return 1
+        if grub::remove_kernel_parameter "nvidia-drm.modeset" "=" "[0-9]+"; then
+            echo "NVIDIA DRM disabled." >&2
+        else
+            echo "Failed to set NVIDIA DRM mode." >&2
+            return 1
+        fi
     fi
 
     if ! grub::update; then
