@@ -130,14 +130,32 @@ packages::is_installed() {
     dpkg -s "$1" &>/dev/null # Emite return 0 ou 1.
 }
 
-# Instala um pacote no sistema
+# Instala um ou mais pacotes no sistema
 packages::install() {
-    apt-get install -y "$1" | tee -a /dev/fd/3
+    apt-get install -y "$@" | tee -a /dev/fd/3
     return ${PIPESTATUS[0]}
 }
 
-# Desisntala um pacote do sistema
+# Instala um ou mais pacotes no sistema sem pacotes recomendados
+packages::install_no_recommends() {
+    apt-get install --no-install-recommends -y "$@" | tee -a /dev/fd/3
+    return ${PIPESTATUS[0]}
+}
+
+# Desinstala um ou mais pacotes do sistema
 packages::remove() {
-    apt-get purge -y "$1" | tee -a /dev/fd/3
+    apt-get remove --autoremove -y "$@" | tee -a /dev/fd/3
+    return ${PIPESTATUS[0]}
+}
+
+# Desinstala um ou mais pacotes do sistema com purge
+packages::purge() {
+    apt-get purge --autoremove -y "$@" | tee -a /dev/fd/3
+    return ${PIPESTATUS[0]}
+}
+
+# Reinstala um ou mais pacotes do sistema
+packages::reinstall() {
+    apt-get install --reinstall -y "$@" | tee -a /dev/fd/3
     return ${PIPESTATUS[0]}
 }
