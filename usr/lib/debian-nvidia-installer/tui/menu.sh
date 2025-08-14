@@ -52,9 +52,8 @@ tui::menu::posinstall() {
     choice=$(tui::show_menu "$(tr::t "tui.menu.posinstall.title")" "$(tr::t "tui.menu.posinstall.subtitle")" \
         1 "$(tr::t "tui.menu.posinstall.option.cuda")" \
         2 "$(tr::t "tui.menu.posinstall.option.optix")" \
-        3 "$(tr::t "tui.menu.posinstall.option.switchnvidiadrm")" \
-        4 "$(tr::t "tui.menu.posinstall.option.switchpvma")" \
-        5 "$(tr::t "default.tui.button.exit")")
+        3 "$(tr::t "tui.menu.posinstall.option.switchpvma")" \
+        4 "$(tr::t "default.tui.button.exit")")
     ret="$?"
 
     echo "${choice:-5}"

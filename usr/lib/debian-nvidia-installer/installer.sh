@@ -110,6 +110,8 @@ installer::install_debian_proprietary() {
         log::critical "$(tr::t "default.script.canceled.byfailure")"
         return 1
     fi
+
+    nvidia::enable_modeset
     
     log::info "$(tr::t "installer::install_debian_proprietary.success")"
     tui::msgbox::custom "" "$(tr::t "installer::install_debian_proprietary.success")"
@@ -143,6 +145,8 @@ installer::install_debian_opensource() {
         log::critical "$(tr::t "default.script.canceled.byfailure")"
         return 1
     fi
+
+    nvidia::enable_modeset
     
     log::info "$(tr::t "installer::install_debian_opensource.success")"
     tui::msgbox::custom "" "$(tr::t "installer::install_debian_opensource.success")"

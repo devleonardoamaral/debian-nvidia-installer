@@ -35,9 +35,8 @@ tui::navigate::posinstall() {
     case $(tui::menu::posinstall) in
         1) posinstall::install_cuda ;;
         2) posinstall::install_optix ;;
-        3) posinstall::switch_nvidia_drm ;;
-        4) posinstall::switch_nvidia_pvma ;;
-        # 5) Volta ao menu principal por padrão
+        3) posinstall::switch_nvidia_pvma ;;
+        # 4) Volta ao menu principal por padrão
     esac
     return
 }

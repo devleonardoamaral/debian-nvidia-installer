@@ -20,6 +20,7 @@
 
 declare -g NVIDIA_DRM_FILE="/sys/module/nvidia_drm/parameters/modeset"
 declare -g NVIDIA_OPTIONS_FILE="/etc/modprobe.d/nvidia-options.conf"
+declare -g NVIDIA_CUDA_MODESET="/etc/modprobe.d/nvidia-modeset.conf"
 
 # Função para buscar GPUs NVIDIA usando lspci
 nvidia::fetch_nvidia_gpus() {
@@ -58,35 +59,6 @@ nvidia::is_drm_enabled() {
         N) echo 0 ;;
         *) return 1 ;;
     esac
-
-    return 0
-}
-
-# Função para modificar o estado do DRM
-nvidia::set_drm() {
-    local value="$1"
-    local file="$GRUB_FILE"
-    
-    if [[ "$value" == "1" ]]; then
-        if grub::add_kernel_parameter "nvidia-drm.modeset" "=" "$value"; then
-            echo "NVIDIA DRM enabled." >&2
-        else
-            echo "Failed to set NVIDIA DRM mode." >&2
-            return 1
-        fi
-    else
-        if grub::remove_kernel_parameter "nvidia-drm.modeset" "=" "[0-9]+"; then
-            echo "NVIDIA DRM disabled." >&2
-        else
-            echo "Failed to set NVIDIA DRM mode." >&2
-            return 1
-        fi
-    fi
-
-    if ! grub::update; then
-        echo "Failed to update GRUB configuration." >&2
-        return 1
-    fi
 
     return 0
 }
@@ -156,6 +128,10 @@ nvidia::disable_option() {
 # Função para habilitar uma opção específica no arquivo de configuração
 nvidia::enable_option() {
     nvidia::change_option "$1" "$2" "$3" "1"
+}
+
+nvidia::enable_modeset() {
+    nvidia::change_option "$NVIDIA_OPTIONS_FILE" "nvidia-drm" "modeset" "1"
 }
 
 # Função para obter a opção NVreg_PreserveVideoMemoryAllocations do arquivo de configuração
