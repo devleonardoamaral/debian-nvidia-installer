@@ -103,8 +103,16 @@ installer::install_debian_proprietary535() {
     fi
 
     # Instala o driver da NVIDIA
-    if ! packages::install "nvidia-tesla-535-kernel-dkms" "nvidia-tesla-535-driver" "firmware-misc-nonfree"; then
+    local status
+    ( # Subshell para isolar a variável DEBIAN_FRONTEND
+        export DEBIAN_FRONTEND=noninteractive
+        packages::install "nvidia-tesla-535-kernel-dkms" "nvidia-tesla-535-driver" "firmware-misc-nonfree"
+    )
+    status=$?
+
+    if [[ $status -ne 0 ]]; then
         log::critical "$(tr::t "default.script.canceled.byfailure")"
+        log::input _ "$(tr::t "default.script.pause")"
         return 1
     fi
 
@@ -118,7 +126,9 @@ installer::install_debian_proprietary535() {
     log::info "$(tr::t "installer::install_debian_proprietary535.success")"
     tui::msgbox::custom "" "$(tr::t "installer::install_debian_proprietary535.success")"
     tui::msgbox::need_restart # Exibe aviso que é necessário reiniciar
-    return 0
+
+    log::input _ "$(tr::t "default.script.pause")"
+    script::exit
 }
 
 tr::add "pt_BR" "installer::install_debian_proprietary535.tui.yesno.proprietarydriver.confirm" "Você está prestes a instalar o driver proprietário da NVIDIA.\n\nDeseja continuar?"
@@ -138,10 +148,18 @@ installer::install_debian_proprietary550() {
         log::input _ "$(tr::t "default.script.pause")"
         return 1
     fi
-
+    
     # Instala o driver da NVIDIA
-    if ! packages::install "nvidia-kernel-dkms" "nvidia-driver" "firmware-misc-nonfree"; then
+    local status
+    ( # Subshell para isolar a variável DEBIAN_FRONTEND
+        export DEBIAN_FRONTEND=noninteractive
+        packages::install "nvidia-kernel-dkms" "nvidia-driver" "firmware-misc-nonfree"
+    )
+    status=$?
+
+    if [[ $status -ne 0 ]]; then
         log::critical "$(tr::t "default.script.canceled.byfailure")"
+        log::input _ "$(tr::t "default.script.pause")"
         return 1
     fi
 
@@ -166,7 +184,9 @@ installer::install_debian_proprietary550() {
     log::info "$(tr::t "installer::install_debian_proprietary550.success")"
     tui::msgbox::custom "" "$(tr::t "installer::install_debian_proprietary550.success")"
     tui::msgbox::need_restart # Exibe aviso que é necessário reiniciar
-    return 0
+
+    log::input _ "$(tr::t "default.script.pause")"
+    script::exit
 }
 
 tr::add "pt_BR" "installer::install_debian_proprietary550.tui.yesno.proprietarydriver.confirm" "Você está prestes a instalar o driver proprietário da NVIDIA.\n\nDeseja continuar?"
@@ -188,8 +208,16 @@ installer::install_debian_opensource() {
     fi
 
     # Instala o driver da NVIDIA
-    if ! packages::install "nvidia-open-kernel-dkms" "nvidia-driver" "firmware-misc-nonfree"; then
+    local status
+    ( # Subshell para isolar a variável DEBIAN_FRONTEND
+        export DEBIAN_FRONTEND=noninteractive
+        packages::install "nvidia-open-kernel-dkms" "nvidia-driver" "firmware-misc-nonfree"
+    )
+    status=$?
+
+    if [[ $status -ne 0 ]]; then
         log::critical "$(tr::t "default.script.canceled.byfailure")"
+        log::input _ "$(tr::t "default.script.pause")"
         return 1
     fi
 
@@ -214,7 +242,9 @@ installer::install_debian_opensource() {
     log::info "$(tr::t "installer::install_debian_opensource.success")"
     tui::msgbox::custom "" "$(tr::t "installer::install_debian_opensource.success")"
     tui::msgbox::need_restart
-    return 0
+
+    log::input _ "$(tr::t "default.script.pause")"
+    script::exit
 }
 
 tr::add "pt_BR" "installer::install_debian_opensource.tui.yesno.opendriver.confirm" "Você está prestes a instalar o driver Open Source da NVIDIA.\n\nDeseja continuar?"
@@ -253,8 +283,16 @@ installer::install_cuda_proprietary() {
         return 1
     fi
 
-    if ! packages::install "cuda-drivers"; then
-        log::critical "$(tr::t "installer::install_cuda_proprietary.failure")"
+    # Instala o driver da NVIDIA
+    local status
+    ( # Subshell para isolar a variável DEBIAN_FRONTEND
+        export DEBIAN_FRONTEND=noninteractive
+        packages::install "cuda-drivers"
+    )
+    status=$?
+
+    if [[ $status -ne 0 ]]; then
+        log::critical "$(tr::t "default.script.canceled.byfailure")"
         log::input _ "$(tr::t "default.script.pause")"
         return 1
     fi
@@ -266,7 +304,9 @@ installer::install_cuda_proprietary() {
     log::info "$(tr::t "installer::install_cuda_proprietary.success")"
     tui::msgbox::custom "" "$(tr::t "installer::install_cuda_proprietary.success")"
     tui::msgbox::need_restart
-    return 0
+
+    log::input _ "$(tr::t "default.script.pause")"
+    script::exit
 }
 
 tr::add "pt_BR" "installer::install_cuda_proprietary.tui.yesno.cuda.proprietary.confirm" "Você está prestes a instalar o driver Proprietário da NVIDIA fornecido pelo repositório CUDA.\n\nDeseja continuar?"
@@ -313,8 +353,16 @@ installer::install_cuda_opensource() {
         return 1
     fi
 
-    if ! packages::install "nvidia-open"; then
-        log::critical "$(tr::t "installer::install_cuda_opensource.failure")"
+    # Instala o driver da NVIDIA
+    local status
+    ( # Subshell para isolar a variável DEBIAN_FRONTEND
+        export DEBIAN_FRONTEND=noninteractive
+        packages::install "nvidia-open"
+    )
+    status=$?
+
+    if [[ $status -ne 0 ]]; then
+        log::critical "$(tr::t "default.script.canceled.byfailure")"
         log::input _ "$(tr::t "default.script.pause")"
         return 1
     fi
@@ -326,7 +374,9 @@ installer::install_cuda_opensource() {
     log::info "$(tr::t "installer::install_cuda_opensource.success")"
     tui::msgbox::custom "" "$(tr::t "installer::install_cuda_opensource.success")"
     tui::msgbox::need_restart
-    return 0
+
+    log::input _ "$(tr::t "default.script.pause")"
+    script::exit
 }
 
 tr::add "pt_BR" "installer::install_cuda_opensource.tui.yesno.cuda.proprietary.confirm" "Você está prestes a instalar o driver de Código Aberto da NVIDIA fornecido pelo repositório CUDA.\n\nDeseja continuar?"
@@ -374,6 +424,7 @@ installer::install_pre_requisites() {
         *)
             log::critical "$(tr::t_args "installer::install_pre_requisites.unsupported_arch" "$ARCH")"
             tui::msgbox::error "$(tr::t_args "installer::install_pre_requisites.unsupported_arch" "$ARCH")" "$(tr::t "default.tui.button.abort")"
+            log::input _ "$(tr::t "default.script.pause")"
             script::exit
             ;;
     esac
@@ -442,8 +493,6 @@ installer::setup_mok() {
 
     # Instala o pacote dkms com abstração
     if ! installer::install_package "dkms"; then
-        log::critical "$(tr::t "default.script.canceled.byfailure")"
-        log::input _ "$(tr::t "default.script.pause")"
         return 1
     fi
 
@@ -452,23 +501,23 @@ installer::setup_mok() {
 
     # Gera a chave MOK
     if ! dkms generate_mok; then
-        log::critical "$(tr::t "default.script.canceled.byfailure")"
-        log::input _ "$(tr::t "default.script.pause")"
         return 1
     fi
 
     # Importa a chave MOK
     log::info "$(tr::t "installer::setup_mok.importing")"
     if ! mokutil --import "$mok_pub_path"; then
-        log::critical "$(tr::t "default.script.canceled.byfailure")"
-        log::input _ "$(tr::t "default.script.pause")"
         return 1
     fi
 
     log::success "$(tr::t "installer::setup_mok.success")"
     tui::msgbox::warn "$(tr::t "installer::setup_mok.success")"
     tui::msgbox::need_restart # Exibe aviso que é necessário reiniciar
-    script::exit "$(tr::t "installer::setup_mok.restart_required")" 0 # Encerra o script com mensagem de reinicialização
+
+    log::warn "$(tr::t "installer::setup_mok.restart_required")"
+
+    log::input _ "$(tr::t "default.script.pause")"
+    script::exit
 }
 
 tr::add "pt_BR" "installer::setup_mok.password" "Você precisará criar uma senha para o MOK (Machine Owner Key) agora.\n\nCertifique-se de lembrar dessa senha, pois ela será necessária daqui a pouco para completar a instalação do driver NVIDIA."
@@ -509,7 +558,8 @@ installer::check_secure_boot() {
 
         if tui::yesno::default "$(tr::t "default.tui.title.warn")" "$(tr::t "installer::check_secure_boot.mok.prompt")"; then
             installer::setup_mok
-            script::exit "$(tr::t "default.script.restartrequired")" 0
+            log::input _ "$(tr::t "default.script.pause")"
+            script::exit "$(tr::t "default.script.canceled.byfailure")" 1
         else
             log::info "$(tr::t "default.script.canceled.byuser")"
             tui::msgbox::warn "$(tr::t "installer::check_secure_boot.mok.abortedbyuser")"
@@ -693,7 +743,9 @@ installer::uninstall_nvidia() {
     log::info "$(tr::t "installer::uninstall_nvidia.success")"
     tui::msgbox::warn "$(tr::t "installer::uninstall_nvidia.success")"
     tui::msgbox::need_restart # Exibe aviso que é necessário reiniciar
-    return 0
+
+    log::input _ "$(tr::t "default.script.pause")"
+    script::exit
 }
 
 tr::add "pt_BR" "installer::uninstall_nvidia.tui.yesno.uninstall.confirm" "Você está prestes a desinstalar o driver NVIDIA do sistema.\n\nDeseja continuar?"
