@@ -641,6 +641,14 @@ installer::uninstall_nvidia() {
     else
         log::info "$(tr::t "installer::uninstall_nvidia.no_packages")"
     fi
+
+    # Remove arquivos residuais de instalações anteriores da NVIDIA
+    log::info "$(tr::t_args "installer::uninstall_nvidia.removingfile" "/etc/modprobe.d/nvidia.conf")"
+    rm -f "/etc/modprobe.d/nvidia.conf"
+    log::info "$(tr::t_args "installer::uninstall_nvidia.removingfile" "/etc/modprobe.d/nvidia-options.conf")"
+    rm -f "/etc/modprobe.d/nvidia-options.conf"
+    log::info "$(tr::t_args "installer::uninstall_nvidia.removingfile" "/etc/modprobe.d/nvidia-modeset.conf")"
+    rm -f "/etc/modprobe.d/nvidia-modeset.conf"
     
     log::info "$(tr::t "installer::uninstall_nvidia.reinstall.nouveau.start")"
     log::info "$(tr::t "installer::uninstall_nvidia.remove.nouveau.blacklist.start")"
@@ -681,6 +689,7 @@ tr::add "pt_BR" "installer::uninstall_nvidia.reinstall.nouveau.start" "Reinstala
 tr::add "pt_BR" "installer::uninstall_nvidia.reinstall.nouveau.success" "Driver nouveau reinstalado com sucesso."
 tr::add "pt_BR" "installer::uninstall_nvidia.success" "Driver NVIDIA desinstalado com sucesso."
 tr::add "pt_BR" "installer::uninstall_nvidia.no_packages" "Nenhum pacote NVIDIA encontrado para desinstalar."
+tr::add "pt_BR" "installer::uninstall_nvidia.removingfile" "Removendo arquivo: %1 ..."
 
 tr::add "en_US" "installer::uninstall_nvidia.tui.yesno.uninstall.confirm" "You are about to uninstall the NVIDIA driver from the system.\n\nDo you want to continue?"
 tr::add "en_US" "installer::uninstall_nvidia.start" "Starting NVIDIA driver uninstallation..."
@@ -691,3 +700,4 @@ tr::add "en_US" "installer::uninstall_nvidia.reinstall.nouveau.start" "Reinstall
 tr::add "en_US" "installer::uninstall_nvidia.reinstall.nouveau.success" "Nouveau driver reinstalled successfully."
 tr::add "en_US" "installer::uninstall_nvidia.success" "NVIDIA driver uninstalled successfully."
 tr::add "en_US" "installer::uninstall_nvidia.no_packages" "No NVIDIA packages found to uninstall."
+tr::add "en_US" "installer::uninstall_nvidia.removingfile" "Removendo arquivo: %1 ..."
