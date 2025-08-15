@@ -165,7 +165,6 @@ posinstall::switch_nvidia_pvma() {
                 update-initramfs -u | tee -a /dev/fd/3
                 log::info "$(tr::t "posinstall::switch_nvidia_pvma.action.on")"
                 tui::msgbox::need_restart # Exibe aviso que é necessário reiniciar
-                log::input _ "$(tr::t "default.script.pause")"
                 return 0
             else
                 log::critical "$(tr::t "default.script.canceled.byfailure")"
@@ -185,7 +184,6 @@ posinstall::switch_nvidia_pvma() {
                 update-initramfs -u | tee -a /dev/fd/3
                 log::info "$(tr::t "posinstall::switch_nvidia_pvma.action.off")"
                 tui::msgbox::need_restart # Exibe aviso que é necessário reiniciar
-                log::input _ "$(tr::t "default.script.pause")"
                 return 0
             else
                 log::critical "$(tr::t "default.script.canceled.byfailure")"
@@ -245,7 +243,6 @@ posinstall::switch_nvidia_s0ixpm() {
                 update-initramfs -u | tee -a /dev/fd/3
                 log::info "$(tr::t "posinstall::switch_nvidia_s0ixpm.action.on")"
                 tui::msgbox::need_restart
-                log::input _ "$(tr::t "default.script.pause")"
                 return 0
             else
                 log::critical "$(tr::t "default.script.canceled.byfailure")"
@@ -265,7 +262,6 @@ posinstall::switch_nvidia_s0ixpm() {
                 update-initramfs -u | tee -a /dev/fd/3
                 log::info "$(tr::t "posinstall::switch_nvidia_s0ixpm.action.off")"
                 tui::msgbox::need_restart
-                log::input _ "$(tr::t "default.script.pause")"
                 return 0
             else
                 log::critical "$(tr::t "default.script.canceled.byfailure")"
