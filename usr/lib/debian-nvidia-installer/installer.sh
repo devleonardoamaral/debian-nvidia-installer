@@ -514,8 +514,8 @@ installer::install_nvidia() {
     # Verifica se o driver da NVIDIA já está instalado no sistema
     nvidia-smi >/dev/null
     if [[ "$?" -eq 0 ]]; then
-        log::info "$(tr::t "installer::install_nvidia.verify.already.installed")"
-        tui::msgbox::warn "$(tr::t "installer::install_nvidia.verify.already.installed")"
+        log::info "$(tr::t "installer::install_nvidia.verify.already.installed.log")"
+        tui::msgbox::warn "$(tr::t "installer::install_nvidia.verify.already.installed.log")\n\n$(tr::t "installer::install_nvidia.verify.already.installed")"
         log::input _ "$(tr::t "default.script.pause")"
         return 5
     fi
@@ -557,14 +557,16 @@ installer::install_nvidia() {
     tui::navigate::flavors
 }
 
-tr::add "pt_BR" "installer::install_nvidia.verify.already.installed" "Os drivers da NVIDIA já estão instalados no seu sistema. Para instalar outra versão, primeiro desinstale o driver atual utilizando a opção \"Desinstalar Drivers NVIDIA\" no menu principal."
+tr::add "pt_BR" "installer::install_nvidia.verify.already.installed.log" "Os drivers da NVIDIA já estão instalados no seu sistema."
+tr::add "pt_BR" "installer::install_nvidia.verify.already.installed" "Para instalar outra versão, primeiro desinstale o driver atual utilizando a opção \"Desinstalar Drivers NVIDIA\" no menu principal."
 tr::add "pt_BR" "installer::install_nvidia.start" "Iniciando a instalação do driver NVIDIA..."
 tr::add "pt_BR" "installer::install_nvidia.verify.gpu.start" "Verificando a presença de GPUs NVIDIA no sistema..."
 tr::add "pt_BR" "installer::install_nvidia.verify.gpu.found" "GPUs NVIDIA encontradas:"
 tr::add "pt_BR" "installer::install_nvidia.verify.gpu.not_found" "Nenhuma GPU NVIDIA encontrada no sistema."
 tr::add "pt_BR" "installer::install_nvidia.verify.gpu.msgbox.title" "GPUs NVIDIA Encontradas"
 
-tr::add "en_US" "installer::install_nvidia.verify.already.installed" "The NVIDIA drivers are already installed on your system. To install a different version, first uninstall the current driver using the \"Uninstall NVIDIA Drivers\" option in the main menu."
+tr::add "en_US" "installer::install_nvidia.verify.already.installed.log" "The NVIDIA drivers are already installed on your system."
+tr::add "en_US" "installer::install_nvidia.verify.already.installed" "To install a different version, first uninstall the current driver using the \"Uninstall NVIDIA Drivers\" option in the main menu."
 tr::add "en_US" "installer::install_nvidia.start" "Starting NVIDIA driver installation..."
 tr::add "en_US" "installer::install_nvidia.verify.gpu.start" "Checking for NVIDIA GPUs in the system..."
 tr::add "en_US" "installer::install_nvidia.verify.gpu.found" "NVIDIA GPUs found:"
