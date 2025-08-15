@@ -53,11 +53,12 @@ tui::navigate::posinstall() {
 
 tui::navigate::flavors() {
     case $(tui::menu::flavors) in
-        1) installer::install_debian_proprietary ;;
+        1) installer::install_debian_proprietary535 ;;
+        1) installer::install_debian_proprietary550 ;;
         2) installer::install_debian_opensource ;;
         3) installer::install_cuda_proprietary ;;
         4) installer::install_cuda_opensource ;;
-        # 5) Volta ao menu principal por padrão
+        # 6) Volta ao menu principal por padrão
     esac
     return
 }

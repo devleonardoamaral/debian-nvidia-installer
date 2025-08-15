@@ -90,42 +90,77 @@ tr::add "en_US" "installer::remove_package.start" "Starting removal of package: 
 tr::add "en_US" "installer::remove_package.failure" "Failed to remove package %1."
 tr::add "en_US" "installer::remove_package.success" "Package %1 removed successfully."
 
-installer::install_debian_proprietary() {
-    if ! tui::yesno::default "$(tr::t "default.tui.title.warn")" "$(tr::t "installer::install_debian_proprietary.tui.yesno.proprietarydriver.confirm")"; then
+installer::install_debian_proprietary535() {
+    if ! tui::yesno::default "$(tr::t "default.tui.title.warn")" "$(tr::t "installer::install_debian_proprietary535.tui.yesno.proprietarydriver.confirm")"; then
         log::info "$(tr::t "default.script.canceled.byuser")"
         return 255
     fi
 
-    if ! installer::install_package "nvidia-kernel-dkms"; then
+    # Atualiza a lista de pacotes antes da instalação
+    if ! packages::update; then
         log::critical "$(tr::t "default.script.canceled.byfailure")"
         return 1
     fi
 
-    if ! installer::install_package "nvidia-driver"; then
+    # Instala o driver da NVIDIA
+    if ! packages::install "nvidia-tesla-535-kernel-dkms" "nvidia-tesla-535-driver" "firmware-misc-nonfree"; then
         log::critical "$(tr::t "default.script.canceled.byfailure")"
         return 1
     fi
 
-    if ! installer::install_package "firmware-misc-nonfree"; then
-        log::critical "$(tr::t "default.script.canceled.byfailure")"
-        return 1
-    fi
-
+    # Instala a biblioteca OptiX
     installer::install_package "libnvoptix1"
 
+    # Habilita o DRM modeset NVIDIA
     nvidia::enable_modeset
     
-    log::info "$(tr::t "installer::install_debian_proprietary.success")"
-    tui::msgbox::custom "" "$(tr::t "installer::install_debian_proprietary.success")"
+    log::info "$(tr::t "installer::install_debian_proprietary535.success")"
+    tui::msgbox::custom "" "$(tr::t "installer::install_debian_proprietary535.success")"
     tui::msgbox::need_restart # Exibe aviso que é necessário reiniciar
     return 0
 }
 
-tr::add "pt_BR" "installer::install_debian_proprietary.tui.yesno.proprietarydriver.confirm" "Você está prestes a instalar o driver proprietário da NVIDIA.\n\nDeseja continuar?"
-tr::add "pt_BR" "installer::install_debian_proprietary.success" "Driver NVIDIA Proprietário instalado com sucesso."
+tr::add "pt_BR" "installer::install_debian_proprietary535.tui.yesno.proprietarydriver.confirm" "Você está prestes a instalar o driver proprietário da NVIDIA.\n\nDeseja continuar?"
+tr::add "pt_BR" "installer::install_debian_proprietary535.success" "Driver NVIDIA Proprietário instalado com sucesso."
 
-tr::add "en_US" "installer::install_debian_proprietary.tui.yesno.proprietarydriver.confirm" "You are about to install the proprietary NVIDIA driver.\n\nDo you want to continue?"
-tr::add "en_US" "installer::install_debian_proprietary.success" "Proprietary NVIDIA Driver installed successfully."
+tr::add "en_US" "installer::install_debian_proprietary535.tui.yesno.proprietarydriver.confirm" "You are about to install the proprietary NVIDIA driver.\n\nDo you want to continue?"
+tr::add "en_US" "installer::install_debian_proprietary535.success" "Proprietary NVIDIA Driver installed successfully."
+
+installer::install_debian_proprietary550() {
+    if ! tui::yesno::default "$(tr::t "default.tui.title.warn")" "$(tr::t "installer::install_debian_proprietary550.tui.yesno.proprietarydriver.confirm")"; then
+        log::info "$(tr::t "default.script.canceled.byuser")"
+        return 255
+    fi
+
+    # Atualiza a lista de pacotes antes da instalação
+    if ! packages::update; then
+        log::critical "$(tr::t "default.script.canceled.byfailure")"
+        return 1
+    fi
+
+    # Instala o driver da NVIDIA
+    if ! packages::install "nvidia-kernel-dkms" "nvidia-driver" "firmware-misc-nonfree"; then
+        log::critical "$(tr::t "default.script.canceled.byfailure")"
+        return 1
+    fi
+
+    # Instala a biblioteca OptiX
+    installer::install_package "libnvoptix1"
+
+    # Habilita o DRM modeset NVIDIA
+    nvidia::enable_modeset
+    
+    log::info "$(tr::t "installer::install_debian_proprietary550.success")"
+    tui::msgbox::custom "" "$(tr::t "installer::install_debian_proprietary550.success")"
+    tui::msgbox::need_restart # Exibe aviso que é necessário reiniciar
+    return 0
+}
+
+tr::add "pt_BR" "installer::install_debian_proprietary550.tui.yesno.proprietarydriver.confirm" "Você está prestes a instalar o driver proprietário da NVIDIA.\n\nDeseja continuar?"
+tr::add "pt_BR" "installer::install_debian_proprietary550.success" "Driver NVIDIA Proprietário instalado com sucesso."
+
+tr::add "en_US" "installer::install_debian_proprietary550.tui.yesno.proprietarydriver.confirm" "You are about to install the proprietary NVIDIA driver.\n\nDo you want to continue?"
+tr::add "en_US" "installer::install_debian_proprietary550.success" "Proprietary NVIDIA Driver installed successfully."
 
 installer::install_debian_opensource() {
     if ! tui::yesno::default "$(tr::t "default.tui.title.warn")" "$(tr::t "installer::install_debian_opensource.tui.yesno.opendriver.confirm")"; then
@@ -133,25 +168,24 @@ installer::install_debian_opensource() {
         return 255
     fi
 
-    if ! installer::install_package "nvidia-open-kernel-dkms"; then
+    # Atualiza a lista de pacotes antes da instalação
+    if ! packages::update; then
         log::critical "$(tr::t "default.script.canceled.byfailure")"
         return 1
     fi
 
-    if ! installer::install_package "nvidia-driver"; then
+    # Instala o driver da NVIDIA
+    if ! packages::install "nvidia-open-kernel-dkms" "nvidia-driver" "firmware-misc-nonfree"; then
         log::critical "$(tr::t "default.script.canceled.byfailure")"
         return 1
     fi
 
-    if ! installer::install_package "firmware-misc-nonfree"; then
-        log::critical "$(tr::t "default.script.canceled.byfailure")"
-        return 1
-    fi
-
+    # Instala a biblioteca OptiX
     installer::install_package "libnvoptix1"
 
+    # Habilita o DRM modeset NVIDIA
     nvidia::enable_modeset
-    
+        
     log::info "$(tr::t "installer::install_debian_opensource.success")"
     tui::msgbox::custom "" "$(tr::t "installer::install_debian_opensource.success")"
     tui::msgbox::need_restart
