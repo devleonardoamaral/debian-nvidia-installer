@@ -96,9 +96,9 @@ installer::install_debian_proprietary535() {
         return 255
     fi
 
-    # Atualiza a lista de pacotes antes da instalação
-    if ! packages::update; then
+    if ! installer::pre_installation; then
         log::critical "$(tr::t "default.script.canceled.byfailure")"
+        log::input _ "$(tr::t "default.script.pause")"
         return 1
     fi
 
@@ -113,6 +113,10 @@ installer::install_debian_proprietary535() {
 
     # Habilita o DRM modeset NVIDIA
     nvidia::enable_modeset
+
+    if ! installer::post_installation; then
+        log::input _ "$(tr::t "default.script.pause")"
+    fi
     
     log::info "$(tr::t "installer::install_debian_proprietary535.success")"
     tui::msgbox::custom "" "$(tr::t "installer::install_debian_proprietary535.success")"
@@ -132,9 +136,9 @@ installer::install_debian_proprietary550() {
         return 255
     fi
 
-    # Atualiza a lista de pacotes antes da instalação
-    if ! packages::update; then
+    if ! installer::pre_installation; then
         log::critical "$(tr::t "default.script.canceled.byfailure")"
+        log::input _ "$(tr::t "default.script.pause")"
         return 1
     fi
 
@@ -149,6 +153,10 @@ installer::install_debian_proprietary550() {
 
     # Habilita o DRM modeset NVIDIA
     nvidia::enable_modeset
+
+    if ! installer::post_installation; then
+        log::input _ "$(tr::t "default.script.pause")"
+    fi
     
     log::info "$(tr::t "installer::install_debian_proprietary550.success")"
     tui::msgbox::custom "" "$(tr::t "installer::install_debian_proprietary550.success")"
@@ -168,9 +176,9 @@ installer::install_debian_opensource() {
         return 255
     fi
 
-    # Atualiza a lista de pacotes antes da instalação
-    if ! packages::update; then
+    if ! installer::pre_installation; then
         log::critical "$(tr::t "default.script.canceled.byfailure")"
+        log::input _ "$(tr::t "default.script.pause")"
         return 1
     fi
 
@@ -185,6 +193,10 @@ installer::install_debian_opensource() {
 
     # Habilita o DRM modeset NVIDIA
     nvidia::enable_modeset
+
+    if ! installer::post_installation; then
+        log::input _ "$(tr::t "default.script.pause")"
+    fi
         
     log::info "$(tr::t "installer::install_debian_opensource.success")"
     tui::msgbox::custom "" "$(tr::t "installer::install_debian_opensource.success")"
@@ -222,8 +234,8 @@ installer::install_cuda_proprietary() {
         return 1
     fi
 
-    if ! packages::update; then
-        log::critical "$(tr::t "installer::install_cuda_proprietary.packages.update.failure")"
+    if ! installer::pre_installation; then
+        log::critical "$(tr::t "default.script.canceled.byfailure")"
         log::input _ "$(tr::t "default.script.pause")"
         return 1
     fi
@@ -232,6 +244,10 @@ installer::install_cuda_proprietary() {
         log::critical "$(tr::t "installer::install_cuda_proprietary.failure")"
         log::input _ "$(tr::t "default.script.pause")"
         return 1
+    fi
+
+    if ! installer::post_installation; then
+        log::input _ "$(tr::t "default.script.pause")"
     fi
 
     log::info "$(tr::t "installer::install_cuda_proprietary.success")"
@@ -278,8 +294,8 @@ installer::install_cuda_opensource() {
         return 1
     fi
 
-    if ! packages::update; then
-        log::critical "$(tr::t "installer::install_cuda_opensource.packages.update.failure")"
+    if ! installer::pre_installation; then
+        log::critical "$(tr::t "default.script.canceled.byfailure")"
         log::input _ "$(tr::t "default.script.pause")"
         return 1
     fi
@@ -288,6 +304,10 @@ installer::install_cuda_opensource() {
         log::critical "$(tr::t "installer::install_cuda_opensource.failure")"
         log::input _ "$(tr::t "default.script.pause")"
         return 1
+    fi
+
+    if ! installer::post_installation; then
+        log::input _ "$(tr::t "default.script.pause")"
     fi
 
     log::info "$(tr::t "installer::install_cuda_opensource.success")"
@@ -506,6 +526,23 @@ tr::add "en_US" "installer::check_secure_boot.mok.prompt" "You need to enroll th
 tr::add "en_US" "installer::check_secure_boot.mok.setup.failure" "Failed to set up MOK key."
 tr::add "en_US" "installer::check_secure_boot.mok.abortedbyuser" "MOK key setup aborted by user.\n\nYou will not be able to continue the NVIDIA driver installation without enrolling the MOK key, please restart the script to try again or manually enroll the MOK key.\n\nSee: https://wiki.debian.org/SecureBoot#MOK_-_Machine_Owner_Key"
 tr::add "en_US" "installer::check_secure_boot.disabled" "Secure Boot is DISABLED. You can continue without enrolling the MOK key."
+
+installer::pre_installation() {
+    if ! packages::update; then
+        return 1
+    fi
+
+    return 0
+}
+
+installer::post_installation() {
+    # Força uma atualização de pacotes no Flatpak para que sejam instaladas as bibliotecas do driver NVIDIA
+    if packages::is_installed "flatpak"; then
+        flatpak update | tee -a /dev/fd/3
+    fi
+
+    return 0
+}
 
 # Função principal para instalação do driver NVIDIA
 installer::install_nvidia() {
