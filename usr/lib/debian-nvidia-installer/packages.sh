@@ -127,7 +127,22 @@ packages::update() {
 
 # Verifica se um pacote está instalado.
 packages::is_installed() {
-    dpkg -s "$1" &>/dev/null # Emite return 0 ou 1.
+    local pkg="$1"
+    [[ -z "$pkg" ]] && return 1
+    dpkg -s "$pkg" &>/dev/null
+}
+
+# Verifica se um ou mais pacotes estão instalados através de um regex
+packages::is_installed_regex() {
+    local regex_include="$1"
+    local regex_exclude="$2"  # opcional
+    [[ -z "$regex_include" ]] && return 1
+
+    if [[ -n "$regex_exclude" ]]; then
+        dpkg -l | grep -E "$regex_include" | grep -vE "$regex_exclude" &>/dev/null
+    else
+        dpkg -l | grep -E "$regex_include" &>/dev/null
+    fi
 }
 
 # Instala um ou mais pacotes no sistema

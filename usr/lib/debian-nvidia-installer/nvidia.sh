@@ -25,7 +25,7 @@ declare -g NVIDIA_MODESET_CUDA="/etc/modprobe.d/nvidia-modeset.conf"
 
 # Verifica se o driver NVIDIA está instalado
 nvidia::is_driver_installed() {
-    command -v nvidia-smi &>/dev/null
+    packages::is_installed "nvidia-smi"
 }
 
 nvidia::get_source_alias() {

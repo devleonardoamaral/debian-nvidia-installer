@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with debian-nvidia-installer. If not, see <https://www.gnu.org/licenses/gpl-3.0.html>.
 
-declare -g SCRIPT_VERSION="0.7.4-beta"
+declare -g SCRIPT_VERSION="0.7.5-beta"
 
 # Variáveis globais
 declare -g SCRIPT_DIR
