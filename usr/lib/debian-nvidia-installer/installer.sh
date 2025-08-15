@@ -330,7 +330,7 @@ installer::install_pre_requisites() {
         log::critical "$(tr::t "default.script.canceled.byfailure")"
         log::input _ "$(tr::t "default.script.pause")"
         return 1
-    end
+    fi
 
     # Define o nome do pacote de cabeçalho do kernel com base na arquitetura
     case "$ARCH" in

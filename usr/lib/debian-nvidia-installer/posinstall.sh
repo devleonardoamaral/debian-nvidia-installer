@@ -27,7 +27,7 @@ posinstall::install_cuda_toolkit::install() {
         log::critical "$(tr::t "default.script.canceled.byfailure")"
         log::input _ "$(tr::t "default.script.pause")"
         return 1
-    end
+    fi
 
     # Verifica quais pacotes já estão instalados
     for pkg in "${pkgs[@]}"; do
