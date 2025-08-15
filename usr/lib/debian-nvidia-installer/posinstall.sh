@@ -142,6 +142,7 @@ tr::add "en_US" "posinstall::install_cuda_toolkit.unknown" "Driver installed via
 
 # Alterna o modo PreservedVideoMemoryAllocation
 posinstall::switch_nvidia_pvma() {
+    tui::msgbox::dangerous_action
     tui::msgbox::optimus_incompatible
     log::info "$(tr::t "posinstall::switch_nvidia_pvma.start")"
 
@@ -221,6 +222,7 @@ tr::add "en_US" "tui.yesno.extra.nvidia.pvma.deactivate.confirm" "Do you want to
 
 # Alterna o modo NVreg_EnableS0ixPowerManagement
 posinstall::switch_nvidia_s0ixpm() {
+    tui::msgbox::dangerous_action
     tui::msgbox::optimus_incompatible
     log::info "$(tr::t "posinstall::switch_nvidia_s0ixpm.start")"
 
