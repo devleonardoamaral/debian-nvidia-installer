@@ -108,9 +108,6 @@ installer::install_debian_proprietary535() {
         return 1
     fi
 
-    # Instala a biblioteca OptiX
-    installer::install_package "libnvoptix1"
-
     # Habilita o DRM modeset NVIDIA
     nvidia::enable_modeset
 
