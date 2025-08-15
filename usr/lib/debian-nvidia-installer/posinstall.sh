@@ -160,6 +160,8 @@ posinstall::switch_nvidia_pvma() {
 
         if tui::yesno::default "" "$(tr::t "tui.yesno.extra.nvidia.pvma.activate.confirm")"; then
             if nvidia::change_option_pvma "1"; then
+                # Atualiza o initramfs para garantir que a opção seja definida
+                update-initramfs -u | tee -a /dev/fd/3
                 log::info "$(tr::t "posinstall::switch_nvidia_pvma.action.on")"
                 tui::msgbox::need_restart # Exibe aviso que é necessário reiniciar
                 log::input _ "$(tr::t "default.script.pause")"
@@ -178,6 +180,8 @@ posinstall::switch_nvidia_pvma() {
 
         if tui::yesno::default "" "$(tr::t "tui.yesno.extra.nvidia.pvma.deactivate.confirm")"; then
             if nvidia::change_option_pvma "0"; then
+                # Atualiza o initramfs para garantir que a opção seja definida
+                update-initramfs -u | tee -a /dev/fd/3
                 log::info "$(tr::t "posinstall::switch_nvidia_pvma.action.off")"
                 tui::msgbox::need_restart # Exibe aviso que é necessário reiniciar
                 log::input _ "$(tr::t "default.script.pause")"
@@ -235,6 +239,8 @@ posinstall::switch_nvidia_s0ixpm() {
 
         if tui::yesno::default "" "$(tr::t "tui.yesno.extra.nvidia.s0ixpm.activate.confirm")"; then
             if nvidia::change_option_s0ixpm "1"; then
+                # Atualiza o initramfs para garantir que a opção seja definida
+                update-initramfs -u | tee -a /dev/fd/3
                 log::info "$(tr::t "posinstall::switch_nvidia_s0ixpm.action.on")"
                 tui::msgbox::need_restart
                 log::input _ "$(tr::t "default.script.pause")"
@@ -253,6 +259,8 @@ posinstall::switch_nvidia_s0ixpm() {
 
         if tui::yesno::default "" "$(tr::t "tui.yesno.extra.nvidia.s0ixpm.deactivate.confirm")"; then
             if nvidia::change_option_s0ixpm "0"; then
+                # Atualiza o initramfs para garantir que a opção seja definida
+                update-initramfs -u | tee -a /dev/fd/3
                 log::info "$(tr::t "posinstall::switch_nvidia_s0ixpm.action.off")"
                 tui::msgbox::need_restart
                 log::input _ "$(tr::t "default.script.pause")"
