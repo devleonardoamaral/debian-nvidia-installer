@@ -152,7 +152,7 @@ installer::install_debian_proprietary550() {
     for gpu_name in "${gpus[@]}"; do
         if [[ "$gpu_name" =~ RTX ]]; then
             # Instala a biblioteca OptiX e Runtime NGX (DLSS)
-            installer::install_package "libnvoptix1" "libnvidia-ngx1"
+            packages::install "libnvoptix1" "libnvidia-ngx1"
         fi
     done
 
@@ -200,7 +200,7 @@ installer::install_debian_opensource() {
     for gpu_name in "${gpus[@]}"; do
         if [[ "$gpu_name" =~ RTX ]]; then
             # Instala a biblioteca OptiX e Runtime NGX (DLSS)
-            installer::install_package "libnvoptix1" "libnvidia-ngx1"
+            packages::install "libnvoptix1" "libnvidia-ngx1"
         fi
     done
 
