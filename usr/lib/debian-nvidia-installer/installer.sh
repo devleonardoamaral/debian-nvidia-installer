@@ -345,7 +345,7 @@ installer::install_pre_requisites() {
             # Adiciona suporte para arquitetura i386 em sistemas de 64 bits
             # Importante para o driver da nvidia adicionar bibliotecas de 32 bits que alguns pacotes podem precisar
             log::info "$(tr::t "installer::install_pre_requisites.architecture.check.i386.start")"
-            if util::multiarch::check "i386"; then
+            if utils::multiarch::check "i386"; then
                 log::info "$(tr::t "installer::install_pre_requisites.architecture.check.i386.success")"
             else
                 log::info "$(tr::t "installer::install_pre_requisites.architecture.add.i386.start")"
