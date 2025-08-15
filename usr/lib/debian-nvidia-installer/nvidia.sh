@@ -52,7 +52,11 @@ nvidia::get_nvidia_module() {
             echo "nvidia"
             ;;
         debian )
-            echo "nvidia-current"
+            if packages::is_installed "nvidia-tesla-535-driver"; then
+                echo "nvidia-tesla-535"
+            else
+                echo "nvidia-current"
+            fi
             ;;
         * )
             echo "nvidia"
