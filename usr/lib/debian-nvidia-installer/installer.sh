@@ -253,7 +253,7 @@ installer::install_cuda_proprietary() {
     return 0
 }
 
-tr::add "pt_BR" "installer::install_cuda_proprietary.tui.yesno.cuda.proprietary.confirm" "Você está prestes a instalar o driver Proprietário da NVIDIA fornecido pelo repositóri CUDA.\n\nDeseja continuar?"
+tr::add "pt_BR" "installer::install_cuda_proprietary.tui.yesno.cuda.proprietary.confirm" "Você está prestes a instalar o driver Proprietário da NVIDIA fornecido pelo repositório CUDA.\n\nDeseja continuar?"
 tr::add "pt_BR" "installer::install_cuda_proprietary.repo.download.failure" "Download do cuda-keyring falhou. Operação abortada."
 tr::add "pt_BR" "installer::install_cuda_proprietary.repo.install.failure" "Instalação do cuda-keyring falhou. Operação abortada."
 tr::add "pt_BR" "installer::install_cuda_proprietary.packages.update.failure" "Atualização da lista de pacotes locais falhou. Operação abortada."
@@ -313,7 +313,7 @@ installer::install_cuda_opensource() {
     return 0
 }
 
-tr::add "pt_BR" "installer::install_cuda_opensource.tui.yesno.cuda.proprietary.confirm" "Você está prestes a instalar o driver de Código Aberto da NVIDIA fornecido pelo repositóri CUDA.\n\nDeseja continuar?"
+tr::add "pt_BR" "installer::install_cuda_opensource.tui.yesno.cuda.proprietary.confirm" "Você está prestes a instalar o driver de Código Aberto da NVIDIA fornecido pelo repositório CUDA.\n\nDeseja continuar?"
 tr::add "pt_BR" "installer::install_cuda_opensource.repo.download.failure" "Download do cuda-keyring falhou. Operação abortada."
 tr::add "pt_BR" "installer::install_cuda_opensource.repo.install.failure" "Instalação do cuda-keyring falhou. Operação abortada."
 tr::add "pt_BR" "installer::install_cuda_opensource.packages.update.failure" "Atualização da lista de pacotes locais falhou. Operação abortada."
