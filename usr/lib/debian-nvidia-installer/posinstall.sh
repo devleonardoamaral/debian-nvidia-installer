@@ -23,6 +23,12 @@ posinstall::install_cuda_toolkit::install() {
     local pkgs_count=${#pkgs[@]}
     local installed_pkgs=()
 
+    if ! packages::update; then
+        log::critical "$(tr::t "default.script.canceled.byfailure")"
+        log::input _ "$(tr::t "default.script.pause")"
+        return 1
+    end
+
     # Verifica quais pacotes já estão instalados
     for pkg in "${pkgs[@]}"; do
         if packages::is_installed "$pkg"; then
@@ -63,7 +69,7 @@ posinstall::install_cuda_toolkit::install() {
             for pkg in "${pkgs[@]}"; do
                 log::info "$(tr::t_args "posinstall::install_cuda.install.pkg.start" "$pkg")"
 
-                if ! installer::install_package "$pkg"; then
+                if ! packages::install "$pkg"; then
                     log::critical "$(tr::t "default.script.canceled.byfailure")"
                     log::input _ "$(tr::t "default.script.pause")"
                     return 1

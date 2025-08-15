@@ -18,78 +18,6 @@
 # You should have received a copy of the GNU General Public License
 # along with debian-nvidia-installer. If not, see <https://www.gnu.org/licenses/gpl-3.0.html>.
 
-installer::install_package() {
-    local pkg="$1"
-
-    log::info "$(tr::t_args "installer::install_package.verifying" "$pkg")"
-    
-    # Verifica se o pacote já está instalado antes de continuar
-    if packages::is_installed "$pkg"; then
-        log::info "$(tr::t_args "installer::install_package.ok" "$pkg")"
-        return 0
-    fi
-
-    log::info "$(tr::t_args "installer::install_package.install.start" "$pkg")"
-    log::info "$(tr::t "installer::install_package.update.start")"
-
-    # Tenta atualizar, mas continua mesmo se falhar
-    if packages::update; then
-        log::info "$(tr::t "installer::install_package.update.success")"
-    else
-        log::warn "$(tr::t "installer::install_package.update.failure")"
-    fi
-
-    # Caso de sucesso na instalação
-    if packages::install "$pkg"; then
-        log::info "$(tr::t_args "installer::install_package.install.success" "$pkg")"
-        return 0
-    fi
-    
-    # Caso de falha na instalação
-    log::error "$(tr::t_args "installer::install_package.install.failure" "$pkg")"
-    return 1
-}
-
-tr::add "pt_BR" "installer::install_package.verifying" "Verificando se o pacote está instalado..."
-tr::add "pt_BR" "installer::install_package.ok" "O pacote está instalado."
-tr::add "pt_BR" "installer::install_package.install.start" "Iniciando a instalação do pacote: %1"
-tr::add "pt_BR" "installer::install_package.update.start" "Iniciando a atualização dos repositórios..."
-tr::add "pt_BR" "installer::install_package.update.success" "Repositórios atualizados com sucesso."
-tr::add "pt_BR" "installer::install_package.update.failure" "Falha ao atualizar os repositórios."
-tr::add "pt_BR" "installer::install_package.install.success" "Pacote %1 instalado com sucesso."
-tr::add "pt_BR" "installer::install_package.install.failure" "Falha ao instalar o pacote %1."
-
-tr::add "en_US" "installer::install_package.verifying" "Verifying if the package is installed..."
-tr::add "en_US" "installer::install_package.ok" "The package is installed."
-tr::add "en_US" "installer::install_package.install.start" "Starting installation of package: %1"
-tr::add "en_US" "installer::install_package.update.start" "Starting repository update..."
-tr::add "en_US" "installer::install_package.update.success" "Repositories updated successfully."
-tr::add "en_US" "installer::install_package.update.failure" "Failed to update repositories."
-tr::add "en_US" "installer::install_package.install.success" "Package %1 installed successfully."
-tr::add "en_US" "installer::install_package.install.failure" "Failed to install package %1."
-
-installer::remove_package() {
-    local pkg="$1"
-
-    log::info "$(tr::t_args "installer::remove_package.start" "$pkg")"
-
-    if ! packages::remove "$pkg"; then
-        log::error "$(tr::t_args "installer::remove_package.failure" "$pkg")"
-        return 1
-    fi
-
-    log::info "$(tr::t_args "installer::remove_package.success" "$pkg")"
-    return 0
-}
-
-tr::add "pt_BR" "installer::remove_package.start" "Iniciando a remoção do pacote: %1"
-tr::add "pt_BR" "installer::remove_package.failure" "Falha ao remover o pacote %1."
-tr::add "pt_BR" "installer::remove_package.success" "Pacote %1 removido com sucesso."
-
-tr::add "en_US" "installer::remove_package.start" "Starting removal of package: %1"
-tr::add "en_US" "installer::remove_package.failure" "Failed to remove package %1."
-tr::add "en_US" "installer::remove_package.success" "Package %1 removed successfully."
-
 installer::install_debian_proprietary535() {
     if ! tui::yesno::default "$(tr::t "default.tui.title.warn")" "$(tr::t "installer::install_debian_proprietary535.tui.yesno.proprietarydriver.confirm")"; then
         log::info "$(tr::t "default.script.canceled.byuser")"
@@ -398,6 +326,12 @@ installer::install_pre_requisites() {
     ARCH=$(uname -m)
     KERNEL=$(uname -r)
 
+    if ! packages::update; then
+        log::critical "$(tr::t "default.script.canceled.byfailure")"
+        log::input _ "$(tr::t "default.script.pause")"
+        return 1
+    end
+
     # Define o nome do pacote de cabeçalho do kernel com base na arquitetura
     case "$ARCH" in
         "i386"|"i686")
@@ -441,7 +375,7 @@ installer::install_pre_requisites() {
     log::info "$(tr::t "installer::install_pre_requisites.check.sources.success")"
     log::info "$(tr::t_args "installer::install_pre_requisites.install.start" "$HEADER_PKG")"
 
-    if ! installer::install_package "$HEADER_PKG"; then
+    if ! packages::install "$HEADER_PKG"; then
         log::critical "$(tr::t "default.script.canceled.byfailure")"
         return 1
     fi
@@ -492,7 +426,7 @@ installer::setup_mok() {
     local mok_pub_path="/var/lib/dkms/mok.pub"
 
     # Instala o pacote dkms com abstração
-    if ! installer::install_package "dkms"; then
+    if ! packages::install "dkms"; then
         return 1
     fi
 
@@ -537,7 +471,7 @@ installer::check_secure_boot() {
 
     # Verifica se mokutil está disponível, senão tenta instalar
     if ! command -v mokutil &>/dev/null; then
-        if ! installer::install_package "mokutil"; then
+        if ! packages::install "mokutil"; then
             log::critical "$(tr::t "default.script.canceled.byfailure")"
             log::input _ "$(tr::t "default.script.pause")"
             return 1
@@ -590,13 +524,7 @@ tr::add "en_US" "installer::check_secure_boot.mok.setup.failure" "Failed to set 
 tr::add "en_US" "installer::check_secure_boot.mok.abortedbyuser" "MOK key setup aborted by user.\n\nYou will not be able to continue the NVIDIA driver installation without enrolling the MOK key, please restart the script to try again or manually enroll the MOK key.\n\nSee: https://wiki.debian.org/SecureBoot#MOK_-_Machine_Owner_Key"
 tr::add "en_US" "installer::check_secure_boot.disabled" "Secure Boot is DISABLED. You can continue without enrolling the MOK key."
 
-installer::pre_installation() {
-    if ! packages::update; then
-        return 1
-    fi
-
-    return 0
-}
+installer::pre_installation() {}
 
 installer::post_installation() {
     # Força uma atualização de pacotes no Flatpak para que sejam instaladas as bibliotecas do driver NVIDIA

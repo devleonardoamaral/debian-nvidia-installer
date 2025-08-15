@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with debian-nvidia-installer. If not, see <https://www.gnu.org/licenses/gpl-3.0.html>.
 
-declare -g SCRIPT_VERSION="0.7.3-beta"
+declare -g SCRIPT_VERSION="0.7.4-beta"
 
 # Variáveis globais
 declare -g SCRIPT_DIR
@@ -60,7 +60,7 @@ script::requirements() {
 
     # Verifica e instala pacotes obrigatórios para execução do script
     log::info "$(tr::t "script::requirements.verifying")"
-    if installer::install_package "dialog"; then
+    if packages::install "dialog"; then
         log::info "$(tr::t "script::requirements.success")"
     else
         log::critical "$(tr::t "script::requirements.failure")"
