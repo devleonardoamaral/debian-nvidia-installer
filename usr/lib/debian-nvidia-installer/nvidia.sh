@@ -155,15 +155,9 @@ nvidia::change_option() {
         sed -i -E "s/^(\s*options\s+${module}\s+.*)${option}=[^ ]*(.*)/\1${option}=${value}\2/" "$file"
         echo "Option $option changed to $value in $file" >&2
     else
-        # Se a linha com o módulo existir, mas não a opção, adiciona no final da linha
-        if grep -Eq "^\s*options\s+${module}" "$file"; then
-            sed -i -E "s/^(\s*options\s+${module}.*)/\1 ${option}=${value}/" "$file"
-            echo "Option $option added to existing module $module in $file" >&2
-        else
-            # Caso não exista nenhuma linha do módulo, adiciona uma nova linha
-            echo "options ${module} ${option}=${value}" >> "$file"
-            echo "New options line added for $module in $file" >&2
-        fi
+        echo "" >> "$file"
+        echo "options ${module} ${option}=${value}" >> "$file"
+        echo "New options line added for $module in $file" >&2
     fi
 
     return 0    
