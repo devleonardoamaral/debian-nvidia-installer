@@ -538,7 +538,7 @@ installer::pre_installation() {
 installer::post_installation() {
     # Força uma atualização de pacotes no Flatpak para que sejam instaladas as bibliotecas do driver NVIDIA
     if packages::is_installed "flatpak"; then
-        flatpak update | tee -a /dev/fd/3
+        flatpak update -y | tee -a /dev/fd/3
     fi
 
     return 0
