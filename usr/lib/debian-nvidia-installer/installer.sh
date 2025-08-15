@@ -145,8 +145,16 @@ installer::install_debian_proprietary550() {
         return 1
     fi
 
-    # Instala a biblioteca OptiX
-    installer::install_package "libnvoptix1"
+    # Instala bibliotecas extras para GPUs RTX
+    local gpus
+    mapfile -t gpus < <(nvidia::fetch_nvidia_gpus)  # Cada linha vira um elemento do array
+
+    for gpu_name in "${gpus[@]}"; do
+        if [[ "$gpu_name" =~ RTX ]]; then
+            # Instala a biblioteca OptiX e Runtime NGX (DLSS)
+            installer::install_package "libnvoptix1" "libnvidia-ngx1"
+        fi
+    done
 
     # Habilita o DRM modeset NVIDIA
     nvidia::enable_modeset
@@ -185,8 +193,16 @@ installer::install_debian_opensource() {
         return 1
     fi
 
-    # Instala a biblioteca OptiX
-    installer::install_package "libnvoptix1"
+    # Instala bibliotecas extras para GPUs RTX
+    local gpus
+    mapfile -t gpus < <(nvidia::fetch_nvidia_gpus)  # Cada linha vira um elemento do array
+
+    for gpu_name in "${gpus[@]}"; do
+        if [[ "$gpu_name" =~ RTX ]]; then
+            # Instala a biblioteca OptiX e Runtime NGX (DLSS)
+            installer::install_package "libnvoptix1" "libnvidia-ngx1"
+        fi
+    done
 
     # Habilita o DRM modeset NVIDIA
     nvidia::enable_modeset
@@ -542,9 +558,9 @@ installer::post_installation() {
     return 0
 }
 
-tr::add "pt_BR" "installer::post_installation.warn.flatpak" "Antes de usar pacotes flatpak, reinicie o sistema e atualize os pacotes com:\n\nflatpak update"
+tr::add "pt_BR" "installer::post_installation.warn.flatpak" "Antes de usar pacotes flatpak, reinicie o sistema e atualize os pacotes executando o seguinte comando no terminal:\n\nflatpak update -y"
 
-tr::add "en_US" "installer::post_installation.warn.flatpak" "Before using Flatpak packages, restart the system and update the packages with:\n\nflatpak update"
+tr::add "en_US" "installer::post_installation.warn.flatpak" "Before using Flatpak packages, restart the system and update the packages by running the following command in the terminal:\n\nflatpak update -y"
 
 # Função principal para instalação do driver NVIDIA
 installer::install_nvidia() {
