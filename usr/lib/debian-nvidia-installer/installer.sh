@@ -524,7 +524,9 @@ tr::add "en_US" "installer::check_secure_boot.mok.setup.failure" "Failed to set 
 tr::add "en_US" "installer::check_secure_boot.mok.abortedbyuser" "MOK key setup aborted by user.\n\nYou will not be able to continue the NVIDIA driver installation without enrolling the MOK key, please restart the script to try again or manually enroll the MOK key.\n\nSee: https://wiki.debian.org/SecureBoot#MOK_-_Machine_Owner_Key"
 tr::add "en_US" "installer::check_secure_boot.disabled" "Secure Boot is DISABLED. You can continue without enrolling the MOK key."
 
-installer::pre_installation() {}
+installer::pre_installation() {
+    return 0
+}
 
 installer::post_installation() {
     # Força uma atualização de pacotes no Flatpak para que sejam instaladas as bibliotecas do driver NVIDIA
