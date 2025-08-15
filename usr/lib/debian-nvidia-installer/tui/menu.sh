@@ -22,7 +22,7 @@ tui::menu::main() {
     local choice
     local ret
 
-    choice=$(tui::show_menu "$(tr::t "tui.menu.main.title")" "$(tr::t "tui.menu.main.subtitle")" \
+    choice=$(tui::show_menu "$(tr::t "tui.menu.main.title") $SCRIPT_VERSION" "$(tr::t "tui.menu.main.subtitle")" \
         1 "$(tr::t "tui.menu.main.option.installdrivers")" \
         2 "$(tr::t "tui.menu.main.option.uninstalldrivers")"\
         3 "$(tr::t "tui.menu.main.option.posinstall")" \
