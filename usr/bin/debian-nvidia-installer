@@ -39,16 +39,18 @@ for file in "$SCRIPT_DIR"/tui/*.sh; do source "$file"; done
 
 # Função de ajuda
 script::help() {
+    local script_name
+    script_name=$(basename "$0")
     cat <<EOF
-$(tr::t_args "script::help.using" "$0")
+$(tr::t_args "script::help.using" "$script_name")
 
 $(tr::t "script::help.commands")
   --version, -v   $(tr::t "script::help.cmd.version")
   --help, -h      $(tr::t "script::help.cmd.help")
 
 $(tr::t "script::help.examples")
-  $0 --version
-  $0 --help
+  $script_name --version
+  $script_name --help
 EOF
 }
 
