@@ -133,32 +133,21 @@ else
     log::setup_logger "$LOG_DIR" "debian-nvidia-installer.log"
 
     # Exibe a mensagem de boas-vindas
-    tr::add "pt_BR" "default.script.welcome" "\
-    Bem-vindo ao Debian NVIDIA Installer %1!
+    tr::add "pt_BR" "default.script.welcome" "
+Bem-vindo ao Debian NVIDIA Installer %1!
 
-    Este instalador é distribuído sob a licença GPLv3.
+Este instalador é distribuído sob a licença GPLv3.
+Repositório do projeto: https://github.com/devleonardoamaral/debian-nvidia-installer
+"
 
-    Repositório do projeto:
-    https://github.com/devleonardoamaral/debian-nvidia-installer
+    tr::add "en_US" "default.script.welcome" "
+Welcome to the Debian NVIDIA Installer %1!
 
-    ----------------------
+This installer is released under the GPLv3 license.
+Project repository: https://github.com/devleonardoamaral/debian-nvidia-installer
+"
 
-    "
-
-    tr::add "en_US" "default.script.welcome" "\
-    Welcome to the Debian NVIDIA Installer %1!
-
-    This installer is released under the GPLv3 license.
-
-    Project repository:
-    https://github.com/devleonardoamaral/debian-nvidia-installer
-
-    ----------------------
-
-    "
-
-    echo -e "$(tr::t_args "default.script.welcome" "$SCRIPT_VERSION")"
-    log::info "Version $SCRIPT_VERSION"
+    log::info "$(tr::t_args "default.script.welcome" "$SCRIPT_VERSION")"
 
     # Verifica requisitos do script
     script::requirements "$@"
