@@ -8,7 +8,7 @@ verificação de compatibilidade e configuração do ambiente gráfico.
 ### Requisitos
 
 * Distribuição **Debian Trixie**
-* Placa gráfica **NVIDIA compatível** — suporta GPUs das linhas GeForce, Quadro e RTX. **Modelos Tesla não são suportados no momento**.
+* Placa gráfica **NVIDIA compatível**
 * Shell compatível com Bash
 * Privilégios de administrador (sudo/root)
 

@@ -6,7 +6,7 @@ It automates steps such as package installation, compatibility checks, and graph
 ### Requirements
 
 * **Debian Trixie** distribution
-* Compatible **NVIDIA graphics card** — supports GPUs from the GeForce, Quadro, and RTX lines. **Tesla models are not supported at this time.**
+* Compatible **NVIDIA graphics card**
 * Bash-compatible shell
 * Administrator privileges (sudo/root)
 
