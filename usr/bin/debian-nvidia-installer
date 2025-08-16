@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with debian-nvidia-installer. If not, see <https://www.gnu.org/licenses/gpl-3.0.html>.
 
-declare -g SCRIPT_VERSION="0.7.5-beta"
+declare -g SCRIPT_VERSION="0.7.6-beta"
 
 # Variáveis globais
 declare -g SCRIPT_DIR
@@ -36,6 +36,33 @@ fi
 for file in "$SCRIPT_DIR"/translate/*.sh; do source "$file"; done
 for file in "$SCRIPT_DIR"/*.sh; do source "$file"; done
 for file in "$SCRIPT_DIR"/tui/*.sh; do source "$file"; done
+
+# Função de ajuda
+script::help() {
+    cat <<EOF
+$(tr::t_args "script::help.using" "$0")
+
+$(tr::t "script::help.commands")
+  --version, -v   $(tr::t "script::help.cmd.version")
+  --help, -h      $(tr::t "script::help.cmd.help")
+
+$(tr::t "script::help.examples")
+  $0 --version
+  $0 --help
+EOF
+}
+
+tr::add "pt_BR" "script::help.using" "Uso: %1 [comando] [opções]"
+tr::add "pt_BR" "script::help.commands" "Comandos:"
+tr::add "pt_BR" "script::help.cmd.version" "Exibe a versão do script."
+tr::add "pt_BR" "script::help.cmd.help" "Mostra esta ajuda."
+tr::add "pt_BR" "script::help.examples" "Exemplos:"
+
+tr::add "en_US" "script::help.using" "Usage: %1 [command] [options]"
+tr::add "en_US" "script::help.commands" "Commands:"
+tr::add "en_US" "script::help.cmd.version" "Displays the script version."
+tr::add "en_US" "script::help.cmd.help" "Shows this help message."
+tr::add "en_US" "script::help.examples" "Examples:"
 
 # Limpeza / Encerramento
 script::exit() {
@@ -76,43 +103,68 @@ tr::add "en_US" "script::requirements.verifying" "Verifying script dependencies.
 tr::add "en_US" "script::requirements.success" "Dependencies verified successfully."
 tr::add "en_US" "script::requirements.failure" "Failed to verify dependencies."
 
-# Configura arquivos de logging
-log::setup_logger "$LOG_DIR" "debian-nvidia-installer.log"
-
 # Define o idioma do script com base no sistema
 tr::detect_language
 
-tr::add "pt_BR" "default.script.welcome" "\
-Bem-vindo ao Debian NVIDIA Installer!
+# Processa os argumentos
+tr::add "pt_BR" "default.invalid.command" "Comando inválido: %1"
+tr::add "en_US" "default.invalid.command" "Invalid command: %1"
 
-Este instalador é distribuído sob a licença GPLv3.
+if [[ $# -gt 0 ]]; then
+    case "$1" in
+        --version|--VERSION|-v|-V)
+            echo "$SCRIPT_VERSION"
+            exit 0
+            ;;
+        --help|--HELP|-h|-H)
+            script::help
+            exit 0
+            ;;
+        *)  
+            echo "$(tr::t_args "default.invalid.command" "$*")"
+            script::help
+            exit 1
+            ;;
+    esac
 
-Repositório do projeto:
-https://github.com/devleonardoamaral/debian-nvidia-installer
+# Executa o script
+else
+    # Configura arquivos de logging
+    log::setup_logger "$LOG_DIR" "debian-nvidia-installer.log"
 
-----------------------
+    # Exibe a mensagem de boas-vindas
+    tr::add "pt_BR" "default.script.welcome" "\
+    Bem-vindo ao Debian NVIDIA Installer %1!
 
-"
+    Este instalador é distribuído sob a licença GPLv3.
 
-tr::add "en_US" "default.script.welcome" "\
-Welcome to the Debian NVIDIA Installer!
+    Repositório do projeto:
+    https://github.com/devleonardoamaral/debian-nvidia-installer
 
-This installer is released under the GPLv3 license.
+    ----------------------
 
-Project repository:
-https://github.com/devleonardoamaral/debian-nvidia-installer
+    "
 
-----------------------
+    tr::add "en_US" "default.script.welcome" "\
+    Welcome to the Debian NVIDIA Installer %1!
 
-"
+    This installer is released under the GPLv3 license.
 
-echo -e "$(tr::t "default.script.welcome")"
-log::info "Version $SCRIPT_VERSION"
+    Project repository:
+    https://github.com/devleonardoamaral/debian-nvidia-installer
 
-# Verifica requisitos do script
-script::requirements "$@"
+    ----------------------
 
-# Inicia o Dialog de navegação
-tui::navigate::main
-ret=$?
-script::exit "" "$ret"
+    "
+
+    echo -e "$(tr::t_args "default.script.welcome" "$SCRIPT_VERSION")"
+    log::info "Version $SCRIPT_VERSION"
+
+    # Verifica requisitos do script
+    script::requirements "$@"
+
+    # Inicia o Dialog de navegação
+    tui::navigate::main
+    ret=$?
+    script::exit "" "$ret"
+fi
