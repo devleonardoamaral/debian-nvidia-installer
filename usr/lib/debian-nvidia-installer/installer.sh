@@ -202,6 +202,12 @@ installer::install_cuda_proprietary() {
         return 1
     fi
 
+    if ! packages::update; then
+        log::critical "$(tr::t "installer::install_cuda_proprietary.packages.update.failure")"
+        log::input _ "$(tr::t "default.script.pause")"
+        return 1
+    fi
+
     if ! installer::pre_installation; then
         log::critical "$(tr::t "default.script.canceled.byfailure")"
         log::input _ "$(tr::t "default.script.pause")"
@@ -267,6 +273,12 @@ installer::install_cuda_opensource() {
 
     if ! packages::install "$temp_download_file"; then
         log::critical "$(tr::t "installer::install_cuda_opensource.repo.install.failure")"
+        log::input _ "$(tr::t "default.script.pause")"
+        return 1
+    fi
+
+    if ! packages::update; then
+        log::critical "$(tr::t "installer::install_cuda_opensource.packages.update.failure")"
         log::input _ "$(tr::t "default.script.pause")"
         return 1
     fi
