@@ -113,7 +113,7 @@ tr::add "en_US" "posinstall::install_cuda.uninstall.success" "CUDA Toolkit and d
 
 # Instala o CUDA Toolkit e as bibliotecas de desenvolvimento CUDA
 posinstall::install_cuda_toolkit() {
-    if ! command -v nvidia-smi &>/dev/null; then
+    if ! nvidia::is_driver_installed; then
         echo "$(tr::t "posinstall::install_cuda_toolkit.missingdriver")"
         log::input _ "$(tr::t "default.script.pause")"
         return 1

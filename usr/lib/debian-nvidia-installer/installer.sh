@@ -541,8 +541,7 @@ installer::install_nvidia() {
     log::info "$(tr::t "installer::install_nvidia.start")"
 
     # Verifica se o driver da NVIDIA já está instalado no sistema
-    nvidia-smi >/dev/null
-    if [[ "$?" -eq 0 ]]; then
+    if nvidia::is_driver_installed; then
         log::info "$(tr::t "installer::install_nvidia.verify.already.installed.log")"
         tui::msgbox::warn "$(tr::t "installer::install_nvidia.verify.already.installed.log")\n\n$(tr::t "installer::install_nvidia.verify.already.installed")"
         log::input _ "$(tr::t "default.script.pause")"
