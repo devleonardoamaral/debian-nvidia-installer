@@ -55,7 +55,6 @@ installer::install_debian_proprietary535() {
     tui::msgbox::custom "" "$(tr::t "installer::install_debian_proprietary535.success")"
     tui::msgbox::need_restart # Exibe aviso que é necessário reiniciar
 
-    log::input _ "$(tr::t "default.script.pause")"
     script::exit
 }
 
@@ -113,7 +112,6 @@ installer::install_debian_proprietary550() {
     tui::msgbox::custom "" "$(tr::t "installer::install_debian_proprietary550.success")"
     tui::msgbox::need_restart # Exibe aviso que é necessário reiniciar
 
-    log::input _ "$(tr::t "default.script.pause")"
     script::exit
 }
 
@@ -171,7 +169,6 @@ installer::install_debian_opensource() {
     tui::msgbox::custom "" "$(tr::t "installer::install_debian_opensource.success")"
     tui::msgbox::need_restart
 
-    log::input _ "$(tr::t "default.script.pause")"
     script::exit
 }
 
@@ -233,7 +230,6 @@ installer::install_cuda_proprietary() {
     tui::msgbox::custom "" "$(tr::t "installer::install_cuda_proprietary.success")"
     tui::msgbox::need_restart
 
-    log::input _ "$(tr::t "default.script.pause")"
     script::exit
 }
 
@@ -303,7 +299,6 @@ installer::install_cuda_opensource() {
     tui::msgbox::custom "" "$(tr::t "installer::install_cuda_opensource.success")"
     tui::msgbox::need_restart
 
-    log::input _ "$(tr::t "default.script.pause")"
     script::exit
 }
 
@@ -450,7 +445,6 @@ installer::setup_mok() {
 
     log::warn "$(tr::t "installer::setup_mok.restart_required")"
 
-    log::input _ "$(tr::t "default.script.pause")"
     script::exit
 }
 
@@ -674,7 +668,6 @@ installer::uninstall_nvidia() {
     tui::msgbox::warn "$(tr::t "installer::uninstall_nvidia.success")"
     tui::msgbox::need_restart # Exibe aviso que é necessário reiniciar
 
-    log::input _ "$(tr::t "default.script.pause")"
     script::exit
 }
 
