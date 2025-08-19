@@ -6,9 +6,12 @@ It automates steps such as package installation, compatibility checks, and graph
 ### Requirements
 
 * **Debian Trixie** distribution
-* Compatible **NVIDIA graphics card**
-* Bash-compatible shell
-* Administrator privileges (sudo/root)
+* **Compatible NVIDIA graphics card**
+  > Official NVIDIA drivers on Debian Trixie **do not support** [GPUs based on the Kepler architecture](https://www.nvidia.com/en-us/drivers/unix/legacy-gpu/).
+  
+  > See [how to install legacy drivers on Debian](https://wiki.debian.org/NvidiaGraphicsDrivers#Tesla_Drivers) if needed.
+* **Bash-compatible** shell
+* Administrator privileges (**sudo/root**)
 
 # How to Run
 

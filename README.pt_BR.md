@@ -9,8 +9,11 @@ verificação de compatibilidade e configuração do ambiente gráfico.
 
 * Distribuição **Debian Trixie**
 * Placa gráfica **NVIDIA compatível**
-* Shell compatível com Bash
-* Privilégios de administrador (sudo/root)
+  > Os drivers oficiais da NVIDIA no Debian Trixie **não oferecem suporte** a [GPUs com arquitetura Kepler](https://www.nvidia.com/en-us/drivers/unix/legacy-gpu/).
+  
+  > Consulte [como instalar os drivers legados no Debian](https://wiki.debian.org/NvidiaGraphicsDrivers#Tesla_Drivers) se necessário.
+* Shell compatível com **Bash**
+* Privilégios de administrador (**sudo/root**)
 
 # Como executar
 
