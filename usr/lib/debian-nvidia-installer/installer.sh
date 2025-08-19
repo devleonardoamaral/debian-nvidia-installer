@@ -594,7 +594,7 @@ installer::install_nvidia() {
     fi
 
     # Abre a janela para escolher qual driver instalar
-    tui::navigate::flavors
+    tui::menu::flavors
 }
 
 tr::add "pt_BR" "installer::install_nvidia.verify.already.installed.log" "Os drivers da NVIDIA já estão instalados no seu sistema."

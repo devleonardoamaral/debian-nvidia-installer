@@ -19,45 +19,62 @@
 # along with debian-nvidia-installer. If not, see <https://www.gnu.org/licenses/gpl-3.0.html>.
 
 tui::menu::main() {
-    local choice
-    local ret
+    while true; do       
+        NAVIGATION_STATUS=1
 
-    choice=$(tui::show_menu "$(tr::t "tui.menu.main.title") $SCRIPT_VERSION" "$(tr::t "tui.menu.main.subtitle")" \
-        1 "$(tr::t "tui.menu.main.option.installdrivers")" \
-        2 "$(tr::t "tui.menu.main.option.uninstalldrivers")"\
-        3 "$(tr::t "tui.menu.main.option.posinstall")" \
-        4 "$(tr::t "default.tui.button.exit")")
-    ret="$?"
-    
-    echo "${choice:-4}"
-    return "$ret"
+        local choice
+        choice=$(tui::show_menu "$(tr::t "tui.menu.main.title") $SCRIPT_VERSION" "$(tr::t "tui.menu.main.subtitle")" \
+            1 "$(tr::t "tui.menu.main.option.installdrivers")" \
+            2 "$(tr::t "tui.menu.main.option.uninstalldrivers")"\
+            3 "$(tr::t "tui.menu.main.option.posinstall")" \
+            4 "$(tr::t "default.tui.button.exit")")
+        choice="${choice:-4}"
+
+        case "$choice" in
+            1) installer::install_nvidia ;;
+            2) installer::uninstall_nvidia ;;
+            3) 
+                if nvidia::is_driver_installed; then
+                    tui::menu::posinstall
+                else
+                    tui::msgbox::warn "$(tr::t "tui::menu::main.drivernotinstalled")"
+                fi
+                ;;
+            4) break ;; # Encerra a navegação
+        esac
+    done
 }
 
-tr::add "pt_BR" "tui.menu.main.title" "DEBIN NVIDIA INSTALLER"
+tr::add "pt_BR" "tui.menu.main.title" "DEBIAN NVIDIA INSTALLER"
 tr::add "pt_BR" "tui.menu.main.subtitle" "Selecione uma opção:"
 tr::add "pt_BR" "tui.menu.main.option.installdrivers" "Instalar Drivers NVIDIA"
 tr::add "pt_BR" "tui.menu.main.option.uninstalldrivers" "Desinstalar Drivers NVIDIA"
 tr::add "pt_BR" "tui.menu.main.option.posinstall" "Opções pós-instalação"
+tr::add "pt_BR" "tui::menu::main.drivernotinstalled" "Não foi possível detectar o driver da NVIDIA no sistema.\n\nInstale o driver e reinicie o sistema para que o driver seja carregado antes de acessar as opções pós-instalação."
 
 tr::add "en_US" "tui.menu.main.title" "DEBIAN NVIDIA INSTALLER"
 tr::add "en_US" "tui.menu.main.subtitle" "Select an option:"
 tr::add "en_US" "tui.menu.main.option.installdrivers" "Install NVIDIA Drivers"
 tr::add "en_US" "tui.menu.main.option.uninstalldrivers" "Uninstall NVIDIA Drivers"
 tr::add "en_US" "tui.menu.main.option.posinstall" "Post-installation Options"
+tr::add "en_US" "tui::menu::main.drivernotinstalled" "Could not detect the NVIDIA driver on the system.\n\nInstall the driver and restart the system so that the driver is loaded before accessing the post-installation options."
 
 tui::menu::posinstall() {
     local choice
-    local ret
-
     choice=$(tui::show_menu "$(tr::t "tui.menu.posinstall.title")" "$(tr::t "tui.menu.posinstall.subtitle")" \
         1 "$(tr::t "tui.menu.posinstall.option.cuda")" \
         2 "$(tr::t "tui.menu.posinstall.option.switchpvma")" \
         3 "$(tr::t "tui.menu.posinstall.option.s0ixpm")" \
         4 "$(tr::t "default.tui.button.exit")")
-    ret="$?"
+    choice="${choice:-4}"
 
-    echo "${choice:-4}"
-    return "$ret"
+    case "$choice" in
+        1) posinstall::install_cuda_toolkit ;;
+        2) posinstall::switch_nvidia_pvma ;;
+        3) posinstall::switch_nvidia_s0ixpm ;;
+        # 4) Volta ao menu principal por padrão
+    esac
+    return
 }
 
 tr::add "pt_BR" "tui.menu.posinstall.title" "OPÇÕES PÓS-INSTALAÇÃO"
@@ -74,8 +91,6 @@ tr::add "en_US" "tui.menu.posinstall.option.s0ixpm" "Switch S0ix Power Managemen
 
 tui::menu::flavors() {
     local choice
-    local ret
-
     choice=$(tui::show_menu "" "$(tr::t "tui.driverflavors.subtitle")" \
         1 "$(tr::t "tui.menu.driverflavors.option.install.debian.proprietary535")" \
         2 "$(tr::t "tui.menu.driverflavors.option.install.debian.proprietary550")" \
@@ -83,10 +98,17 @@ tui::menu::flavors() {
         4 "$(tr::t "tui.menu.driverflavors.option.install.cuda.proprietary")" \
         5 "$(tr::t "tui.menu.driverflavors.option.install.cuda.opensource")" \
         6 "$(tr::t "default.tui.button.exit")")
-    ret="$?"
+    choice="${choice:-6}"
 
-    echo "${choice:-6}"
-    return "$ret"
+    case "$choice" in
+        1) installer::install_debian_proprietary535 ;;
+        2) installer::install_debian_proprietary550 ;;
+        3) installer::install_debian_opensource ;;
+        4) installer::install_cuda_proprietary ;;
+        5) installer::install_cuda_opensource ;;
+        # 6) Volta ao menu principal por padrão
+    esac
+    return
 }
 
 tr::add "pt_BR" "tui.driverflavors.subtitle" "Selecione qual driver insalar:"
