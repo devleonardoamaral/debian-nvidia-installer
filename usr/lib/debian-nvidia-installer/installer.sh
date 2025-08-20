@@ -441,13 +441,13 @@ installer::setup_mok() {
     tui::msgbox::warn "$(tr::t "installer::setup_mok.password")"
 
     # Gera a chave MOK
-    if ! dkms generate_mok; then
+    if ! mok::generate_mok; then
         return 1
     fi
 
     # Importa a chave MOK
     log::info "$(tr::t "installer::setup_mok.importing")"
-    if ! mokutil --import "$mok_pub_path"; then
+    if ! mok::import_mok; then
         return 1
     fi
 
@@ -485,10 +485,10 @@ installer::check_secure_boot() {
     fi
 
     # Verifica se o Secure Boot está ativado e se a chave MOK já está registrada
-    if mokutil --sb-state | grep -q "enabled"; then
+    if mok::check_secure_boot; then
         log::info "$(tr::t "installer::check_secure_boot.enabled")"
 
-        if [[ -f "$mok_pub_path" ]] && mokutil --test-key "$mok_pub_path" | grep -iq "already enrolled"; then
+        if mok::check_mok; then
             log::info "$(tr::t "installer::check_secure_boot.mok.already_enrolled")"
             return 0
         fi
