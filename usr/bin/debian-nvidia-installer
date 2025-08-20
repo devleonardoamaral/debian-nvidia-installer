@@ -160,7 +160,7 @@ Distribution: %2\n
     script::requirements "$@"
 
     # Inicia o Dialog de navegação
-    tui::navigate::main
+    tui::menu::main
     ret=$?
     script::exit "" "$ret"
 fi
