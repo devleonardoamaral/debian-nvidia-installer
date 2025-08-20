@@ -19,6 +19,7 @@
 # along with debian-nvidia-installer. If not, see <https://www.gnu.org/licenses/gpl-3.0.html>.
 
 declare -g SCRIPT_VERSION="0.7.9-beta"
+declare -g DISTRO_INFO
 
 # Variáveis globais
 declare -g SCRIPT_DIR
@@ -68,18 +69,32 @@ tr::add "en_US" "script::help.examples" "Examples:"
 
 # Limpeza / Encerramento
 script::exit() {
-    local exit_msg
-    exit_msg="$(tr::t "default.script.exit")"
-    log::info "${1:-$exit_msg}"
+    local exit_message
+    local return_code
+
+    exit_message="$(tr::t "default.script.exit")"
+    return_code="${2:-0}"
+
+    if [[ $return_code -gt 0 ]]; then
+        log::critical "${1:-$exit_message}"
+    else
+        log::info "${1:-$exit_message}"
+    fi
+
     echo "$(tr::t_args "script::exit.informlogpath" "$LOG_DIR/debian-nvidia-installer.log")"
     log::input _ "$(tr::t "default.script.pause")"
-    exit "${2:-0}"
+    exit "$return_code"
 }
 
 tr::add "pt_BR" "script::exit.informlogpath" "O resumo da última execução do script está disponível em: %1"
 tr::add "en_US" "script::exit.informlogpath" "The summary of the last script execution is available at: %1"
 
 script::requirements() {
+    # Garante que o script só seja executado na versão correta
+    if [[ "$DISTRO_INFO" != "debian 13 (trixie)" ]]; then
+        script::exit "$(tr::t_args "script::requirements.invalid_distro" "$DISTRO_INFO")" 1
+    fi
+
     # Garante que o script só seja executado com privilégios root
     if ! utils::check_sudo; then
         log::warn "$(tr::t "default.script.rootaccess.required")"
@@ -97,10 +112,12 @@ script::requirements() {
     fi
 }
 
+tr::add "pt_BR" "script::requirements.invalid_distro" "SO não suportado: %1"
 tr::add "pt_BR" "script::requirements.verifying" "Verificando dependências do script..."
 tr::add "pt_BR" "script::requirements.success" "Dependências verificadas com sucesso."
 tr::add "pt_BR" "script::requirements.failure" "Falha ao verificar dependências."
 
+tr::add "en_US" "script::requirements.invalid_distro" "Unsupported OS: %1"
 tr::add "en_US" "script::requirements.verifying" "Verifying script dependencies..."
 tr::add "en_US" "script::requirements.success" "Dependencies verified successfully."
 tr::add "en_US" "script::requirements.failure" "Failed to verify dependencies."
