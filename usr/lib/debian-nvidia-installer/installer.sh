@@ -342,7 +342,7 @@ installer::install_pre_requisites() {
     # Define o nome do pacote de cabeçalho do kernel com base na arquitetura
     case "$ARCH" in
         "i386"|"i686")
-            if [[ "$KERNEL" == *"686-pae"* ]]; then
+            if [[ "$KERNEL" =~ 686-pae ]]; then
                 HEADER_PKG="linux-headers-686-pae"
             else
                 HEADER_PKG="linux-headers-686"
