@@ -51,8 +51,6 @@ sudo apt install ./debian-nvidia-installer_X.X.X.deb
 rm ./debian-nvidia-installer_X.X.X.deb
 ```
 
-> 💡 Usar `apt install ./arquivo.deb` garante que dependências sejam instaladas corretamente.
-
 # Desinstalação
 
 ```bash
@@ -74,7 +72,5 @@ git clone https://github.com/devleonardoamaral/debian-nvidia-installer.git
 ```bash
 dpkg-deb --build --root-owner-group debian-nvidia-installer
 ```
-
-> 💡 A opção `--root-owner-group` garante que todos os arquivos dentro do pacote tenham proprietário e grupo `root`, conforme esperado para pacotes Debian.
 
 3. O arquivo `debian-nvidia-installer.deb` será gerado na pasta atual, pronto para instalação.
