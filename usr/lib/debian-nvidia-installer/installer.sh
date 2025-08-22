@@ -18,6 +18,24 @@
 # You should have received a copy of the GNU General Public License
 # along with debian-nvidia-installer. If not, see <https://www.gnu.org/licenses/gpl-3.0.html>.
 
+installer::pre_installation() {
+    return 0
+}
+
+installer::post_installation() {
+    # Força uma atualização de pacotes no Flatpak para que sejam instaladas as bibliotecas do driver NVIDIA
+    if packages::is_installed "flatpak"; then
+        flatpak update -y | tee -a /dev/fd/3
+        tui::msgbox::warn "$(tr::t "installer::post_installation.warn.flatpak")"
+    fi
+
+    return 0
+}
+
+tr::add "pt_BR" "installer::post_installation.warn.flatpak" "Antes de usar pacotes flatpak, reinicie o sistema e atualize os pacotes executando o seguinte comando no terminal:\n\nflatpak update -y"
+
+tr::add "en_US" "installer::post_installation.warn.flatpak" "Before using Flatpak packages, restart the system and update the packages by running the following command in the terminal:\n\nflatpak update -y"
+
 installer::install_debian_proprietary535() {
     if ! tui::yesno::default "$(tr::t "default.tui.title.warn")" "$(tr::t "installer::install_debian_proprietary535.tui.yesno.proprietarydriver.confirm")"; then
         log::info "$(tr::t "default.script.canceled.byuser")"
@@ -328,107 +346,6 @@ tr::add "en_US" "installer::install_cuda_opensource.packages.update.failure" "Fa
 tr::add "en_US" "installer::install_cuda_opensource.failure" "Failed to install the NVIDIA drivers. Operation aborted."
 tr::add "en_US" "installer::install_cuda_opensource.success" "NVIDIA Driver installed successfully."
 
-installer::install_pre_requisites() {
-    local ARCH KERNEL VERSION HEADER_PKG
-    ARCH=$(uname -m)
-    KERNEL=$(uname -r)
-
-    if ! packages::update; then
-        log::critical "$(tr::t "default.script.canceled.byfailure")"
-        log::input _ "$(tr::t "default.script.pause")"
-        return 1
-    fi
-
-    # Define o nome do pacote de cabeçalho do kernel com base na arquitetura
-    case "$ARCH" in
-        "i386"|"i686")
-            if [[ "$KERNEL" =~ 686-pae ]]; then
-                HEADER_PKG="linux-headers-686-pae"
-            else
-                HEADER_PKG="linux-headers-686"
-            fi
-            ;;
-        "x86_64")
-            # Adiciona suporte para arquitetura i386 em sistemas de 64 bits
-            # Importante para o driver da nvidia adicionar bibliotecas de 32 bits que alguns pacotes podem precisar
-            log::info "$(tr::t "installer::install_pre_requisites.architecture.check.i386.start")"
-            if utils::multiarch::check "i386"; then
-                log::info "$(tr::t "installer::install_pre_requisites.architecture.check.i386.success")"
-            else
-                log::info "$(tr::t "installer::install_pre_requisites.architecture.add.i386.start")"
-                dpkg --add-architecture i386 || \
-                    log::error "$(tr::t "installer::install_pre_requisites.architecture.add.i386.failure")"
-            fi
-
-            HEADER_PKG="linux-headers-amd64"
-            ;;
-        *)
-            log::critical "$(tr::t_args "installer::install_pre_requisites.unsupported_arch" "$ARCH")"
-            tui::msgbox::error "$(tr::t_args "installer::install_pre_requisites.unsupported_arch" "$ARCH")" "$(tr::t "default.tui.button.abort")"
-            log::input _ "$(tr::t "default.script.pause")"
-            script::exit
-            ;;
-    esac
-
-    if ! packages::check_sources_components "" "contrib" "non-free" "non-free-firmware"; then
-        log::info "$(tr::t "installer::install_pre_requisites.check.sources.missing")"
-        if ! packages::add_sources_components "" "contrib" "non-free" "non-free-firmware"; then
-            log::info "$(tr::t "installer::install_pre_requisites.check.sources.failure")"
-            log::critical "$(tr::t "default.script.canceled.byfailure")"
-            return 1
-        fi
-    fi
-
-    log::info "$(tr::t "installer::install_pre_requisites.check.sources.success")"
-    log::info "$(tr::t_args "installer::install_pre_requisites.install.start" "$HEADER_PKG")"
-
-    if ! packages::install "$HEADER_PKG"; then
-        log::critical "$(tr::t "default.script.canceled.byfailure")"
-        return 1
-    fi
-
-    # Configura o dracut caso ele esteja instalado
-    if packages::is_installed "dracut"; then
-        local filename="10-nvidia.conf"
-        local directory="/etc/dracut.conf.d"
-        local content='install_items+=" /etc/modprobe.d/nvidia-blacklists-nouveau.conf /etc/modprobe.d/nvidia.conf /etc/modprobe.d/nvidia-options.conf "' 
-        
-        # Garante a existência do diretório do dracut
-        mkdir -p "$directory"
-
-        # Adiciona a configuração caso ela não exista no arquivo
-        if ! grep -qxF "$content" "$directory/$filename" 2>/dev/null; then
-            echo "$content" | sudo tee -a "$directory/$filename"
-        fi
-    fi
-    
-    log::info "$(tr::t "installer::install_pre_requisites.install.success")"
-
-    return 0
-}
-
-tr::add "pt_BR" "installer::install_pre_requisites.unsupported_arch" "Arquitetura %1 não suportada."
-tr::add "pt_BR" "installer::install_pre_requisites.check.sources.missing" "Componentes 'contrib', 'non-free' e 'non-free-firmware' não encontrados no sources.list."
-tr::add "pt_BR" "installer::install_pre_requisites.check.sources.failure" "Falha ao adicionar componentes ao sources.list."
-tr::add "pt_BR" "installer::install_pre_requisites.check.sources.success" "Componentes 'contrib', 'non-free' e 'non-free-firmware' habilitados no sources.list."
-tr::add "pt_BR" "installer::install_pre_requisites.install.start" "Iniciando a instalação do pacote de cabeçalho do kernel: %1"
-tr::add "pt_BR" "installer::install_pre_requisites.install.success" "Pacote de cabeçalho do kernel instalado com sucesso."
-tr::add "pt_BR" "installer::install_pre_requisites.architecture.check.i386.start" "Verificando suporte para arquitetura i386..."
-tr::add "pt_BR" "installer::install_pre_requisites.architecture.check.i386.success" "Arquitetura i386 já habilitada."
-tr::add "pt_BR" "installer::install_pre_requisites.architecture.add.i386.failure" "Falha ao adicionar suporte para arquitetura i386."
-tr::add "pt_BR" "installer::install_pre_requisites.architecture.add.i386.start" "Adicionando suporte para arquitetura i386."
-
-tr::add "en_US" "installer::install_pre_requisites.unsupported_arch" "Unsupported architecture: %1."
-tr::add "en_US" "installer::install_pre_requisites.check.sources.missing" "Components 'contrib', 'non-free' and 'non-free-firmware' not found in sources.list."
-tr::add "en_US" "installer::install_pre_requisites.check.sources.failure" "Failed to add components to sources.list."
-tr::add "en_US" "installer::install_pre_requisites.check.sources.success" "Components 'contrib', 'non-free' and 'non-free-firmware' enabled in sources.list."
-tr::add "en_US" "installer::install_pre_requisites.install.start" "Starting installation of kernel header package: %1"
-tr::add "en_US" "installer::install_pre_requisites.install.success" "Kernel header package installed successfully."
-tr::add "en_US" "installer::install_pre_requisites.architecture.check.i386.start" "Checking support for i386 architecture..."
-tr::add "en_US" "installer::install_pre_requisites.architecture.check.i386.success" "i386 architecture already enabled."
-tr::add "en_US" "installer::install_pre_requisites.architecture.add.i386.failure" "Failed to add support for i386 architecture."
-tr::add "en_US" "installer::install_pre_requisites.architecture.add.i386.start" "Adding support for i386 architecture."
-
 installer::setup_mok() {
     local mok_pub_path="/var/lib/dkms/mok.pub"
 
@@ -530,57 +447,87 @@ tr::add "en_US" "installer::check_secure_boot.mok.setup.failure" "Failed to set 
 tr::add "en_US" "installer::check_secure_boot.mok.abortedbyuser" "MOK key setup aborted by user.\n\nYou will not be able to continue the NVIDIA driver installation without enrolling the MOK key, please restart the script to try again or manually enroll the MOK key.\n\nSee: https://wiki.debian.org/SecureBoot#MOK_-_Machine_Owner_Key"
 tr::add "en_US" "installer::check_secure_boot.disabled" "Secure Boot is DISABLED. You can continue without enrolling the MOK key."
 
-installer::pre_installation() {
-    return 0
-}
+installer::set_up_dracut() {
+    if packages::is_installed "dracut"; then
+        local filename="10-nvidia.conf"
+        local directory="/etc/dracut.conf.d"
+        local content='install_items+=" /etc/modprobe.d/nvidia-blacklists-nouveau.conf /etc/modprobe.d/nvidia.conf /etc/modprobe.d/nvidia-options.conf "' 
+        
+        # Garante a existência do diretório do dracut
+        mkdir -p "$directory"
 
-installer::post_installation() {
-    # Força uma atualização de pacotes no Flatpak para que sejam instaladas as bibliotecas do driver NVIDIA
-    if packages::is_installed "flatpak"; then
-        flatpak update -y | tee -a /dev/fd/3
-        tui::msgbox::warn "$(tr::t "installer::post_installation.warn.flatpak")"
+        # Adiciona a configuração caso ela não exista no arquivo
+        if ! grep -qxF "$content" "$directory/$filename" 2>/dev/null; then
+            echo "$content" | tee -a "$directory/$filename" > /dev/null
+        fi
     fi
-
-    return 0
 }
-
-tr::add "pt_BR" "installer::post_installation.warn.flatpak" "Antes de usar pacotes flatpak, reinicie o sistema e atualize os pacotes executando o seguinte comando no terminal:\n\nflatpak update -y"
-
-tr::add "en_US" "installer::post_installation.warn.flatpak" "Before using Flatpak packages, restart the system and update the packages by running the following command in the terminal:\n\nflatpak update -y"
 
 # Função principal para instalação do driver NVIDIA
 installer::install_nvidia() {
     log::info "$(tr::t "installer::install_nvidia.start")"
 
     # Verifica se o driver da NVIDIA já está instalado no sistema
+    log::info "$(tr::t "installer::install_nvidia.installed_drivers")"
     if nvidia::is_driver_installed; then
-        log::info "$(tr::t "installer::install_nvidia.verify.already.installed.log")"
-        tui::msgbox::warn "$(tr::t "installer::install_nvidia.verify.already.installed.log")\n\n$(tr::t "installer::install_nvidia.verify.already.installed")"
+        log::info "$(tr::t "installer::install_nvidia.installed_drivers.already_installed")"
+        tui::msgbox::warn "$(tr::t "installer::install_nvidia.installed_drivers.already_installed")"
         log::input _ "$(tr::t "default.script.pause")"
-        return 5
+        return 1
     fi
     
     # Verifica se há GPUs NVIDIA disponíveis no sistema
+    log::info "$(tr::t "installer::install_nvidia.verify_gpu")"
     local nvidia_gpus
-    log::info "$(tr::t "installer::install_nvidia.verify.gpu.start")"
     nvidia_gpus="$(nvidia::fetch_nvidia_gpus)"
 
     if [[ -n "$nvidia_gpus" ]]; then
-        log::info "$(tr::t "installer::install_nvidia.verify.gpu.found")"
+        log::info "$(tr::t "installer::install_nvidia.verify_gpu.success")"
 
         while IFS= read -r line; do
             log::info "\t - ${line}"
         done <<< "$nvidia_gpus"
-
-        tui::msgbox::custom "$(tr::t "installer::install_nvidia.verify.gpu.msgbox.title")" "$nvidia_gpus"
     else
-        log::error "$(tr::t "installer::install_nvidia.verify.gpu.not_found")"
-        tui::msgbox::warn "$(tr::t "installer::install_nvidia.verify.gpu.not_found")"
-        return 4
+        log::error "$(tr::t "installer::install_nvidia.verify_gpu.failure")"
+        tui::msgbox::warn "$(tr::t "installer::install_nvidia.verify_gpu.failure")"
+        return 1
     fi
 
-    # Instala os headers e pacotes necessários para a instalação dos drivers
-    if ! installer::install_pre_requisites; then
+    # Verifica se a arquitetura do sistema é suportada
+    log::info "$(tr::t "installer::install_nvidia.verify_arch")"
+    local ARCH
+    ARCH="$(uname -m)"
+    if ! [ "$ARCH" == "x86_64" ]; then
+        script::exit "$(tr::t_args "installer::install_nvidia.unsupported_arch" "$ARCH")" 1
+    fi
+
+    # Habilita o multiarch para i386
+    log::info "$(tr::t "installer::install_nvidia.enable_multiarch")"
+    if ! dpkg --add-architecture i386; then
+        log::warn "$(tr::t "installer::install_nvidia.enable_multiarch.failure")"
+        # Multiarqutetura não é crítico, é opcional apenas para habilitar pacotes extras para i386
+    else
+        log::info "$(tr::t "installer::install_nvidia.enable_multiarch.success")"
+    fi
+
+    # Adiciona os componentes non-free nos repositórios
+    log::info "$(tr::t "installer::install_nvidia.sources_components")"
+    if ! packages::check_sources_components "" "contrib" "non-free" "non-free-firmware"; then
+        log::info "$(tr::t "installer::install_nvidia.sources_components.missing")"
+
+        if ! packages::add_sources_components "" "contrib" "non-free" "non-free-firmware"; then
+            log::critical "$(tr::t "installer::install_nvidia.sources_components.failure")"
+            return 1
+        else
+            log::info "$(tr::t "installer::install_nvidia.sources_components.success")"
+        fi
+    else
+        log::info "$(tr::t "installer::install_nvidia.sources_components.ok")"
+    fi
+    
+    # Atualiza a lista de pacote
+    log::info "$(tr::t "installer::install_nvidia.update_packages")"
+    if ! packages::update; then
         log::critical "$(tr::t "default.script.canceled.byfailure")"
         log::input _ "$(tr::t "default.script.pause")"
         return 1
@@ -590,28 +537,68 @@ installer::install_nvidia() {
     if ! installer::check_secure_boot; then
         log::critical "$(tr::t "default.script.canceled.byfailure")"
         log::input _ "$(tr::t "default.script.pause")"
-        return 2
+        return 1
     fi
+
+    # Instala o header do kernel
+    log::info "$(tr::t "installer::install_nvidia.kernel_headers")"
+    if ! packages::install "linux-headers-amd64"; then
+        log::critical "$(tr::t "default.script.canceled.byfailure")"
+        log::input _ "$(tr::t "default.script.pause")"
+        return 1
+    fi
+
+    # Configura o dracut caso ele esteja instalado
+    log::info "$(tr::t "installer::install_nvidia.dracut")"
+    installer::set_up_dracut
+    
+    log::info "$(tr::t "installer::install_nvidia.success")"
 
     # Abre a janela para escolher qual driver instalar
     tui::menu::flavors
 }
 
-tr::add "pt_BR" "installer::install_nvidia.verify.already.installed.log" "Os drivers da NVIDIA já estão instalados no seu sistema."
-tr::add "pt_BR" "installer::install_nvidia.verify.already.installed" "Para instalar outra versão, primeiro desinstale o driver atual utilizando a opção \"Desinstalar Drivers NVIDIA\" no menu principal."
-tr::add "pt_BR" "installer::install_nvidia.start" "Iniciando a instalação do driver NVIDIA..."
-tr::add "pt_BR" "installer::install_nvidia.verify.gpu.start" "Verificando a presença de GPUs NVIDIA no sistema..."
-tr::add "pt_BR" "installer::install_nvidia.verify.gpu.found" "GPUs NVIDIA encontradas:"
-tr::add "pt_BR" "installer::install_nvidia.verify.gpu.not_found" "Nenhuma GPU NVIDIA encontrada no sistema."
-tr::add "pt_BR" "installer::install_nvidia.verify.gpu.msgbox.title" "GPUs NVIDIA Encontradas"
+tr::add "pt_BR" "installer::install_nvidia.start" "Iniciando pré-instalação..."
+tr::add "pt_BR" "installer::install_nvidia.installed_drivers" "Verificando por drivers instalados no sistema..."
+tr::add "pt_BR" "installer::install_nvidia.installed_drivers.already_installed" "Driver NVIDIA detectado no sistema, remova o driver instalado no sistema antes de prosseguir com uma nova instalação. Operação abortada."
+tr::add "pt_BR" "installer::install_nvidia.verify_gpu" "Procurando por hardware NVIDIA..."
+tr::add "pt_BR" "installer::install_nvidia.verify_gpu.success" "Hardware NVIDIA detectado:"
+tr::add "pt_BR" "installer::install_nvidia.verify_gpu.failure" "Nenhum hardware NVIDIA encontrado. Operação abortada."
+tr::add "pt_BR" "installer::install_nvidia.verify_arch" "Verificando arquitetura do sistema..."
+tr::add "pt_BR" "installer::install_nvidia.unsupported_arch" "Arquitetura %1 não é suportada através deste instalador. Operação abortada."
+tr::add "pt_BR" "installer::install_nvidia.enable_multiarch" "Habilitando suporte à arquitetura i386..."
+tr::add "pt_BR" "installer::install_nvidia.enable_multiarch.failure" "Falha ao habilitar suporte à arquitetura i386."
+tr::add "pt_BR" "installer::install_nvidia.enable_multiarch.success" "Suporte à arquitetura i386 habilitada com sucesso."
+tr::add "pt_BR" "installer::install_nvidia.sources_components" "Verificando por componentes necessários ausentes na lista de origens..."
+tr::add "pt_BR" "installer::install_nvidia.sources_components.ok" "Lista de origens possuí todos os componentes necessários habilitados."
+tr::add "pt_BR" "installer::install_nvidia.sources_components.missing" "Lista de origens possuí componentes ausentes. Habilitando componentes ausentes na lista de origem..."
+tr::add "pt_BR" "installer::install_nvidia.sources_components.success" "Componentes ausentes na lista de origem foram habilitados com sucesso."
+tr::add "pt_BR" "installer::install_nvidia.sources_components.failure" "Falha ao habilitar componentes ausentes na lista de origens. Operação abortada."
+tr::add "pt_BR" "installer::install_nvidia.update_packages" "Atualizando lista de pacotes..."
+tr::add "pt_BR" "installer::install_nvidia.kernel_headers" "Instalando metapacote dos cabeçalhos do kernel..."
+tr::add "pt_BR" "installer::install_nvidia.dracut" "Verificando se é necessário configurar o dracut..."
+tr::add "pt_BR" "installer::install_nvidia.success" "Pré-instalação concluída. Iniciando menu de instalação dos drivers NVIDIA..."
 
-tr::add "en_US" "installer::install_nvidia.verify.already.installed.log" "The NVIDIA drivers are already installed on your system."
-tr::add "en_US" "installer::install_nvidia.verify.already.installed" "To install a different version, first uninstall the current driver using the \"Uninstall NVIDIA Drivers\" option in the main menu."
-tr::add "en_US" "installer::install_nvidia.start" "Starting NVIDIA driver installation..."
-tr::add "en_US" "installer::install_nvidia.verify.gpu.start" "Checking for NVIDIA GPUs in the system..."
-tr::add "en_US" "installer::install_nvidia.verify.gpu.found" "NVIDIA GPUs found:"
-tr::add "en_US" "installer::install_nvidia.verify.gpu.not_found" "No NVIDIA GPU found in the system."
-tr::add "en_US" "installer::install_nvidia.verify.gpu.msgbox.title" "NVIDIA GPUs Found"
+tr::add "en_US" "installer::install_nvidia.start" "Starting pre-installation..."
+tr::add "en_US" "installer::install_nvidia.installed_drivers" "Checking for installed drivers on the system..."
+tr::add "en_US" "installer::install_nvidia.installed_drivers.already_installed" "NVIDIA driver detected on the system. Please remove the existing driver before proceeding with a new installation. Operation aborted."
+tr::add "en_US" "installer::install_nvidia.verify_gpu" "Searching for NVIDIA hardware..."
+tr::add "en_US" "installer::install_nvidia.verify_gpu.success" "NVIDIA hardware detected:"
+tr::add "en_US" "installer::install_nvidia.verify_gpu.failure" "No NVIDIA hardware found. Operation aborted."
+tr::add "en_US" "installer::install_nvidia.verify_arch" "Checking system architecture..."
+tr::add "en_US" "installer::install_nvidia.unsupported_arch" "Architecture %1 is not supported by this installer. Operation aborted."
+tr::add "en_US" "installer::install_nvidia.enable_multiarch" "Enabling support for i386 architecture..."
+tr::add "en_US" "installer::install_nvidia.enable_multiarch.failure" "Failed to enable support for i386 architecture."
+tr::add "en_US" "installer::install_nvidia.enable_multiarch.success" "Support for i386 architecture successfully enabled."
+tr::add "en_US" "installer::install_nvidia.sources_components" "Checking for missing required components in the sources list..."
+tr::add "en_US" "installer::install_nvidia.sources_components.ok" "All required components are already enabled in the sources list."
+tr::add "en_US" "installer::install_nvidia.sources_components.missing" "Some components are missing in the sources list. Enabling missing components..."
+tr::add "en_US" "installer::install_nvidia.sources_components.success" "Missing components have been successfully enabled in the sources list."
+tr::add "en_US" "installer::install_nvidia.sources_components.failure" "Failed to enable missing components in the sources list. Operation aborted."
+tr::add "en_US" "installer::install_nvidia.update_packages" "Updating package list..."
+tr::add "en_US" "installer::install_nvidia.kernel_headers" "Installing kernel header metapackage..."
+tr::add "en_US" "installer::install_nvidia.dracut" "Checking if dracut configuration is required..."
+tr::add "en_US" "installer::install_nvidia.success" "Pre-installation completed. Launching NVIDIA driver installation menu..."
 
 # Função principal para desinstalação do driver NVIDIA
 installer::uninstall_nvidia() {
