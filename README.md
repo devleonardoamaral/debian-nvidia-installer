@@ -56,8 +56,6 @@ rm ./debian-nvidia-installer_0.0.1.deb
 sudo apt remove debian-nvidia-installer
 ```
 
----
-
 # How to Build the Package Manually
 
 1. Clone this repository:

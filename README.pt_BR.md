@@ -58,7 +58,6 @@ rm ./debian-nvidia-installer_X.X.X.deb
 # Remove o pacote e suas dependências
 sudo apt remove debian-nvidia-installer
 ```
----
 
 # Como empacotar manualmente
 
