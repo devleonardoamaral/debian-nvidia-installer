@@ -2,7 +2,7 @@
 
 You can help the project in two main ways:
 
-- **Reporting issues**: Open an [issue on GitHub](https://github.com/devleonardoamaral/debian-nvidia-installer/issues) and include your hardware, operating system, a description of the unexpected behavior, and the complete log or relevant excerpts (`/var/log/debian-nvidia-installer/debian-nvidia-installer.log`).
+- **Reporting issues or submitting suggestions**: Open an [issue on GitHub](https://github.com/devleonardoamaral/debian-nvidia-installer/issues) and include your hardware, operating system, a description of the unexpected behavior or your suggestion, and the complete log or relevant excerpts (`/var/log/debian-nvidia-installer/debian-nvidia-installer.log`).
 
 - **Helping with translations**: The script uses inline translations via `tr::add`. You can improve existing translations or add new languages by creating or updating entries and submitting a pull request.
 
