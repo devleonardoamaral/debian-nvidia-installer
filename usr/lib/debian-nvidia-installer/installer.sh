@@ -18,10 +18,6 @@
 # You should have received a copy of the GNU General Public License
 # along with debian-nvidia-installer. If not, see <https://www.gnu.org/licenses/gpl-3.0.html>.
 
-installer::pre_installation() {
-    return 0
-}
-
 installer::post_installation() {
     # Força uma atualização de pacotes no Flatpak para que sejam instaladas as bibliotecas do driver NVIDIA
     if packages::is_installed "flatpak"; then
@@ -32,20 +28,14 @@ installer::post_installation() {
     return 0
 }
 
-tr::add "pt_BR" "installer::post_installation.warn.flatpak" "Antes de usar pacotes flatpak, reinicie o sistema e atualize os pacotes executando o seguinte comando no terminal:\n\nflatpak update -y"
+tr::add "pt_BR" "installer::post_installation.warn.flatpak" "Após reiniciar o sistema, atualize os pacotes Flatpak executando no terminal:\n\nflatpak update -y\n\nIsso garante que os Flatpak utilizem as bibliotecas gráficas atualizadas do novo driver instalado, evitando falhas ou problemas de compatibilidade."
 
-tr::add "en_US" "installer::post_installation.warn.flatpak" "Before using Flatpak packages, restart the system and update the packages by running the following command in the terminal:\n\nflatpak update -y"
+tr::add "en_US" "installer::post_installation.warn.flatpak" "After restarting the system, update Flatpak packages by running in the terminal:\n\nflatpak update -y\n\nThis ensures that Flatpak apps use the updated graphics libraries from the newly installed driver, preventing failures or compatibility issues."
 
 installer::install_debian_proprietary535() {
     if ! tui::yesno::default "$(tr::t "default.tui.title.warn")" "$(tr::t "installer::install_debian_proprietary535.tui.yesno.proprietarydriver.confirm")"; then
         log::info "$(tr::t "default.script.canceled.byuser")"
         return 255
-    fi
-
-    if ! installer::pre_installation; then
-        log::critical "$(tr::t "default.script.canceled.byfailure")"
-        log::input _ "$(tr::t "default.script.pause")"
-        return 1
     fi
 
     # Instala o driver da NVIDIA
@@ -61,37 +51,18 @@ installer::install_debian_proprietary535() {
         log::input _ "$(tr::t "default.script.pause")"
         return 1
     fi
-
-    # Habilita o DRM modeset NVIDIA
-    nvidia::enable_modeset
-
-    if ! installer::post_installation; then
-        log::input _ "$(tr::t "default.script.pause")"
-    fi
     
-    log::info "$(tr::t "installer::install_debian_proprietary535.success")"
-    tui::msgbox::custom "" "$(tr::t "installer::install_debian_proprietary535.success")"
-    tui::msgbox::need_restart # Exibe aviso que é necessário reiniciar
-
-    script::exit
+    return 0
 }
 
 tr::add "pt_BR" "installer::install_debian_proprietary535.tui.yesno.proprietarydriver.confirm" "Você está prestes a instalar o driver proprietário da NVIDIA.\n\nDeseja continuar?"
-tr::add "pt_BR" "installer::install_debian_proprietary535.success" "Driver NVIDIA Proprietário instalado com sucesso."
 
 tr::add "en_US" "installer::install_debian_proprietary535.tui.yesno.proprietarydriver.confirm" "You are about to install the proprietary NVIDIA driver.\n\nDo you want to continue?"
-tr::add "en_US" "installer::install_debian_proprietary535.success" "Proprietary NVIDIA Driver installed successfully."
 
 installer::install_debian_proprietary550() {
     if ! tui::yesno::default "$(tr::t "default.tui.title.warn")" "$(tr::t "installer::install_debian_proprietary550.tui.yesno.proprietarydriver.confirm")"; then
         log::info "$(tr::t "default.script.canceled.byuser")"
         return 255
-    fi
-
-    if ! installer::pre_installation; then
-        log::critical "$(tr::t "default.script.canceled.byfailure")"
-        log::input _ "$(tr::t "default.script.pause")"
-        return 1
     fi
     
     # Instala o driver da NVIDIA
@@ -119,36 +90,17 @@ installer::install_debian_proprietary550() {
         fi
     done
 
-    # Habilita o DRM modeset NVIDIA
-    nvidia::enable_modeset
-
-    if ! installer::post_installation; then
-        log::input _ "$(tr::t "default.script.pause")"
-    fi
-    
-    log::info "$(tr::t "installer::install_debian_proprietary550.success")"
-    tui::msgbox::custom "" "$(tr::t "installer::install_debian_proprietary550.success")"
-    tui::msgbox::need_restart # Exibe aviso que é necessário reiniciar
-
-    script::exit
+    return 0
 }
 
 tr::add "pt_BR" "installer::install_debian_proprietary550.tui.yesno.proprietarydriver.confirm" "Você está prestes a instalar o driver proprietário da NVIDIA.\n\nDeseja continuar?"
-tr::add "pt_BR" "installer::install_debian_proprietary550.success" "Driver NVIDIA Proprietário instalado com sucesso."
 
 tr::add "en_US" "installer::install_debian_proprietary550.tui.yesno.proprietarydriver.confirm" "You are about to install the proprietary NVIDIA driver.\n\nDo you want to continue?"
-tr::add "en_US" "installer::install_debian_proprietary550.success" "Proprietary NVIDIA Driver installed successfully."
 
 installer::install_debian_opensource() {
     if ! tui::yesno::default "$(tr::t "default.tui.title.warn")" "$(tr::t "installer::install_debian_opensource.tui.yesno.opendriver.confirm")"; then
         log::info "$(tr::t "default.script.canceled.byuser")"
         return 255
-    fi
-
-    if ! installer::pre_installation; then
-        log::critical "$(tr::t "default.script.canceled.byfailure")"
-        log::input _ "$(tr::t "default.script.pause")"
-        return 1
     fi
 
     # Instala o driver da NVIDIA
@@ -175,176 +127,13 @@ installer::install_debian_opensource() {
             packages::install "libnvoptix1" "libnvidia-ngx1"
         fi
     done
-
-    # Habilita o DRM modeset NVIDIA
-    nvidia::enable_modeset
-
-    if ! installer::post_installation; then
-        log::input _ "$(tr::t "default.script.pause")"
-    fi
         
-    log::info "$(tr::t "installer::install_debian_opensource.success")"
-    tui::msgbox::custom "" "$(tr::t "installer::install_debian_opensource.success")"
-    tui::msgbox::need_restart
-
-    script::exit
+    return 0
 }
 
 tr::add "pt_BR" "installer::install_debian_opensource.tui.yesno.opendriver.confirm" "Você está prestes a instalar o driver Open Source da NVIDIA.\n\nDeseja continuar?"
-tr::add "pt_BR" "installer::install_debian_opensource.success" "Driver NVIDIA Open Source instalado com sucesso."
 
 tr::add "en_US" "installer::install_debian_opensource.tui.yesno.opendriver.confirm" "You are about to install the Open Source NVIDIA driver.\n\nDo you want to continue?"
-tr::add "en_US" "installer::install_debian_opensource.success" "Open Source NVIDIA Driver installed successfully."
-
-installer::install_cuda_proprietary() {
-    local temp_download_file="/tmp/cudakeyring.deb"
-    trap 'rm -f "$temp_download_file"' RETURN
-
-    if ! tui::yesno::default "$(tr::t "default.tui.title.warn")" "$(tr::t "installer::install_cuda_proprietary.tui.yesno.cuda.proprietary.confirm")"; then
-        log::info "$(tr::t "default.script.canceled.byuser")"
-        return 255
-    fi
-
-    if [[ ! -f "$temp_download_file" ]]; then
-        wget -O "$temp_download_file" https://developer.download.nvidia.com/compute/cuda/repos/debian12/x86_64/cuda-keyring_1.1-1_all.deb | tee -a /dev/fd/3 
-        if [[ "${PIPESTATUS[0]}" -ne 0 ]]; then
-            log::critical "$(tr::t "installer::install_cuda_proprietary.repo.download.failure")"
-            log::input _ "$(tr::t "default.script.pause")"
-            return 1
-        fi
-    fi
-
-    if ! packages::install "$temp_download_file"; then
-        log::critical "$(tr::t "installer::install_cuda_proprietary.repo.install.failure")"
-        log::input _ "$(tr::t "default.script.pause")"
-        return 1
-    fi
-
-    if ! packages::update; then
-        log::critical "$(tr::t "installer::install_cuda_proprietary.packages.update.failure")"
-        log::input _ "$(tr::t "default.script.pause")"
-        return 1
-    fi
-
-    if ! installer::pre_installation; then
-        log::critical "$(tr::t "default.script.canceled.byfailure")"
-        log::input _ "$(tr::t "default.script.pause")"
-        return 1
-    fi
-
-    # Instala o driver da NVIDIA
-    local status
-    ( # Subshell para isolar a variável DEBIAN_FRONTEND
-        export DEBIAN_FRONTEND=noninteractive
-        packages::install "cuda-drivers"
-    )
-    status=$?
-
-    if [[ $status -ne 0 ]]; then
-        log::critical "$(tr::t "default.script.canceled.byfailure")"
-        log::input _ "$(tr::t "default.script.pause")"
-        return 1
-    fi
-
-    if ! installer::post_installation; then
-        log::input _ "$(tr::t "default.script.pause")"
-    fi
-
-    log::info "$(tr::t "installer::install_cuda_proprietary.success")"
-    tui::msgbox::custom "" "$(tr::t "installer::install_cuda_proprietary.success")"
-    tui::msgbox::need_restart
-
-    script::exit
-}
-
-tr::add "pt_BR" "installer::install_cuda_proprietary.tui.yesno.cuda.proprietary.confirm" "Você está prestes a instalar o driver Proprietário da NVIDIA fornecido pelo repositório CUDA.\n\nDeseja continuar?"
-tr::add "pt_BR" "installer::install_cuda_proprietary.repo.download.failure" "Download do cuda-keyring falhou. Operação abortada."
-tr::add "pt_BR" "installer::install_cuda_proprietary.repo.install.failure" "Instalação do cuda-keyring falhou. Operação abortada."
-tr::add "pt_BR" "installer::install_cuda_proprietary.packages.update.failure" "Atualização da lista de pacotes locais falhou. Operação abortada."
-tr::add "pt_BR" "installer::install_cuda_proprietary.failure" "Instalação dos drivers Nvidia falhou. Operação abortada."
-tr::add "pt_BR" "installer::install_cuda_proprietary.success" "Driver NVIDIA instalado com sucesso."
-
-tr::add "en_US" "installer::install_cuda_proprietary.tui.yesno.cuda.proprietary.confirm" "You are about to install the NVIDIA Proprietary driver provided by the CUDA repository.\n\nDo you want to continue?"
-tr::add "en_US" "installer::install_cuda_proprietary.repo.download.failure" "Failed to download the cuda-keyring. Operation aborted."
-tr::add "en_US" "installer::install_cuda_proprietary.repo.install.failure" "Failed to install the cuda-keyring. Operation aborted."
-tr::add "en_US" "installer::install_cuda_proprietary.packages.update.failure" "Failed to update the local package list. Operation aborted."
-tr::add "en_US" "installer::install_cuda_proprietary.failure" "Failed to install the NVIDIA drivers. Operation aborted."
-tr::add "en_US" "installer::install_cuda_proprietary.success" "NVIDIA Driver installed successfully."
-
-installer::install_cuda_opensource() {
-    local temp_download_file="/tmp/cudakeyring.deb"
-    trap 'rm -f "$temp_download_file"' RETURN
-
-    if ! tui::yesno::default "$(tr::t "default.tui.title.warn")" "$(tr::t "installer::install_cuda_opensource.tui.yesno.cuda.proprietary.confirm")"; then
-        log::info "$(tr::t "default.script.canceled.byuser")"
-        return 255
-    fi
-
-    if [[ ! -f "$temp_download_file" ]]; then
-        wget -O "$temp_download_file" https://developer.download.nvidia.com/compute/cuda/repos/debian12/x86_64/cuda-keyring_1.1-1_all.deb | tee -a /dev/fd/3 
-        if [[ "${PIPESTATUS[0]}" -ne 0 ]]; then
-            log::critical "$(tr::t "installer::install_cuda_opensource.repo.download.failure")"
-            log::input _ "$(tr::t "default.script.pause")"
-            return 1
-        fi
-    fi
-
-    if ! packages::install "$temp_download_file"; then
-        log::critical "$(tr::t "installer::install_cuda_opensource.repo.install.failure")"
-        log::input _ "$(tr::t "default.script.pause")"
-        return 1
-    fi
-
-    if ! packages::update; then
-        log::critical "$(tr::t "installer::install_cuda_opensource.packages.update.failure")"
-        log::input _ "$(tr::t "default.script.pause")"
-        return 1
-    fi
-
-    if ! installer::pre_installation; then
-        log::critical "$(tr::t "default.script.canceled.byfailure")"
-        log::input _ "$(tr::t "default.script.pause")"
-        return 1
-    fi
-
-    # Instala o driver da NVIDIA
-    local status
-    ( # Subshell para isolar a variável DEBIAN_FRONTEND
-        export DEBIAN_FRONTEND=noninteractive
-        packages::install "nvidia-open"
-    )
-    status=$?
-
-    if [[ $status -ne 0 ]]; then
-        log::critical "$(tr::t "default.script.canceled.byfailure")"
-        log::input _ "$(tr::t "default.script.pause")"
-        return 1
-    fi
-
-    if ! installer::post_installation; then
-        log::input _ "$(tr::t "default.script.pause")"
-    fi
-
-    log::info "$(tr::t "installer::install_cuda_opensource.success")"
-    tui::msgbox::custom "" "$(tr::t "installer::install_cuda_opensource.success")"
-    tui::msgbox::need_restart
-
-    script::exit
-}
-
-tr::add "pt_BR" "installer::install_cuda_opensource.tui.yesno.cuda.proprietary.confirm" "Você está prestes a instalar o driver de Código Aberto da NVIDIA fornecido pelo repositório CUDA.\n\nDeseja continuar?"
-tr::add "pt_BR" "installer::install_cuda_opensource.repo.download.failure" "Download do cuda-keyring falhou. Operação abortada."
-tr::add "pt_BR" "installer::install_cuda_opensource.repo.install.failure" "Instalação do cuda-keyring falhou. Operação abortada."
-tr::add "pt_BR" "installer::install_cuda_opensource.packages.update.failure" "Atualização da lista de pacotes locais falhou. Operação abortada."
-tr::add "pt_BR" "installer::install_cuda_opensource.failure" "Instalação dos drivers Nvidia falhou. Operação abortada."
-tr::add "pt_BR" "installer::install_cuda_opensource.success" "Driver NVIDIA instalado com sucesso."
-
-tr::add "en_US" "installer::install_cuda_opensource.tui.yesno.cuda.proprietary.confirm" "You are about to install the NVIDIA Open Source driver provided by the CUDA repository.\n\nDo you want to continue?"
-tr::add "en_US" "installer::install_cuda_opensource.repo.download.failure" "Failed to download the cuda-keyring. Operation aborted."
-tr::add "en_US" "installer::install_cuda_opensource.repo.install.failure" "Failed to install the cuda-keyring. Operation aborted."
-tr::add "en_US" "installer::install_cuda_opensource.packages.update.failure" "Failed to update the local package list. Operation aborted."
-tr::add "en_US" "installer::install_cuda_opensource.failure" "Failed to install the NVIDIA drivers. Operation aborted."
-tr::add "en_US" "installer::install_cuda_opensource.success" "NVIDIA Driver installed successfully."
 
 installer::setup_mok() {
     local mok_pub_path="/var/lib/dkms/mok.pub"
@@ -368,24 +157,19 @@ installer::setup_mok() {
         return 1
     fi
 
-    log::success "$(tr::t "installer::setup_mok.success")"
+    log::warn "$(tr::t "installer::setup_mok.success")"
     tui::msgbox::warn "$(tr::t "installer::setup_mok.success")"
-    tui::msgbox::need_restart # Exibe aviso que é necessário reiniciar
-
-    log::warn "$(tr::t "installer::setup_mok.restart_required")"
 
     script::exit
 }
 
-tr::add "pt_BR" "installer::setup_mok.password" "Você precisará criar uma senha para o MOK (Machine Owner Key) agora.\n\nCertifique-se de lembrar dessa senha, pois ela será necessária daqui a pouco para completar a instalação do driver NVIDIA."
+tr::add "pt_BR" "installer::setup_mok.password" "Agora você precisará criar uma senha para a MOK (Machine Owner Key).\n\nLembre-se desta senha, pois será necessária na próxima etapa para concluir a instalação do driver NVIDIA."
 tr::add "pt_BR" "installer::setup_mok.importing" "Importando a chave MOK..."
-tr::add "pt_BR" "installer::setup_mok.success" "Chave MOK importada com sucesso."
-tr::add "pt_BR" "installer::setup_mok.restart_required" "Reinicie o sistema para completar a configuração do MOK."
+tr::add "pt_BR" "installer::setup_mok.success" "A chave MOK foi importada com sucesso. Para concluir a inscrição da chave, siga os passos abaixo:\n\n1. Reinicie o computador e aguarde a tela azul do MOK Manager.\n2. Selecione 'Enroll MOK'.\n3. Selecione 'Continue'.\n4. Selecione 'Yes'.\n5. Digite a senha que você criou para a MOK.\n6. Conclua selecionando 'Reboot'.\n\nDica: se possível, tire uma foto desta tela para referência futura."
 
-tr::add "en_US" "installer::setup_mok.password" "You will need to create a password for the MOK (Machine Owner Key) now.\n\nMake sure to remember this password, as it will be required shortly to complete the NVIDIA driver installation."
+tr::add "en_US" "installer::setup_mok.password" "You will now need to create a password for the MOK (Machine Owner Key).\n\nRemember this password, as it will be required in the next step to complete the NVIDIA driver installation."
 tr::add "en_US" "installer::setup_mok.importing" "Importing MOK key..."
-tr::add "en_US" "installer::setup_mok.success" "MOK key imported successfully."
-tr::add "en_US" "installer::setup_mok.restart_required" "Please restart the system to complete MOK setup."
+tr::add "en_US" "installer::setup_mok.success" "MOK key imported successfully. To complete the key enrollment, follow these steps:\n\n1. Restart your computer and wait for the MOK Manager blue screen.\n2. Select 'Enroll MOK'.\n3. Select 'Continue'.\n4. Select 'Yes'.\n5. Enter the password you created for the MOK.\n6. Finish by selecting 'Reboot'.\n\nTip: if possible, take a photo of this screen for future reference."
 
 installer::check_secure_boot() {
     local mok_pub_path="/var/lib/dkms/mok.pub"
@@ -411,7 +195,6 @@ installer::check_secure_boot() {
         fi
 
         log::warn "$(tr::t "installer::check_secure_boot.mok.missing")"
-        tui::msgbox::warn "$(tr::t "installer::check_secure_boot.mok.missing")"
 
         if tui::yesno::default "$(tr::t "default.tui.title.warn")" "$(tr::t "installer::check_secure_boot.mok.prompt")"; then
             installer::setup_mok
@@ -431,20 +214,18 @@ installer::check_secure_boot() {
 
 tr::add "pt_BR" "log.installer.secureboot.start" "Iniciando verificação do Secure Boot..."
 tr::add "pt_BR" "installer::check_secure_boot.enabled" "Secure Boot está ATIVADO."
-tr::add "pt_BR" "installer::check_secure_boot.mok.already_enrolled" "Chave MOK já registrada."
-tr::add "pt_BR" "installer::check_secure_boot.mok.missing" "Chave MOK não registrada. É necessário registrá-la para continuar."
-tr::add "pt_BR" "installer::check_secure_boot.mok.prompt" "Você precisa registrar a chave MOK (Machine Owner Key) para continuar.\n\nDeseja registrar agora?"
+tr::add "pt_BR" "installer::check_secure_boot.mok.already_enrolled" "MOK já registrada."
+tr::add "pt_BR" "installer::check_secure_boot.mok.prompt" "O sistema possui Secure Boot habilitado, mas não há uma MOK (Machine Owner Key) configurada. Sem uma MOK, os drivers NVIDIA podem não funcionar corretamente. Você pode resolver isso de duas maneiras:\n\n1. Configurando uma MOK\n2. Desativando o Secure Boot na BIOS\n\nPara mais informações: https://wiki.debian.org/SecureBoot#MOK_-_Machine_Owner_Key\n\nDeseja iniciar o processo guiado de configuração da MOK agora?"
 tr::add "pt_BR" "installer::check_secure_boot.mok.setup.failure" "Falha ao configurar a chave MOK."
-tr::add "pt_BR" "installer::check_secure_boot.mok.abortedbyuser" "Configuração da chave MOK abortada pelo usuário.\n\nNão será possível continuar a instalação do driver NVIDIA sem registrar a chave MOK, reinicie o script para tentar novamente ou assine a chave MOK manualmente.\n\nConsulte: https://wiki.debian.org/SecureBoot#MOK_-_Machine_Owner_Key"
+tr::add "pt_BR" "installer::check_secure_boot.mok.abortedbyuser" "Você optou por não configurar a MOK. Com o Secure Boot habilitado e sem uma MOK, os drivers NVIDIA não funcionarão corretamente. A instalação será cancelada.\n\nPara prosseguir no futuro, você pode:\n1. Configurar a MOK manualmente (veja instruções em: https://wiki.debian.org/SecureBoot#MOK_-_Machine_Owner_Key)\n2. Desativar o Secure Boot na BIOS"
 tr::add "pt_BR" "installer::check_secure_boot.disabled" "Secure Boot está DESATIVADO. Você pode continuar sem registrar a chave MOK."
 
 tr::add "en_US" "log.installer.secureboot.start" "Starting Secure Boot check..."
 tr::add "en_US" "installer::check_secure_boot.enabled" "Secure Boot is ENABLED."
-tr::add "en_US" "installer::check_secure_boot.mok.already_enrolled" "MOK key already enrolled."
-tr::add "en_US" "installer::check_secure_boot.mok.missing" "MOK key not enrolled. You need to enroll it to continue."
-tr::add "en_US" "installer::check_secure_boot.mok.prompt" "You need to enroll the MOK (Machine Owner Key) to continue.\n\nDo you want to enroll now?"
+tr::add "en_US" "installer::check_secure_boot.mok.already_enrolled" "MOK already enrolled."
+tr::add "en_US" "installer::check_secure_boot.mok.prompt" "The system has Secure Boot enabled, but no MOK (Machine Owner Key) is configured. Without a MOK, NVIDIA drivers may not function correctly. You can resolve this in one of two ways:\n\n1. Configuring a MOK\n2. Disabling Secure Boot in the BIOS\n\nFor more information: https://wiki.debian.org/SecureBoot#MOK_-_Machine_Owner_Key\n\nWould you like to start the guided MOK configuration process now?"
 tr::add "en_US" "installer::check_secure_boot.mok.setup.failure" "Failed to set up MOK key."
-tr::add "en_US" "installer::check_secure_boot.mok.abortedbyuser" "MOK key setup aborted by user.\n\nYou will not be able to continue the NVIDIA driver installation without enrolling the MOK key, please restart the script to try again or manually enroll the MOK key.\n\nSee: https://wiki.debian.org/SecureBoot#MOK_-_Machine_Owner_Key"
+tr::add "en_US" "installer::check_secure_boot.mok.abortedbyuser" "You have chosen not to configure a MOK. With Secure Boot enabled and no MOK, NVIDIA drivers will not function correctly. The installation will be canceled.\n\nTo proceed in the future, you can:\n1. Configure a MOK manually (see instructions at: https://wiki.debian.org/SecureBoot#MOK_-_Machine_Owner_Key)\n2. Disable Secure Boot in the BIOS"
 tr::add "en_US" "installer::check_secure_boot.disabled" "Secure Boot is DISABLED. You can continue without enrolling the MOK key."
 
 installer::set_up_dracut() {
@@ -552,10 +333,29 @@ installer::install_nvidia() {
     log::info "$(tr::t "installer::install_nvidia.dracut")"
     installer::set_up_dracut
     
-    log::info "$(tr::t "installer::install_nvidia.success")"
+    log::info "$(tr::t "installer::install_nvidia.pre.success")"
 
     # Abre a janela para escolher qual driver instalar
-    tui::menu::flavors
+    if ! tui::menu::flavors; then
+        return 1
+    fi
+
+    # Habilita o DRM modeset NVIDIA
+    if ! nvidia::enable_modeset; then
+        log::error "$(tr:t "installer::install_nvidia.modeset.failure")"
+        log::input _ "$(tr::t "default.script.pause")"
+    fi
+
+    # Faz configurações e checagens pós-instalação
+    if ! installer::post_installation; then
+        log::input _ "$(tr::t "default.script.pause")"
+    fi
+
+    log::info "$(tr::t "installer::install_nvidia.success")"
+    tui::msgbox::custom "" "$(tr::t "installer::install_nvidia.success")"
+    tui::msgbox::need_restart # Exibe aviso que é necessário reiniciar
+
+    script::exit
 }
 
 tr::add "pt_BR" "installer::install_nvidia.start" "Iniciando pré-instalação..."
@@ -577,7 +377,9 @@ tr::add "pt_BR" "installer::install_nvidia.sources_components.failure" "Falha ao
 tr::add "pt_BR" "installer::install_nvidia.update_packages" "Atualizando lista de pacotes..."
 tr::add "pt_BR" "installer::install_nvidia.kernel_headers" "Instalando metapacote dos cabeçalhos do kernel..."
 tr::add "pt_BR" "installer::install_nvidia.dracut" "Verificando se é necessário configurar o dracut..."
-tr::add "pt_BR" "installer::install_nvidia.success" "Pré-instalação concluída. Iniciando menu de instalação dos drivers NVIDIA..."
+tr::add "pt_BR" "installer::install_nvidia.pre.success" "Pré-instalação concluída. Iniciando menu de instalação dos drivers NVIDIA..."
+tr::add "pt_BR" "installer::install_nvidia.modeset.failure" "Falha na ativação do DRM Modeset."
+tr::add "pt_BR" "installer::install_nvidia.success" "Driver da NVIDIA instalado com sucesso."
 
 tr::add "en_US" "installer::install_nvidia.start" "Starting pre-installation..."
 tr::add "en_US" "installer::install_nvidia.installed_drivers" "Checking for installed drivers on the system..."
@@ -598,7 +400,10 @@ tr::add "en_US" "installer::install_nvidia.sources_components.failure" "Failed t
 tr::add "en_US" "installer::install_nvidia.update_packages" "Updating package list..."
 tr::add "en_US" "installer::install_nvidia.kernel_headers" "Installing kernel header metapackage..."
 tr::add "en_US" "installer::install_nvidia.dracut" "Checking if dracut configuration is required..."
-tr::add "en_US" "installer::install_nvidia.success" "Pre-installation completed. Launching NVIDIA driver installation menu..."
+tr::add "en_US" "installer::install_nvidia.pre.success" "Pre-installation completed. Launching NVIDIA driver installation menu..."
+tr::add "en_US" "installer::install_nvidia.modeset.failure" "Failed to activate DRM Modeset."
+tr::add "en_US" "installer::install_nvidia.success" "NVIDIA driver installed successfully."
+
 
 # Função principal para desinstalação do driver NVIDIA
 installer::uninstall_nvidia() {
@@ -618,10 +423,13 @@ installer::uninstall_nvidia() {
     # Verifica quais pacotes da Nvidia estão instalados
     # Garante que os firwares não sejam removidos e nem o próprio script
     local pkgs=()
-    mapfile -t pkgs < <(dpkg -l | awk '($2 ~ /nvidia/ || $2 ~ /^libxnv/ || $2 ~ /cuda-toolkit/ || $2 ~ /^cuda-keyring$/) && $2 != "debian-nvidia-installer" {print $2}')
+    mapfile -t pkgs < <(dpkg -l | awk '($2 ~ /nvidia/ || $2 ~ /^libxnv/ || $2 ~ /^cuda-drivers$/ || $2 ~ /cuda-toolkit/) && $2 != "debian-nvidia-installer" {print $2}')
+
+    # Remove o bloqueio de versão do repositório CUDA, caso ele exista
+    cudarepo::unlock_cuda_version
 
     # Remove o repositório CUDA, caso ele exista
-    nvidia::remove_cuda_repo | tee -a /dev/fd/3
+    cudarepo::uninstall_cuda_repository
 
     # Desinstala os pacotes encontrados ou pula a desistalação
     if [ "${#pkgs[@]}" -gt 0 ]; then
@@ -689,4 +497,4 @@ tr::add "en_US" "installer::uninstall_nvidia.reinstall.nouveau.start" "Reinstall
 tr::add "en_US" "installer::uninstall_nvidia.reinstall.nouveau.success" "Nouveau driver reinstalled successfully."
 tr::add "en_US" "installer::uninstall_nvidia.success" "NVIDIA driver uninstalled successfully."
 tr::add "en_US" "installer::uninstall_nvidia.no_packages" "No NVIDIA packages found to uninstall."
-tr::add "en_US" "installer::uninstall_nvidia.removingfile" "Removendo arquivo: %1 ..."
+tr::add "en_US" "installer::uninstall_nvidia.removingfile" "Removing file: %1 ..."

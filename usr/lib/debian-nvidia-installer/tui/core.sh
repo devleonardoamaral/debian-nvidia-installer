@@ -37,7 +37,7 @@ tui::show_menu() {
            --title "$title" \
            --ok-label "$(tr::t "default.tui.button.confirm")" \
            --menu "$prompt" \
-           15 50 10 \
+           20 70 10 \
            "${menu_items[@]}" 2>&1 1>/dev/tty)"
 
     local ret="$?"
@@ -56,7 +56,7 @@ tui::show_msgbox() {
            --title "$title" \
            --ok-label "$ok_label" \
            --msgbox "$message" \
-           15 60 1>/dev/tty
+           20 70 1>/dev/tty
 
     return "$?"
 }
@@ -72,7 +72,7 @@ tui::show_yesno() {
            --title "$title" \
            --yes-label "$yes_label" \
            --no-label "$no_label" \
-           --yesno "$message" 15 50 1>/dev/tty
+           --yesno "$message" 20 70 1>/dev/tty
     
     return "$?"
 }

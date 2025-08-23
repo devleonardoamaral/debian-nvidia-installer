@@ -90,37 +90,72 @@ tr::add "en_US" "tui.menu.posinstall.option.switchpvma" "Switch PreservedVideoMe
 tr::add "en_US" "tui.menu.posinstall.option.s0ixpm" "Switch S0ix Power Management"
 
 tui::menu::flavors() {
-    local choice
+    local version_stable="${CUDA_DRIVER_VERSIONS["stable"]}"
+    local version_latest="${CUDA_DRIVER_VERSIONS["latest"]}"
+
+    tr::add "pt_BR" "tui.menu.driverflavors.option.install.cuda.stable.proprietary" "v${version_stable} Proprietário (instável) [Cuda Repo]"
+    tr::add "pt_BR" "tui.menu.driverflavors.option.install.cuda.stable.opensource" "v${version_stable} Código Aberto (instável) [Cuda Repo]"
+    tr::add "pt_BR" "tui.menu.driverflavors.option.install.cuda.latest.proprietary" "v${version_latest} Proprietário (instável) [Cuda Repo]"
+    tr::add "pt_BR" "tui.menu.driverflavors.option.install.cuda.latest.opensource" "v${version_latest} Código Aberto (instável) [Cuda Repo]"
+
+    tr::add "en_US" "tui.menu.driverflavors.option.install.cuda.stable.proprietary" "v${version_stable} Proprietary (unstable) [Cuda Repo]"
+    tr::add "en_US" "tui.menu.driverflavors.option.install.cuda.stable.opensource" "v${version_stable} Open Source (unstable) [Cuda Repo]"
+    tr::add "en_US" "tui.menu.driverflavors.option.install.cuda.latest.proprietary" "v${version_latest} Proprietary (unstable) [Cuda Repo]"
+    tr::add "en_US" "tui.menu.driverflavors.option.install.cuda.latest.opensource" "v${version_latest} Open Source (unstable) [Cuda Repo]"
+
+    local choice status
     choice=$(tui::show_menu "" "$(tr::t "tui.driverflavors.subtitle")" \
         1 "$(tr::t "tui.menu.driverflavors.option.install.debian.proprietary535")" \
         2 "$(tr::t "tui.menu.driverflavors.option.install.debian.proprietary550")" \
         3 "$(tr::t "tui.menu.driverflavors.option.install.debian.opensource")" \
-        4 "$(tr::t "tui.menu.driverflavors.option.install.cuda.proprietary")" \
-        5 "$(tr::t "tui.menu.driverflavors.option.install.cuda.opensource")" \
-        6 "$(tr::t "default.tui.button.exit")")
+        4 "$(tr::t "tui.menu.driverflavors.option.install.cuda.stable.proprietary")" \
+        5 "$(tr::t "tui.menu.driverflavors.option.install.cuda.stable.opensource")" \
+        6 "$(tr::t "tui.menu.driverflavors.option.install.cuda.latest.proprietary")" \
+        7 "$(tr::t "tui.menu.driverflavors.option.install.cuda.latest.opensource")" \
+        8 "$(tr::t "default.tui.button.exit")")
     choice="${choice:-6}"
 
     case "$choice" in
-        1) installer::install_debian_proprietary535 ;;
-        2) installer::install_debian_proprietary550 ;;
-        3) installer::install_debian_opensource ;;
-        4) installer::install_cuda_proprietary ;;
-        5) installer::install_cuda_opensource ;;
-        # 6) Volta ao menu principal por padrão
+        1) 
+            installer::install_debian_proprietary535
+            status=$?
+            ;;
+        2) 
+            installer::install_debian_proprietary550
+            status=$?
+            ;;
+        3) 
+            installer::install_debian_opensource 
+            status=$?
+            ;;
+        4) 
+            cudarepo::install_driver "stable" "proprietary"
+            status=$?
+            ;;
+        5)  
+            cudarepo::install_driver "stable" "open-source" 
+            status=$?
+            ;;
+        6) 
+            cudarepo::install_driver "latest" "proprietary"
+            status=$?
+            ;;
+        7)  
+            cudarepo::install_driver "latest" "open-source" 
+            status=$?
+            ;;
+        # 8) Volta ao menu principal por padrão
     esac
-    return
+
+    return "$status"
 }
 
 tr::add "pt_BR" "tui.driverflavors.subtitle" "Selecione qual driver insalar:"
 tr::add "pt_BR" "tui.menu.driverflavors.option.install.debian.proprietary535" "v535 Proprietário [Debian Repo]"
 tr::add "pt_BR" "tui.menu.driverflavors.option.install.debian.proprietary550" "v550 Proprietário [Debian Repo]"
 tr::add "pt_BR" "tui.menu.driverflavors.option.install.debian.opensource" "v550 Código Aberto [Debian Repo]"
-tr::add "pt_BR" "tui.menu.driverflavors.option.install.cuda.proprietary" "v580 Proprietário (instável) [Cuda Repo]"
-tr::add "pt_BR" "tui.menu.driverflavors.option.install.cuda.opensource" "v580 Código Aberto (instável) [Cuda Repo]"
 
 tr::add "en_US" "tui.driverflavors.subtitle" "Select which driver to install:"
 tr::add "en_US" "tui.menu.driverflavors.option.install.debian.proprietary535" "v535 Proprietário [Debian Repo]"
 tr::add "en_US" "tui.menu.driverflavors.option.install.debian.proprietary550" "v550 Proprietary [Debian Repo]"
 tr::add "en_US" "tui.menu.driverflavors.option.install.debian.opensource" "v550 Open Source [Debian Repo]"
-tr::add "en_US" "tui.menu.driverflavors.option.install.cuda.proprietary" "v580 Proprietary (unstable) [Cuda Repo]"
-tr::add "en_US" "tui.menu.driverflavors.option.install.cuda.opensource" "v580 Open Source (unstable) [Cuda Repo]"
