@@ -341,9 +341,11 @@ installer::install_nvidia() {
     fi
 
     # Habilita o DRM modeset NVIDIA
-    if ! nvidia::enable_modeset; then
-        log::error "$(tr:t "installer::install_nvidia.modeset.failure")"
-        log::input _ "$(tr::t "default.script.pause")"
+    if ! packages::is_installed "cuda-keyring"; then # Já é ativado nos drivers CUDA
+        if ! nvidia::enable_modeset; then
+            log::error "$(tr:t "installer::install_nvidia.modeset.failure")"
+            log::input _ "$(tr::t "default.script.pause")"
+        fi
     fi
 
     # Faz configurações e checagens pós-instalação

@@ -214,11 +214,7 @@ cudarepo::install_cuda_proprietary() {
         return 1
     fi
 
-    log::info "$(tr::t "cudarepo::install_cuda_proprietary.success")"
-    tui::msgbox::custom "" "$(tr::t "cudarepo::install_cuda_proprietary.success")"
-    tui::msgbox::need_restart
-
-    script::exit
+    return 0
 }
 
 tr::add "pt_BR" "cudarepo::install_cuda_proprietary.start" "Iniciando instalação do driver NVIDIA..."
@@ -244,11 +240,7 @@ cudarepo::install_cuda_opensource() {
         return 1
     fi
 
-    log::info "$(tr::t "cudarepo::install_cuda_opensource.success")"
-    tui::msgbox::custom "" "$(tr::t "cudarepo::install_cuda_opensource.success")"
-    tui::msgbox::need_restart
-
-    script::exit
+    return 0
 }
 
 tr::add "pt_BR" "cudarepo::install_cuda_opensource.start" "Iniciando instalação do driver NVIDIA..."
