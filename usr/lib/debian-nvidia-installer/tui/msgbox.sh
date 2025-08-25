@@ -65,8 +65,11 @@ tui::msgbox::optimus_incompatible() {
         "$(tr::t "default.tui.button.ok")"
 }
 
-tr::add "pt_BR" "tui::msgbox::optimus_incompatible" "Esta funcionalidade não é compatível com sistemas Optimus!\n\nPara saber como identificar se seu dispositivo utiliza hardware Optimus, confira a documentação: https://wiki.debian.org/NVIDIA%20Optimus"
-tr::add "en_US" "tui::msgbox::optimus_incompatible" "This feature is not compatible with Optimus systems!\n\nTo learn how to identify if your device uses Optimus hardware, check the documentation: https://wiki.debian.org/NVIDIA%20Optimus"
+tr::add "pt_BR" "tui::msgbox::optimus_incompatible" \
+"Esta funcionalidade não é compatível com sistemas Optimus.\n\nPara verificar se seu dispositivo utiliza hardware Optimus, consulte a documentação oficial: https://wiki.debian.org/NVIDIA%20Optimus"
+
+tr::add "en_US" "tui::msgbox::optimus_incompatible" \
+"This feature is not compatible with Optimus systems.\n\nTo check if your device uses Optimus hardware, see the official documentation: https://wiki.debian.org/NVIDIA%20Optimus"
 
 # Caixa de diálogo de aviso crítico
 tui::msgbox::dangerous_action() {
@@ -77,6 +80,6 @@ tui::msgbox::dangerous_action() {
         "$(tr::t "default.tui.button.ok")"
 }
 
-# Traduções
-tr::add "pt_BR" "tui::msgbox::dangerous_action" "Esta funcionalidade é perigosa e pode quebrar seu sistema!\n\nCertifique-se de entender completamente o que está fazendo antes de prosseguir."
-tr::add "en_US" "tui::msgbox::dangerous_action" "This action is dangerous and can break your system!\n\nMake sure you fully understand what you are doing before proceeding."
+tr::add "pt_BR" "tui::msgbox::dangerous_action" "Certifique-se de entender completamente o que está fazendo antes de prosseguir! Esta funcionalidade pode causar comportamentos inesperados quando utilizada incorretamente."
+
+tr::add "en_US" "tui::msgbox::dangerous_action" "Make sure you fully understand what you are doing before proceeding! This feature may cause unexpected behavior when used incorrectly."
