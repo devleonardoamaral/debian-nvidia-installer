@@ -19,7 +19,9 @@
 # along with debian-nvidia-installer. If not, see <https://www.gnu.org/licenses/gpl-3.0.html>.
 
 tui::menu::main() {
-    while true; do       
+    while true; do     
+        log::info "$(tr::t "tui::menu::main.nav.start")"
+
         NAVIGATION_STATUS=1
 
         local choice
@@ -45,6 +47,7 @@ tui::menu::main() {
     done
 }
 
+tr::add "pt_BR" "tui::menu::main.nav.start" "Iniciando menu tui::menu::main..."
 tr::add "pt_BR" "tui.menu.main.title" "DEBIAN NVIDIA INSTALLER"
 tr::add "pt_BR" "tui.menu.main.subtitle" "Selecione uma opção:"
 tr::add "pt_BR" "tui.menu.main.option.installdrivers" "Instalar Drivers NVIDIA"
@@ -52,6 +55,7 @@ tr::add "pt_BR" "tui.menu.main.option.uninstalldrivers" "Desinstalar Drivers NVI
 tr::add "pt_BR" "tui.menu.main.option.posinstall" "Opções pós-instalação"
 tr::add "pt_BR" "tui::menu::main.drivernotinstalled" "Não foi possível detectar o driver da NVIDIA no sistema.\n\nInstale o driver e reinicie o sistema para que o driver seja carregado antes de acessar as opções pós-instalação."
 
+tr::add "en_US" "tui::menu::main.nav.start" "Starting tui::menu::main menu..."
 tr::add "en_US" "tui.menu.main.title" "DEBIAN NVIDIA INSTALLER"
 tr::add "en_US" "tui.menu.main.subtitle" "Select an option:"
 tr::add "en_US" "tui.menu.main.option.installdrivers" "Install NVIDIA Drivers"
@@ -60,46 +64,151 @@ tr::add "en_US" "tui.menu.main.option.posinstall" "Post-installation Options"
 tr::add "en_US" "tui::menu::main.drivernotinstalled" "Could not detect the NVIDIA driver on the system.\n\nInstall the driver and restart the system so that the driver is loaded before accessing the post-installation options."
 
 tui::menu::posinstall() {
-    local choice
-    choice=$(tui::show_menu "$(tr::t "tui.menu.posinstall.title")" "$(tr::t "tui.menu.posinstall.subtitle")" \
-        1 "$(tr::t "tui.menu.posinstall.option.cuda")" \
-        2 "$(tr::t "tui.menu.posinstall.option.switchpvma")" \
-        3 "$(tr::t "tui.menu.posinstall.option.s0ixpm")" \
-        4 "$(tr::t "default.tui.button.exit")")
-    choice="${choice:-4}"
+    local option_labels=()
+    local option_actions=()
+    local menu_items=()
+    local is_cuda_installed pvma_val s0ixpm_val
+    local choice i tag status
 
-    case "$choice" in
-        1) posinstall::install_cuda_toolkit ;;
-        2) posinstall::switch_nvidia_pvma ;;
-        3) posinstall::switch_nvidia_s0ixpm ;;
-        # 4) Volta ao menu principal por padrão
-    esac
-    return
+    while true; do
+        log::info "$(tr::t "tui::menu::posinstall.nav.start")"
+        post_installation::is_cuda_toolkit_installed
+        is_cuda_installed=$?
+
+        # Construindo o menu dinamicamente
+        option_labels=()
+        option_actions=()
+
+        # Serviços auxiliares de energia da NVIDIA
+        if [ "$(nvidia::get_source_alias)" == "cuda" ]; then
+            nvidia::is_power_services_enabled
+            status=$?
+            log::info "$(tr::t_args "tui::menu::posinstall.power_service.status" "$status")"
+            if [ "$status" -eq 0 ]; then
+                option_labels+=("$(tr::t "tui::menu::posinstall.option.disable_power_service")")
+                option_actions+=("posinstall::disable_power_service")
+            else
+                option_labels+=("$(tr::t "tui::menu::posinstall.option.enable_power_service")")
+                option_actions+=("posinstall::enable_power_service")
+            fi
+        fi
+
+        # PVMA
+        pvma_val="$(nvidia::get_pvma)"
+        status=$?
+        if [ "$status" -eq 0 ]; then
+            log::info "$(tr::t_args "tui::menu::posinstall.pvma.status" "$pvma_val")"
+
+            if [ "$pvma_val" -eq 1 ]; then
+                option_labels+=("$(tr::t "tui::menu::posinstall.option.disable_pvma")")
+                option_actions+=("posinstall::disable_nvidia_pvma")
+            else
+                option_labels+=("$(tr::t "tui::menu::posinstall.option.enable_pvma")")
+                option_actions+=("posinstall::enable_nvidia_pvma")
+            fi
+        fi
+
+        # S0ixPM
+        s0ixpm_val="$(nvidia::get_s0ixpm)"
+        status=$?
+        if [ "$status" -eq 0 ]; then
+            log::info "$(tr::t_args "tui::menu::posinstall.s0ixpm.status" "$s0ixpm_val")"
+
+            if [ "$s0ixpm_val" -eq 1 ]; then
+                option_labels+=("$(tr::t "tui::menu::posinstall.option.disable_s0ixpm")")
+                option_actions+=("posinstall::disable_nvidia_s0ixpm")
+            else
+                option_labels+=("$(tr::t "tui::menu::posinstall.option.enable_s0ixpm")")
+                option_actions+=("posinstall::enable_nvidia_s0ixpm")
+            fi
+        fi
+
+        # CUDA
+        if [ "$is_cuda_installed" -eq 0 ]; then
+            option_labels+=("$(tr::t "tui::menu::posinstall.option.cuda.uninstall")")
+            option_actions+=("posinstall::uninstall_cuda_toolkit")
+        elif [ "$is_cuda_installed" -eq 1 ]; then
+            option_labels+=("$(tr::t "tui::menu::posinstall.option.cuda.install")")
+            option_actions+=("posinstall::install_cuda_toolkit")
+        else
+            log::error "$(tr::t "tui::menu::posinstall.option.cuda.error")"
+        fi
+
+        # Sempre adiciona a opção de sair
+        option_labels+=("$(tr::t "default.tui.button.exit")")
+        option_actions+=("break")
+
+        # Monta array intercalando tags e rótulos
+        menu_items=()
+        for i in "${!option_labels[@]}"; do
+            tag=$((i + 1))
+            menu_items+=("$tag" "${option_labels[i]}")
+        done
+
+        # Exibindo o menu
+        choice=$(tui::show_menu "$(tr::t "tui::menu::posinstall.title")" \
+                        "$(tr::t "tui::menu::posinstall.subtitle")" \
+                        "${menu_items[@]}")
+
+        # ESC ou cancelamento
+        if [ $? -eq 255 ]; then
+            break
+        fi
+
+        choice="${choice:-${#option_labels[@]}}"
+        # Executa a ação correspondente
+        i=$((choice - 1))
+        eval "${option_actions[i]}"
+
+        log::input _ "$(tr::t "default.script.pause")"
+    done
 }
 
-tr::add "pt_BR" "tui.menu.posinstall.title" "OPÇÕES PÓS-INSTALAÇÃO"
-tr::add "pt_BR" "tui.menu.posinstall.subtitle" "Selecione uma opção:"
-tr::add "pt_BR" "tui.menu.posinstall.option.cuda" "CUDA Toolkit"
-tr::add "pt_BR" "tui.menu.posinstall.option.switchpvma" "Alternar PreservedVideoMemoryAllocation"
-tr::add "pt_BR" "tui.menu.posinstall.option.s0ixpm" "Alternar S0ix Power Management"
+tr::add "pt_BR" "tui::menu::posinstall.nav.start" "Iniciando menu tui::menu::posinstall..."
+tr::add "pt_BR" "tui::menu::posinstall.title" "OPÇÕES PÓS-INSTALAÇÃO"
+tr::add "pt_BR" "tui::menu::posinstall.subtitle" "Selecione uma opção:"
+tr::add "pt_BR" "tui::menu::posinstall.power_service.status" "Status dos serviços auxiliares de energia NVIDIA: %1"
+tr::add "pt_BR" "tui::menu::posinstall.option.enable_power_service" "Ativar serviços auxiliares de energia NVIDIA"
+tr::add "pt_BR" "tui::menu::posinstall.option.disable_power_service" "Desativar serviços auxiliares de energia NVIDIA"
+tr::add "pt_BR" "tui::menu::posinstall.pvma.status" "Opção NVreg_PreserveVideoMemoryAllocations=%1"
+tr::add "pt_BR" "tui::menu::posinstall.option.enable_pvma" "Ativar NVreg_PreserveVideoMemoryAllocations"
+tr::add "pt_BR" "tui::menu::posinstall.option.disable_pvma" "Desativar NVreg_PreserveVideoMemoryAllocations"
+tr::add "pt_BR" "tui::menu::posinstall.s0ixpm.status" "Opção NVreg_EnableS0ixPowerManagement=%1"
+tr::add "pt_BR" "tui::menu::posinstall.option.enable_s0ixpm" "Ativar NVreg_EnableS0ixPowerManagement"
+tr::add "pt_BR" "tui::menu::posinstall.option.disable_s0ixpm" "Desativar NVreg_EnableS0ixPowerManagement"
+tr::add "pt_BR" "tui::menu::posinstall.option.cuda.error" "Não foi possível determinar o repositório para instalação do CUDA Toolkit. Reinstale os drivers utilizando este script e tente novamente." 
+tr::add "pt_BR" "tui::menu::posinstall.option.cuda.install" "Instalar CUDA Toolkit" 
+tr::add "pt_BR" "tui::menu::posinstall.option.cuda.uninstall" "Desinstalar CUDA Toolkit"
 
-tr::add "en_US" "tui.menu.posinstall.title" "POST-INSTALLATION OPTIONS"
-tr::add "en_US" "tui.menu.posinstall.subtitle" "Select an option:"
-tr::add "en_US" "tui.menu.posinstall.option.cuda" "CUDA Toolkit"
-tr::add "en_US" "tui.menu.posinstall.option.switchpvma" "Switch PreservedVideoMemoryAllocation"
-tr::add "en_US" "tui.menu.posinstall.option.s0ixpm" "Switch S0ix Power Management"
+tr::add "en_US" "tui::menu::posinstall.nav.start" "Starting tui::menu::posinstall menu..."
+tr::add "en_US" "tui::menu::posinstall.title" "POST-INSTALLATION OPTIONS"
+tr::add "en_US" "tui::menu::posinstall.subtitle" "Select an option:"
+tr::add "en_US" "tui::menu::posinstall.power_service.status" "NVIDIA auxiliary power services status: %1"
+tr::add "en_US" "tui::menu::posinstall.option.enable_power_service" "Enable NVIDIA power helper services"
+tr::add "en_US" "tui::menu::posinstall.option.disable_power_service" "Disable NVIDIA power helper services"
+tr::add "en_US" "tui::menu::posinstall.pvma.status" "Option NVreg_PreserveVideoMemoryAllocations=%1"
+tr::add "en_US" "tui::menu::posinstall.option.enable_pvma" "Enable PreservedVideoMemoryAllocation"
+tr::add "en_US" "tui::menu::posinstall.option.disable_pvma" "Disable PreservedVideoMemoryAllocation"
+tr::add "en_US" "tui::menu::posinstall.s0ixpm.status" "Option NVreg_EnableS0ixPowerManagement=%1"
+tr::add "en_US" "tui::menu::posinstall.option.enable_s0ixpm" "Enable S0ix Power Management"
+tr::add "en_US" "tui::menu::posinstall.option.disable_s0ixpm" "Disable S0ix Power Management"
+tr::add "en_US" "tui::menu::posinstall.option.cuda.error" "Could not determine the repository for installing the CUDA Toolkit. Please reinstall the drivers using this script and try again." 
+tr::add "en_US" "tui::menu::posinstall.option.cuda.install" "Install CUDA Toolkit" 
+tr::add "en_US" "tui::menu::posinstall.option.cuda.uninstall" "Uninstall CUDA Toolkit"
 
 tui::menu::flavors() {
+    log::info "$(tr::t "tui::menu::flavors.nav.start")"
+
     local version_stable="${CUDA_DRIVER_VERSIONS["stable"]}"
     local version_latest="${CUDA_DRIVER_VERSIONS["latest"]}"
 
-    tr::add "pt_BR" "tui.menu.driverflavors.option.install.cuda.stable.proprietary" "v${version_stable} Proprietário (instável) [Cuda Repo]"
-    tr::add "pt_BR" "tui.menu.driverflavors.option.install.cuda.stable.opensource" "v${version_stable} Código Aberto (instável) [Cuda Repo]"
+    tr::add "pt_BR" "tui.menu.driverflavors.option.install.cuda.stable.proprietary" "v${version_stable} Proprietário [Cuda Repo]"
+    tr::add "pt_BR" "tui.menu.driverflavors.option.install.cuda.stable.opensource" "v${version_stable} Código Aberto [Cuda Repo]"
     tr::add "pt_BR" "tui.menu.driverflavors.option.install.cuda.latest.proprietary" "v${version_latest} Proprietário (instável) [Cuda Repo]"
     tr::add "pt_BR" "tui.menu.driverflavors.option.install.cuda.latest.opensource" "v${version_latest} Código Aberto (instável) [Cuda Repo]"
 
-    tr::add "en_US" "tui.menu.driverflavors.option.install.cuda.stable.proprietary" "v${version_stable} Proprietary (unstable) [Cuda Repo]"
-    tr::add "en_US" "tui.menu.driverflavors.option.install.cuda.stable.opensource" "v${version_stable} Open Source (unstable) [Cuda Repo]"
+    tr::add "en_US" "tui.menu.driverflavors.option.install.cuda.stable.proprietary" "v${version_stable} Proprietary [Cuda Repo]"
+    tr::add "en_US" "tui.menu.driverflavors.option.install.cuda.stable.opensource" "v${version_stable} Open Source [Cuda Repo]"
     tr::add "en_US" "tui.menu.driverflavors.option.install.cuda.latest.proprietary" "v${version_latest} Proprietary (unstable) [Cuda Repo]"
     tr::add "en_US" "tui.menu.driverflavors.option.install.cuda.latest.opensource" "v${version_latest} Open Source (unstable) [Cuda Repo]"
 
@@ -150,11 +259,13 @@ tui::menu::flavors() {
     return "$status"
 }
 
+tr::add "pt_BR" "tui::menu::flavors.nav.start" "Iniciando menu tui::menu::flavors..."
 tr::add "pt_BR" "tui.driverflavors.subtitle" "Selecione qual driver insalar:"
 tr::add "pt_BR" "tui.menu.driverflavors.option.install.debian.proprietary535" "v535 Proprietário [Debian Repo]"
 tr::add "pt_BR" "tui.menu.driverflavors.option.install.debian.proprietary550" "v550 Proprietário [Debian Repo]"
 tr::add "pt_BR" "tui.menu.driverflavors.option.install.debian.opensource" "v550 Código Aberto [Debian Repo]"
 
+tr::add "en_US" "tui::menu::flavors.nav.start" "Starting tui::menu::flavors menu..."
 tr::add "en_US" "tui.driverflavors.subtitle" "Select which driver to install:"
 tr::add "en_US" "tui.menu.driverflavors.option.install.debian.proprietary535" "v535 Proprietário [Debian Repo]"
 tr::add "en_US" "tui.menu.driverflavors.option.install.debian.proprietary550" "v550 Proprietary [Debian Repo]"

@@ -18,287 +18,335 @@
 # You should have received a copy of the GNU General Public License
 # along with debian-nvidia-installer. If not, see <https://www.gnu.org/licenses/gpl-3.0.html>.
 
-posinstall::install_cuda_toolkit::install() {
-    local pkgs=("$@")
-    local pkgs_count=${#pkgs[@]}
-    local installed_pkgs=()
+post_installation::is_cuda_toolkit_installed() {
+    local repo
+    repo="$(nvidia::get_source_alias)"
 
-    if ! packages::update; then
-        log::critical "$(tr::t "default.script.canceled.byfailure")"
-        log::input _ "$(tr::t "default.script.pause")"
+    if [ -z "$repo" ]; then
         return 1
     fi
 
-    # Verifica quais pacotes já estão instalados
-    for pkg in "${pkgs[@]}"; do
-        if packages::is_installed "$pkg"; then
-            installed_pkgs+=("$pkg")
+    case "$repo" in
+        debian)
+
+            if packages::is_installed "nvidia-cuda-dev" || packages::is_installed "nvidia-cuda-toolkit"; then
+                return 0
+            else
+                return 1
+            fi
+            ;;
+        cuda)
+            if packages::is_installed "cuda-toolkit-13-0"; then
+                return 0
+            else
+                return 1
+            fi
+            ;;
+        unknown)  
+                return 2
+            ;;
+    esac
+
+    return 1
+}
+
+posinstall::install_cuda_toolkit() {
+    local repo
+    repo="$(nvidia::get_source_alias)"
+
+    log::info "$(tr::t_args "posinstall::install_cuda_toolkit.start" "$repo")"
+
+    if ! tui::yesno::default "" "$(tr::t "posinstall::install_cuda_toolkit.confirm")"; then
+        log::info "$(tr::t "default.script.canceled.byuser")"
+        return 255
+    fi
+
+    if ! packages::update; then
+        log::error "$(tr::t "posinstall::install_cuda_toolkit.update_failure")"
+        tui::msgbox::error "$(tr::t "posinstall::install_cuda_toolkit.update_failure")"
+        return 1
+    fi
+
+    case "$repo" in
+        debian)
+
+            if ! packages::install "nvidia-cuda-dev" "nvidia-cuda-toolkit"; then
+                log::error "$(tr:t "posinstall::install_cuda_toolkit.install_failure")"
+                tui::msgbox::error "$(tr::t "posinstall::install_cuda_toolkit.install_failure")"
+                return 1
+            fi
+            ;;
+        cuda)
+            if ! packages::install "cuda-toolkit-13-0"; then
+                log::error "$(tr:t "posinstall::install_cuda_toolkit.install_failure")"
+                tui::msgbox::error "$(tr::t "posinstall::install_cuda_toolkit.install_failure")"
+                return 1
+            fi
+            ;;
+        *)  
+            log::error "$(tr:t "posinstall::install_cuda_toolkit.invalid_repo")"
+            tui::msgbox::error "$(tr::t "posinstall::install_cuda_toolkit.invalid_repo")"
+            return 1
+            ;;
+    esac
+
+    log::info "$(tr::t "posinstall::install_cuda_toolkit.success")"
+    tui::msgbox::warn "$(tr::t "posinstall::install_cuda_toolkit.success")"
+    return 0
+}
+
+tr::add "pt_BR" "posinstall::install_cuda_toolkit.start" "Iniciando instalação do CUDA Toolkit através do repositório %1."
+tr::add "pt_BR" "posinstall::install_cuda_toolkit.confirm" "Você está prestes a instalar o CUDA Toolkit. Deseja continuar?"
+tr::add "pt_BR" "posinstall::install_cuda_toolkit.update_failure" "Instalação do CUDA Toolkit falhou: não foi possível atualizar a lista de pacotes."
+tr::add "pt_BR" "posinstall::install_cuda_toolkit.install_failure" "Instalação do CUDA Toolkit falhou: erro na instalação dos pacotes."
+tr::add "pt_BR" "posinstall::install_cuda_toolkit.invalid_repo" "Erro inesperado: repositório inválido."
+tr::add "pt_BR" "posinstall::install_cuda_toolkit.success" "Instalação do CUDA Toolkit concluída com sucesso."
+
+tr::add "en_US" "posinstall::install_cuda_toolkit.start" "Starting CUDA Toolkit installation via %1 repository."
+tr::add "en_US" "posinstall::install_cuda_toolkit.confirm" "You are about to install the CUDA Toolkit. Do you want to continue?"
+tr::add "en_US" "posinstall::install_cuda_toolkit.update_failure" "CUDA Toolkit installation failed: could not update package list."
+tr::add "en_US" "posinstall::install_cuda_toolkit.install_failure" "CUDA Toolkit installation failed: error installing packages."
+tr::add "en_US" "posinstall::install_cuda_toolkit.invalid_repo" "Unexpected error: invalid repository."
+tr::add "en_US" "posinstall::install_cuda_toolkit.success" "CUDA Toolkit installation completed successfully."
+
+posinstall::uninstall_cuda_toolkit() {
+    local repo
+    repo="$(nvidia::get_source_alias)"
+
+    log::info "$(tr::t_args "posinstall::uninstall_cuda_toolkit.start" "$repo")"
+
+    if ! tui::yesno::default "" "$(tr::t "posinstall::uninstall_cuda_toolkit.confirm")"; then
+        log::info "$(tr::t "default.script.canceled.byuser")"
+        return 255
+    fi
+
+    case "$repo" in
+        debian)
+
+            if ! packages::purge "nvidia-cuda-dev" "nvidia-cuda-toolkit"; then
+                log::error "$(tr:t "posinstall::uninstall_cuda_toolkit.uninstall_failure")"
+                tui::msgbox::error "$(tr::t "posinstall::uninstall_cuda_toolkit.uninstall_failure")"
+                return 1
+            fi
+            ;;
+        cuda)
+            if ! packages::purge "cuda-toolkit-13-0"; then
+                log::error "$(tr:t "posinstall::uninstall_cuda_toolkit.uninstall_failure")"
+                tui::msgbox::error "$(tr::t "posinstall::uninstall_cuda_toolkit.uninstall_failure")"
+                return 1
+            fi
+            ;;
+        *)  
+            log::error "$(tr:t "posinstall::uninstall_cuda_toolkit.invalid_repo")"
+            tui::msgbox::error "$(tr::t "posinstall::uninstall_cuda_toolkit.invalid_repo")"
+            return 1
+            ;;
+    esac
+
+    log::info "$(tr::t "posinstall::uninstall_cuda_toolkit.success")"
+    tui::msgbox::warn "$(tr::t "posinstall::uninstall_cuda_toolkit.success")"
+    return 0
+}
+
+tr::add "pt_BR" "posinstall::uninstall_cuda_toolkit.start" "Iniciando desinstalação do CUDA Toolkit através do repositório %1."
+tr::add "pt_BR" "posinstall::uninstall_cuda_toolkit.confirm" "Você está prestes a desinstalar o CUDA Toolkit. Deseja continuar?"
+tr::add "pt_BR" "posinstall::uninstall_cuda_toolkit.uninstall_failure" "Desinstalação do CUDA Toolkit falhou: erro na remoção dos pacotes."
+tr::add "pt_BR" "posinstall::uninstall_cuda_toolkit.invalid_repo" "Erro inesperado: repositório inválido."
+tr::add "pt_BR" "posinstall::uninstall_cuda_toolkit.success" "Desinstalação do CUDA Toolkit concluída com sucesso."
+
+tr::add "en_US" "posinstall::uninstall_cuda_toolkit.start" "Starting CUDA Toolkit uninstallation via %1 repository."
+tr::add "en_US" "posinstall::uninstall_cuda_toolkit.confirm" "You are about to uninstall the CUDA Toolkit. Do you want to continue?"
+tr::add "en_US" "posinstall::uninstall_cuda_toolkit.uninstall_failure" "CUDA Toolkit uninstallation failed: error removing packages."
+tr::add "en_US" "posinstall::uninstall_cuda_toolkit.invalid_repo" "Unexpected error: invalid repository."
+tr::add "en_US" "posinstall::uninstall_cuda_toolkit.success" "CUDA Toolkit uninstallation completed successfully."
+
+posinstall::enable_nvidia_pvma() {
+    log::info "$(tr::t "posinstall::enable_nvidia_pvma.start")"
+
+    tui::msgbox::dangerous_action
+    tui::msgbox::optimus_incompatible
+
+    if ! tui::yesno::default "" "$(tr::t "posinstall::enable_nvidia_pvma.confirm")"; then
+        log::info "$(tr::t "default.script.canceled.byuser")"
+        return 255
+    fi
+
+    if ! nvidia::change_option_pvma "1"; then
+        log::error "$(tr::t "posinstall::enable_nvidia_pvma.failure")"
+        return 1
+    fi
+
+    log::info "$(tr::t "posinstall::enable_nvidia_pvma.success")"
+    tui::msgbox::need_restart
+    return 0
+}
+
+tr::add "pt_BR" "posinstall::enable_nvidia_pvma.start" "Ativando PreserveVideoMemoryAllocation..."
+tr::add "pt_BR" "posinstall::enable_nvidia_pvma.confirm" "Você está prestes a ativar o PreserveVideoMemoryAllocation. Deseja continuar?"
+tr::add "pt_BR" "posinstall::enable_nvidia_pvma.failure" "Falha ao ativar o PreserveVideoMemoryAllocation."
+tr::add "pt_BR" "posinstall::enable_nvidia_pvma.success" "PreserveVideoMemoryAllocation ativado com sucesso."
+
+tr::add "en_US" "posinstall::enable_nvidia_pvma.start" "Enabling PreserveVideoMemoryAllocation..."
+tr::add "en_US" "posinstall::enable_nvidia_pvma.confirm" "You are about to enable PreserveVideoMemoryAllocation. Do you want to continue?"
+tr::add "en_US" "posinstall::enable_nvidia_pvma.failure" "Failed to enable PreserveVideoMemoryAllocation."
+tr::add "en_US" "posinstall::enable_nvidia_pvma.success" "PreserveVideoMemoryAllocation enabled successfully."
+
+posinstall::disable_nvidia_pvma() {
+    log::info "$(tr::t "posinstall::disable_nvidia_pvma.start")"
+
+    tui::msgbox::dangerous_action
+    # Não precisa do warning sobre Optimus ao desativar
+
+    if ! tui::yesno::default "" "$(tr::t "posinstall::disable_nvidia_pvma.confirm")"; then
+        log::info "$(tr::t "default.script.canceled.byuser")"
+        return 255
+    fi
+
+    if ! nvidia::change_option_pvma "0"; then
+        log::error "$(tr::t "posinstall::disable_nvidia_pvma.failure")"
+        return 1
+    fi
+
+    log::info "$(tr::t "posinstall::disable_nvidia_pvma.success")"
+    tui::msgbox::need_restart
+    return 0
+}
+
+tr::add "pt_BR" "posinstall::disable_nvidia_pvma.start" "Desativando PreserveVideoMemoryAllocation..."
+tr::add "pt_BR" "posinstall::disable_nvidia_pvma.confirm" "Você está prestes a desativar o PreserveVideoMemoryAllocation. Deseja continuar?"
+tr::add "pt_BR" "posinstall::disable_nvidia_pvma.failure" "Falha ao desativar o PreserveVideoMemoryAllocation."
+tr::add "pt_BR" "posinstall::disable_nvidia_pvma.success" "PreserveVideoMemoryAllocation desativado com sucesso."
+
+tr::add "en_US" "posinstall::disable_nvidia_pvma.start" "Disabling PreserveVideoMemoryAllocation..."
+tr::add "en_US" "posinstall::disable_nvidia_pvma.confirm" "You are about to disable PreserveVideoMemoryAllocation. Do you want to continue?"
+tr::add "en_US" "posinstall::disable_nvidia_pvma.failure" "Failed to disable PreserveVideoMemoryAllocation."
+tr::add "en_US" "posinstall::disable_nvidia_pvma.success" "PreserveVideoMemoryAllocation disabled successfully."
+
+# Habilitar S0ixPM
+posinstall::enable_nvidia_s0ixpm() {
+    log::info "$(tr::t "posinstall::enable_nvidia_s0ixpm.start")"
+
+    tui::msgbox::dangerous_action
+    tui::msgbox::optimus_incompatible
+
+    if ! tui::yesno::default "" "$(tr::t "posinstall::enable_nvidia_s0ixpm.confirm")"; then
+        log::info "$(tr::t "default.script.canceled.byuser")"
+        return 255
+    fi
+
+    if ! nvidia::change_option_s0ixpm "1"; then
+        log::error "$(tr::t "posinstall::enable_nvidia_s0ixpm.failure")"
+        return 1
+    fi
+
+    log::info "$(tr::t "posinstall::enable_nvidia_s0ixpm.success")"
+    tui::msgbox::need_restart
+    return 0
+}
+
+tr::add "pt_BR" "posinstall::enable_nvidia_s0ixpm.start" "Ativando o modo S0ix Power Management..."
+tr::add "pt_BR" "posinstall::enable_nvidia_s0ixpm.confirm" "Você está prestes a ativar o modo S0ix Power Management. Deseja continuar?"
+tr::add "pt_BR" "posinstall::enable_nvidia_s0ixpm.failure" "Falha ao ativar o modo S0ix Power Management."
+tr::add "pt_BR" "posinstall::enable_nvidia_s0ixpm.success" "Modo S0ix Power Management ativado com sucesso."
+
+tr::add "en_US" "posinstall::enable_nvidia_s0ixpm.start" "Enabling S0ix Power Management..."
+tr::add "en_US" "posinstall::enable_nvidia_s0ixpm.confirm" "You are about to enable S0ix Power Management. Do you want to continue?"
+tr::add "en_US" "posinstall::enable_nvidia_s0ixpm.failure" "Failed to enable S0ix Power Management."
+tr::add "en_US" "posinstall::enable_nvidia_s0ixpm.success" "S0ix Power Management enabled successfully."
+
+posinstall::disable_nvidia_s0ixpm() {
+    log::info "$(tr::t "posinstall::disable_nvidia_s0ixpm.start")"
+
+    tui::msgbox::dangerous_action
+    # Não precisa do warning sobre Optimus ao desativar
+
+    if ! tui::yesno::default "" "$(tr::t "posinstall::disable_nvidia_s0ixpm.confirm")"; then
+        log::info "$(tr::t "default.script.canceled.byuser")"
+        return 255
+    fi
+
+    if ! nvidia::change_option_s0ixpm "0"; then
+        log::error "$(tr::t "posinstall::disable_nvidia_s0ixpm.failure")"
+        return 1
+    fi
+
+    log::info "$(tr::t "posinstall::disable_nvidia_s0ixpm.success")"
+    tui::msgbox::need_restart
+    return 0
+}
+
+tr::add "pt_BR" "posinstall::disable_nvidia_s0ixpm.start" "Desativando o modo S0ix Power Management..."
+tr::add "pt_BR" "posinstall::disable_nvidia_s0ixpm.confirm" "Você está prestes a desativar o modo S0ix Power Management. Deseja continuar?"
+tr::add "pt_BR" "posinstall::disable_nvidia_s0ixpm.failure" "Falha ao desativar o modo S0ix Power Management."
+tr::add "pt_BR" "posinstall::disable_nvidia_s0ixpm.success" "Modo S0ix Power Management desativado com sucesso."
+
+tr::add "en_US" "posinstall::disable_nvidia_s0ixpm.start" "Disabling S0ix Power Management..."
+tr::add "en_US" "posinstall::disable_nvidia_s0ixpm.confirm" "You are about to disable S0ix Power Management. Do you want to continue?"
+tr::add "en_US" "posinstall::disable_nvidia_s0ixpm.failure" "Failed to disable S0ix Power Management."
+tr::add "en_US" "posinstall::disable_nvidia_s0ixpm.success" "S0ix Power Management disabled successfully."
+
+# Habilita os serviços de energia da NVIDIA
+posinstall::enable_power_service() {
+    log::info "$(tr::t "posinstall::enable_power_service.start")"
+
+    tui::msgbox::warn "$(tr::t "posinstall::enable_power_service.warning")"
+
+    if ! tui::yesno::default "" "$(tr::t "posinstall::enable_power_service.confirm")"; then
+        log::info "$(tr::t "default.script.canceled.byuser")"
+        return 255
+    fi
+
+    for svc in nvidia-suspend.service nvidia-hibernate.service nvidia-resume.service; do
+        systemctl enable "$svc" | tee -a /dev/fd/3
+        if [[ "${PIPESTATUS[0]}" -ne 0 ]]; then
+            log::error "$(tr::t_args "posinstall::enable_power_service.failure" "$svc")"
+            return 1
         fi
     done
 
-    # Se algum pacote já estiver instalado, pergunta se deseja desinstalar
-    # Senao, pergunta se deseja instalar
-    if [[ ${#installed_pkgs[@]} -gt 0 ]]; then
-        if tui::yesno::default "" "$(tr::t "posinstall::install_cuda.uninstall.confirm")"; then
-            log::info "$(tr::t "posinstall::install_cuda.uninstall.start")"
-
-            for pkg in "${installed_pkgs[@]}"; do
-                log::info "$(tr::t_args "posinstall::install_cuda.uninstall.pkg.start" "$pkg")"
-
-                if ! packages::purge "$pkg"; then
-                    log::critical "$(tr::t "default.script.canceled.byfailure")"
-                    log::input _ "$(tr::t "default.script.pause")"
-                    return 1
-                fi
-
-                log::info "$(tr::t_args "posinstall::install_cuda.uninstall.pkg.success" "$pkg")"
-            done
-
-            log::info "$(tr::t "posinstall::install_cuda.uninstall.success")"
-            tui::msgbox::need_restart # Exibe aviso que é necessário reiniciar
-            log::input _ "$(tr::t "default.script.pause")"
-            return 0
-        else
-            log::info "$(tr::t "default.script.canceled.byuser")"
-            return 1
-        fi
-    else
-        if tui::yesno::default "" "$(tr::t "posinstall::install_cuda.install.confirm")"; then
-            log::info "$(tr::t "posinstall::install_cuda.install.start")"
-
-            for pkg in "${pkgs[@]}"; do
-                log::info "$(tr::t_args "posinstall::install_cuda.install.pkg.start" "$pkg")"
-
-                if ! packages::install "$pkg"; then
-                    log::critical "$(tr::t "default.script.canceled.byfailure")"
-                    log::input _ "$(tr::t "default.script.pause")"
-                    return 1
-                fi
-
-                log::info "$(tr::t_args "posinstall::install_cuda.install.pkg.success" "$pkg")"
-            done
-
-            log::info "$(tr::t "posinstall::install_cuda.install.success")"
-            tui::msgbox::need_restart # Exibe aviso que é necessário reiniciar
-            log::input _ "$(tr::t "default.script.pause")"
-            return 0
-        else
-            log::info "$(tr::t "default.script.canceled.byuser")"
-            return 1
-        fi
-    fi
+    log::info "$(tr::t "posinstall::enable_power_service.success")"
+    return 0
 }
 
-tr::add "pt_BR" "posinstall::install_cuda.install.confirm" "Você deseja instalar o CUDA Toolkit e as bibliotecas de desenvolvimento CUDA?"
-tr::add "pt_BR" "posinstall::install_cuda.install.start" "Iniciando a instalação do CUDA Toolkit e bibliotecas de desenvolvimento..."
-tr::add "pt_BR" "posinstall::install_cuda.install.pkg.start" "Instalando o pacote: %1"
-tr::add "pt_BR" "posinstall::install_cuda.install.pkg.success" "Pacote %1 instalado com sucesso."
-tr::add "pt_BR" "posinstall::install_cuda.install.success" "CUDA Toolkit e bibliotecas de desenvolvimento instalados com sucesso."
-tr::add "pt_BR" "posinstall::install_cuda.uninstall.confirm" "Você deseja desinstalar o CUDA Toolkit e as bibliotecas de desenvolvimento CUDA?"
-tr::add "pt_BR" "posinstall::install_cuda.uninstall.start" "Iniciando a desinstalação do CUDA Toolkit e bibliotecas de desenvolvimento..."
-tr::add "pt_BR" "posinstall::install_cuda.uninstall.pkg.start" "Desinstalando o pacote: %1"
-tr::add "pt_BR" "posinstall::install_cuda.uninstall.pkg.success" "Pacote %1 desinstalado com sucesso."
-tr::add "pt_BR" "posinstall::install_cuda.uninstall.success" "CUDA Toolkit e bibliotecas de desenvolvimento desinstalados com sucesso."
+tr::add "pt_BR" "posinstall::enable_power_service.start" "Habilitando serviços de energia NVIDIA..."
+tr::add "pt_BR" "posinstall::enable_power_service.warning" "Habilite os serviços auxiliares de energia NVIDIA apenas se estiver enfrentando problemas com suspensão ou hibernação. Esses serviços não são necessários por padrão e podem afetar o comportamento do sistema."
+tr::add "pt_BR" "posinstall::enable_power_service.confirm" "Você está prestes a habilitar os serviços de energia NVIDIA. Deseja continuar?"
+tr::add "pt_BR" "posinstall::enable_power_service.failure" "Falha ao habilitar o serviço: %1"
+tr::add "pt_BR" "posinstall::enable_power_service.success" "Serviços de energia NVIDIA habilitados com sucesso."
 
-tr::add "en_US" "posinstall::install_cuda.install.confirm" "Do you want to install the CUDA Toolkit and CUDA development libraries?"
-tr::add "en_US" "posinstall::install_cuda.install.start" "Starting installation of CUDA Toolkit and development libraries..."
-tr::add "en_US" "posinstall::install_cuda.install.pkg.start" "Installing package: %1"
-tr::add "en_US" "posinstall::install_cuda.install.pkg.success" "Package %1 installed successfully."
-tr::add "en_US" "posinstall::install_cuda.install.success" "CUDA Toolkit and development libraries installed successfully."
-tr::add "en_US" "posinstall::install_cuda.uninstall.confirm" "Do you want to uninstall the CUDA Toolkit and CUDA development libraries?"
-tr::add "en_US" "posinstall::install_cuda.uninstall.start" "Starting uninstallation of CUDA Toolkit and development libraries..."
-tr::add "en_US" "posinstall::install_cuda.uninstall.pkg.start" "Uninstalling package: %1"
-tr::add "en_US" "posinstall::install_cuda.uninstall.pkg.success" "Package %1 uninstalled successfully."
-tr::add "en_US" "posinstall::install_cuda.uninstall.success" "CUDA Toolkit and development libraries uninstalled successfully."
+tr::add "en_US" "posinstall::enable_power_service.start" "Enabling NVIDIA power services..."
+tr::add "en_US" "posinstall::enable_power_service.warning" "Enable NVIDIA power auxiliary services only if you are experiencing issues with suspend or hibernate. These services are not required by default and may affect system behavior."
+tr::add "en_US" "posinstall::enable_power_service.confirm" "You are about to enable NVIDIA power services. Do you want to continue?"
+tr::add "en_US" "posinstall::enable_power_service.failure" "Failed to enable service: %1"
+tr::add "en_US" "posinstall::enable_power_service.success" "NVIDIA power services enabled successfully."
 
-# Instala o CUDA Toolkit e as bibliotecas de desenvolvimento CUDA
-posinstall::install_cuda_toolkit() {
-    if ! nvidia::is_driver_installed; then
-        echo "$(tr::t "posinstall::install_cuda_toolkit.missingdriver")"
-        log::input _ "$(tr::t "default.script.pause")"
-        return 1
+# Desabilita os serviços de energia da NVIDIA
+posinstall::disable_power_service() {
+    log::info "$(tr::t "posinstall::disable_power_service.start")"
+
+    if ! tui::yesno::default "" "$(tr::t "posinstall::disable_power_service.confirm")"; then
+        log::info "$(tr::t "default.script.canceled.byuser")"
+        return 255
     fi
 
-    origin_repo="$(apt-cache policy "nvidia-driver" | grep 'http' | head -n1 | awk '{print $2}')"
-
-    case "$origin_repo" in
-        *developer.download.nvidia.com* )
-            echo "$(tr::t "posinstall::install_cuda_toolkit.cuda")"
-            posinstall::install_cuda_toolkit::install "cuda-toolkit-13-0"
-            ;;
-        *deb.debian.org* )
-            echo "$(tr::t "posinstall::install_cuda_toolkit.debian")"
-            posinstall::install_cuda_toolkit::install "nvidia-cuda-dev" "nvidia-cuda-toolkit"
-            ;;
-        * )
-            echo "$(tr::t "posinstall::install_cuda_toolkit.unknown")"
-            ;;
-    esac
-}
-
-tr::add "pt_BR" "posinstall::install_cuda_toolkit.missingdriver" "Nenhum driver NVIDIA instalado."
-tr::add "pt_BR" "posinstall::install_cuda_toolkit.cuda" "Driver instalado via repositório CUDA."
-tr::add "pt_BR" "posinstall::install_cuda_toolkit.debian" "Driver instalado via repositório Debian."
-tr::add "pt_BR" "posinstall::install_cuda_toolkit.unknown" "Driver instalado via outro método ou fonte desconhecida."
-
-tr::add "en_US" "posinstall::install_cuda_toolkit.missingdriver" "No NVIDIA driver installed."
-tr::add "en_US" "posinstall::install_cuda_toolkit.cuda" "Driver installed via CUDA repository."
-tr::add "en_US" "posinstall::install_cuda_toolkit.debian" "Driver installed via Debian repository."
-tr::add "en_US" "posinstall::install_cuda_toolkit.unknown" "Driver installed via another method or unknown source."
-
-# Alterna o modo PreservedVideoMemoryAllocation
-posinstall::switch_nvidia_pvma() {
-    tui::msgbox::dangerous_action
-    tui::msgbox::optimus_incompatible
-    log::info "$(tr::t "posinstall::switch_nvidia_pvma.start")"
-
-    local pvma_status
-    if ! pvma_status=$(nvidia::get_pvma); then
-        if [[ $? -eq 2 ]]; then
-            log::error "$(tr::t "posinstall::switch_nvidia_pvma.status.error")"
-            log::input _ "$(tr::t "default.script.pause")"
+    for svc in nvidia-suspend.service nvidia-hibernate.service nvidia-resume.service; do
+        systemctl disable "$svc" | tee -a /dev/fd/3 
+        if [[ "${PIPESTATUS[0]}" -ne 0 ]]; then
+            log::error "$(tr::t_args "posinstall::disable_power_service.failure" "$svc")"
             return 1
         fi
-        pvma_status=0
-    fi
+    done
 
-    if [[ -z "$pvma_status" ]] || [[ "$pvma_status" -eq 0 ]]; then
-        log::info "$(tr::t "posinstall::switch_nvidia_pvma.status.off")"
-
-        if tui::yesno::default "" "$(tr::t "tui.yesno.extra.nvidia.pvma.activate.confirm")"; then
-            if nvidia::change_option_pvma "1"; then
-                # Atualiza o initramfs para garantir que a opção seja definida
-                update-initramfs -u | tee -a /dev/fd/3
-                log::info "$(tr::t "posinstall::switch_nvidia_pvma.action.on")"
-                tui::msgbox::need_restart # Exibe aviso que é necessário reiniciar
-                return 0
-            else
-                log::critical "$(tr::t "default.script.canceled.byfailure")"
-                log::input _ "$(tr::t "default.script.pause")"
-                return 1
-            fi
-        else
-            log::info "$(tr::t "default.script.canceled.byuser")"
-            return 255
-        fi
-    elif [[ "$pvma_status" -eq 1 ]]; then
-        log::info "$(tr::t "posinstall::switch_nvidia_pvma.status.on")"
-
-        if tui::yesno::default "" "$(tr::t "tui.yesno.extra.nvidia.pvma.deactivate.confirm")"; then
-            if nvidia::change_option_pvma "0"; then
-                # Atualiza o initramfs para garantir que a opção seja definida
-                update-initramfs -u | tee -a /dev/fd/3
-                log::info "$(tr::t "posinstall::switch_nvidia_pvma.action.off")"
-                tui::msgbox::need_restart # Exibe aviso que é necessário reiniciar
-                return 0
-            else
-                log::critical "$(tr::t "default.script.canceled.byfailure")"
-                log::input _ "$(tr::t "default.script.pause")"
-                return 1
-            fi
-        else
-            log::info "$(tr::t "default.script.canceled.byuser")"
-            return 255
-        fi
-    else
-        log::error "$(tr::t "posinstall::switch_nvidia_pvma.error.status")"
-        return 1
-    fi
+    log::info "$(tr::t "posinstall::disable_power_service.success")"
+    return 0
 }
 
-tr::add "pt_BR" "posinstall::switch_nvidia_pvma.start" "Iniciando a alternância do modo PreservedVideoMemoryAllocation..."
-tr::add "pt_BR" "posinstall::switch_nvidia_pvma.status.error" "Erro ao verificar o status do PreservedVideoMemoryAllocation."
-tr::add "pt_BR" "posinstall::switch_nvidia_pvma.status.off" "PreservedVideoMemoryAllocation está desabilitado."
-tr::add "pt_BR" "posinstall::switch_nvidia_pvma.status.on" "PreservedVideoMemoryAllocation está habilitado."
-tr::add "pt_BR" "posinstall::switch_nvidia_pvma.action.off" "PreservedVideoMemoryAllocation desabilitado."
-tr::add "pt_BR" "posinstall::switch_nvidia_pvma.action.on" "PreservedVideoMemoryAllocation habilitado."
-tr::add "pt_BR" "tui.yesno.extra.nvidia.pvma.activate.confirm" "Você deseja ativar o PreservedVideoMemoryAllocation?"
-tr::add "pt_BR" "tui.yesno.extra.nvidia.pvma.deactivate.confirm" "Você deseja desativar o PreservedVideoMemoryAllocation?"
+tr::add "pt_BR" "posinstall::disable_power_service.start" "Desabilitando serviços de energia NVIDIA..."
+tr::add "pt_BR" "posinstall::disable_power_service.confirm" "Você está prestes a desabilitar os serviços de energia NVIDIA. Deseja continuar?"
+tr::add "pt_BR" "posinstall::disable_power_service.failure" "Falha ao desabilitar o serviço: %1"
+tr::add "pt_BR" "posinstall::disable_power_service.success" "Serviços de energia NVIDIA desabilitados com sucesso."
 
-tr::add "en_US" "posinstall::switch_nvidia_pvma.start" "Starting PreservedVideoMemoryAllocation mode switch..."
-tr::add "en_US" "posinstall::switch_nvidia_pvma.status.error" "Error checking PreservedVideoMemoryAllocation status."
-tr::add "en_US" "posinstall::switch_nvidia_pvma.status.off" "PreservedVideoMemoryAllocation is disabled."
-tr::add "en_US" "posinstall::switch_nvidia_pvma.status.on" "PreservedVideoMemoryAllocation is enabled."
-tr::add "en_US" "posinstall::switch_nvidia_pvma.action.off" "PreservedVideoMemoryAllocation disabled."
-tr::add "en_US" "posinstall::switch_nvidia_pvma.action.on" "PreservedVideoMemoryAllocation enabled."
-tr::add "en_US" "tui.yesno.extra.nvidia.pvma.activate.confirm" "Do you want to enable PreservedVideoMemoryAllocation?"
-tr::add "en_US" "tui.yesno.extra.nvidia.pvma.deactivate.confirm" "Do you want to disable PreservedVideoMemoryAllocation?"
-
-# Alterna o modo NVreg_EnableS0ixPowerManagement
-posinstall::switch_nvidia_s0ixpm() {
-    tui::msgbox::dangerous_action
-    tui::msgbox::optimus_incompatible
-    log::info "$(tr::t "posinstall::switch_nvidia_s0ixpm.start")"
-
-    local s0ixpm_status
-    if ! s0ixpm_status=$(nvidia::get_s0ixpm); then
-        if [[ $? -eq 2 ]]; then
-            log::error "$(tr::t "posinstall::switch_nvidia_s0ixpm.status.error")"
-            log::input _ "$(tr::t "default.script.pause")"
-            return 1
-        fi
-        s0ixpm_status=0
-    fi
-
-    if [[ -z "$s0ixpm_status" ]] || [[ "$s0ixpm_status" -eq 0 ]]; then
-        log::info "$(tr::t "posinstall::switch_nvidia_s0ixpm.status.off")"
-
-        if tui::yesno::default "" "$(tr::t "tui.yesno.extra.nvidia.s0ixpm.activate.confirm")"; then
-            if nvidia::change_option_s0ixpm "1"; then
-                # Atualiza o initramfs para garantir que a opção seja definida
-                update-initramfs -u | tee -a /dev/fd/3
-                log::info "$(tr::t "posinstall::switch_nvidia_s0ixpm.action.on")"
-                tui::msgbox::need_restart
-                return 0
-            else
-                log::critical "$(tr::t "default.script.canceled.byfailure")"
-                log::input _ "$(tr::t "default.script.pause")"
-                return 1
-            fi
-        else
-            log::info "$(tr::t "default.script.canceled.byuser")"
-            return 255
-        fi
-    elif [[ "$s0ixpm_status" -eq 1 ]]; then
-        log::info "$(tr::t "posinstall::switch_nvidia_s0ixpm.status.on")"
-
-        if tui::yesno::default "" "$(tr::t "tui.yesno.extra.nvidia.s0ixpm.deactivate.confirm")"; then
-            if nvidia::change_option_s0ixpm "0"; then
-                # Atualiza o initramfs para garantir que a opção seja definida
-                update-initramfs -u | tee -a /dev/fd/3
-                log::info "$(tr::t "posinstall::switch_nvidia_s0ixpm.action.off")"
-                tui::msgbox::need_restart
-                return 0
-            else
-                log::critical "$(tr::t "default.script.canceled.byfailure")"
-                log::input _ "$(tr::t "default.script.pause")"
-                return 1
-            fi
-        else
-            log::info "$(tr::t "default.script.canceled.byuser")"
-            return 255
-        fi
-    else
-        log::error "$(tr::t "posinstall::switch_nvidia_s0ixpm.error.status")"
-        return 1
-    fi
-}
-
-tr::add "pt_BR" "posinstall::switch_nvidia_s0ixpm.start" "Iniciando a alternância do modo S0ix Power Management..."
-tr::add "pt_BR" "posinstall::switch_nvidia_s0ixpm.status.error" "Erro ao verificar o status do S0ix Power Management."
-tr::add "pt_BR" "posinstall::switch_nvidia_s0ixpm.status.off" "S0ix Power Management está desabilitado."
-tr::add "pt_BR" "posinstall::switch_nvidia_s0ixpm.status.on" "S0ix Power Management está habilitado."
-tr::add "pt_BR" "posinstall::switch_nvidia_s0ixpm.action.off" "S0ix Power Management desabilitado."
-tr::add "pt_BR" "posinstall::switch_nvidia_s0ixpm.action.on" "S0ix Power Management habilitado."
-tr::add "pt_BR" "tui.yesno.extra.nvidia.s0ixpm.activate.confirm" "Você deseja ativar o S0ix Power Management?"
-tr::add "pt_BR" "tui.yesno.extra.nvidia.s0ixpm.deactivate.confirm" "Você deseja desativar o S0ix Power Management?"
-
-tr::add "en_US" "posinstall::switch_nvidia_s0ixpm.start" "Starting S0ix Power Management mode switch..."
-tr::add "en_US" "posinstall::switch_nvidia_s0ixpm.status.error" "Error checking S0ix Power Management status."
-tr::add "en_US" "posinstall::switch_nvidia_s0ixpm.status.off" "S0ix Power Management is disabled."
-tr::add "en_US" "posinstall::switch_nvidia_s0ixpm.status.on" "S0ix Power Management is enabled."
-tr::add "en_US" "posinstall::switch_nvidia_s0ixpm.action.off" "S0ix Power Management disabled."
-tr::add "en_US" "posinstall::switch_nvidia_s0ixpm.action.on" "S0ix Power Management enabled."
-tr::add "en_US" "tui.yesno.extra.nvidia.s0ixpm.activate.confirm" "Do you want to enable S0ix Power Management?"
-tr::add "en_US" "tui.yesno.extra.nvidia.s0ixpm.deactivate.confirm" "Do you want to disable S0ix Power Management?"
-
+tr::add "en_US" "posinstall::disable_power_service.start" "Disabling NVIDIA power services..."
+tr::add "en_US" "posinstall::disable_power_service.confirm" "You are about to disable NVIDIA power services. Do you want to continue?"
+tr::add "en_US" "posinstall::disable_power_service.failure" "Failed to disable service: %1"
+tr::add "en_US" "posinstall::disable_power_service.success" "NVIDIA power services disabled successfully."

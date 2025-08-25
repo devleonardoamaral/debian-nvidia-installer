@@ -131,22 +131,32 @@ nvidia::change_option() {
     value="$(utils::escape_chars "$4")"
 
     if [ ! -f "$file" ]; then
-        echo "File not found: $file" >&2
+        log::error "$(tr::t_args "nvidia::change_option.file_not_found" "$file")"
         return 1
     fi
 
     # Se a linha com a opção já existir, altera
     if grep -Eq "^\s*options\s+${module}(\s+.*)?\b${option}=" "$file"; then
         sed -i -E "s/^(\s*options\s+${module}\s+.*)${option}=[^ ]*(.*)/\1${option}=${value}\2/" "$file"
-        echo "Option $option changed to $value in $file" >&2
+        log::info "$(tr::t_args "nvidia::change_option.option_changed" "$option" "$value" "$file")"
+    # Senão, cria uma nova linha
     else
         echo "" >> "$file"
         echo "options ${module} ${option}=${value}" >> "$file"
-        echo "New options line added for $module in $file" >&2
+        log::info "$(tr::t_args "nvidia::change_option.option_added" "$module" "$value" "$file")"
     fi
 
-    return 0    
+    update-initramfs -u | tee -a /dev/fd/3
+    return 0
 }
+
+tr::add "pt_BR" "nvidia::change_option.file_not_found" "Arquivo não encontrado: %1"
+tr::add "pt_BR" "nvidia::change_option.option_changed" "Opção %1 alterada para %2 em %3"
+tr::add "pt_BR" "nvidia::change_option.option_added" "Nova linha de opção adicionada para %1 com valor %2 em %3"
+
+tr::add "en_US" "nvidia::change_option.file_not_found" "File not found: %1"
+tr::add "en_US" "nvidia::change_option.option_changed" "Option %1 changed to %2 in %3"
+tr::add "en_US" "nvidia::change_option.option_added" "New options line added for %1 with value %2 in %3"
 
 # Função para obter o valor de uma opção específica do arquivo de configuração
 nvidia::get_option() {
@@ -155,7 +165,7 @@ nvidia::get_option() {
     local option="$3"
 
     if [ ! -f "$file" ]; then
-        echo "File not found: $file" >&2
+        log::error "$(tr::t_args "nvidia::get_option.file_not_found" "$file")"
         return 2
     fi
 
@@ -168,11 +178,36 @@ nvidia::get_option() {
         echo "${BASH_REMATCH[1]}"
         return 0
     else
-        echo "Option $option not found in $file" >&2
+        log::warn "$(tr::t_args "nvidia::get_option.option_not_found" "$option" "$file")"
         return 1
     fi
 }
 
+tr::add "pt_BR" "nvidia::get_option.file_not_found" "Arquivo não encontrado: %1"
+tr::add "pt_BR" "nvidia::get_option.option_not_found" "Opção %1 não encontrada em %2"
+
+tr::add "en_US" "nvidia::get_option.file_not_found" "File not found: %1"
+tr::add "en_US" "nvidia::get_option.option_not_found" "Option %1 not found in %2"
+
+nvidia::get_module_param() {
+    local param="$1"
+    local file="/sys/module/nvidia/parameters/$param"
+    local value status
+
+    if [ ! -e "$file" ]; then
+        log::error "$(tr::t_args "nvidia::get_module_param.file_not_found" "$param")"
+        return 2
+    fi
+
+    value="$(cat "$file")"
+    status=$?
+
+    echo "$value"
+    return $status
+}
+
+tr::add "pt_BR" "nvidia::get_module_param.file_not_found" "Parâmetro %1 não disponível ou módulo NVIDIA não carregado." 
+tr::add "en_US" "nvidia::get_module_param.file_not_found" "Parameter %1 not available or NVIDIA module not loaded."
 
 # Função para desabilitar uma opção específica no arquivo de configuração
 nvidia::disable_option() {
@@ -190,20 +225,59 @@ nvidia::enable_modeset() {
 
 # Função para obter a opção NVreg_PreserveVideoMemoryAllocations do arquivo de configuração
 nvidia::get_pvma() {
-    nvidia::get_option "$(nvidia::get_options_file "$(nvidia::get_source_alias)")" "$(nvidia::get_nvidia_module "$(nvidia::get_source_alias)")" "NVreg_PreserveVideoMemoryAllocations"
+    local param="NVreg_PreserveVideoMemoryAllocations"
+    local value
+
+    value="$(nvidia::get_option "$(nvidia::get_options_file "$(nvidia::get_source_alias)")" \
+        "$(nvidia::get_nvidia_module "$(nvidia::get_source_alias)")" "$param")"
+
+    if [ "$?" -ne 0 ]; then
+        if ! value="$(nvidia::get_module_param "$param")"; then
+            return 1
+        fi
+    fi
+
+    echo "$value"
+    return 0
 }
 
 # Função para alterar a opção NVreg_PreserveVideoMemoryAllocations no arquivo de configuração
 nvidia::change_option_pvma() {
-    nvidia::change_option "$(nvidia::get_options_file "$(nvidia::get_source_alias)")" "$(nvidia::get_nvidia_module "$(nvidia::get_source_alias)")" "NVreg_PreserveVideoMemoryAllocations" "$1"
+    nvidia::change_option "$(nvidia::get_options_file "$(nvidia::get_source_alias)")" \
+        "$(nvidia::get_nvidia_module "$(nvidia::get_source_alias)")" "NVreg_PreserveVideoMemoryAllocations" "$1"
 }
 
 # Função para obter a opção NVreg_EnableS0ixPowerManagement do arquivo de configuração
 nvidia::get_s0ixpm() {
-    nvidia::get_option "$(nvidia::get_options_file "$(nvidia::get_source_alias)")" "$(nvidia::get_nvidia_module "$(nvidia::get_source_alias)")" "NVreg_EnableS0ixPowerManagement"
+    local param="NVreg_EnableS0ixPowerManagement"
+    local value
+
+    # Tenta primeiro pelo arquivo de configuração
+    value="$(nvidia::get_option "$(nvidia::get_options_file "$(nvidia::get_source_alias)")" \
+        "$(nvidia::get_nvidia_module "$(nvidia::get_source_alias)")" "$param")"
+
+    if [ "$?" -ne 0 ]; then
+        # Se não encontrar, tenta pelo módulo carregado
+        if ! value="$(nvidia::get_module_param "$param")"; then
+            return 1
+        fi
+    fi
+
+    echo "$value"
+    return 0
 }
 
 # Função para alterar a opção NVreg_EnableS0ixPowerManagement no arquivo de configuração
 nvidia::change_option_s0ixpm() {
-    nvidia::change_option "$(nvidia::get_options_file "$(nvidia::get_source_alias)")" "$(nvidia::get_nvidia_module "$(nvidia::get_source_alias)")" "NVreg_EnableS0ixPowerManagement" "$1"
+    nvidia::change_option "$(nvidia::get_options_file "$(nvidia::get_source_alias)")" \
+        "$(nvidia::get_nvidia_module "$(nvidia::get_source_alias)")" "NVreg_EnableS0ixPowerManagement" "$1"
+}
+
+# Verifica se os serviços de energia da NVIDIA estão habilitados
+nvidia::is_power_services_enabled() {
+    local enabled=0
+    for svc in nvidia-suspend.service nvidia-hibernate.service nvidia-resume.service; do
+        systemctl is-enabled "$svc" &>/dev/null || enabled=1
+    done
+    return $enabled
 }
