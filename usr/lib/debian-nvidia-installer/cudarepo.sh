@@ -178,6 +178,10 @@ cudarepo::lock_cuda_version() {
     log::info "$(tr::t_args "cudarepo::lock_cuda_version.locked" "$version" "$file")"
 }
 
+tr::add "pt_BR" "cudarepo::lock_cuda_version.locked" "Versão do driver NVIDIA %1 pinada com sucesso através do arquivo de preferência %2."
+
+tr::add "en_US" "cudarepo::lock_cuda_version.locked" "NVIDIA driver version %1 pinned successfully using preference file %2."
+
 cudarepo::unlock_cuda_version() {
     local file="${1:-"/etc/apt/preferences.d/nvidia"}"
 
@@ -189,13 +193,11 @@ cudarepo::unlock_cuda_version() {
     fi
 }
 
-tr::add "pt_BR" "cudarepo::lock_cuda_version.locked" "Versão do CUDA %1 travada com sucesso no arquivo %2."
-tr::add "pt_BR" "cudarepo::unlock_cuda_version.unlocked" "Arquivo de preferência %1 removido, desbloqueando a versão do CUDA."
-tr::add "pt_BR" "cudarepo::unlock_cuda_version.not_found" "Arquivo de preferência %1 não encontrado. Nenhuma versão do CUDA foi desbloqueada."
+tr::add "pt_BR" "cudarepo::unlock_cuda_version.unlocked" "Arquivo de preferência %1 removido, versão do driver NVIDIA foi despinada."
+tr::add "pt_BR" "cudarepo::unlock_cuda_version.not_found" "Arquivo de preferência %1 não encontrado, o driver NVIDIA não está pinado."
 
-tr::add "en_US" "cudarepo::lock_cuda_version.locked" "CUDA version %1 locked successfully in file %2."
-tr::add "en_US" "cudarepo::unlock_cuda_version.unlocked" "Preference file %1 removed, CUDA version unlocked."
-tr::add "en_US" "cudarepo::unlock_cuda_version.not_found" "Preference file %1 not found. No CUDA version was unlocked."
+tr::add "en_US" "cudarepo::unlock_cuda_version.unlocked" "Preference file %1 removed, NVIDIA driver version unpinned."
+tr::add "en_US" "cudarepo::unlock_cuda_version.not_found" "Preference file %1 not found, no NVIDIA driver version pinned."
 
 cudarepo::install_cuda_proprietary() {
     log::info "$(tr::t "cudarepo::install_cuda_proprietary.start")"
