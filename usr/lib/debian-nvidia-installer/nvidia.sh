@@ -168,7 +168,7 @@ nvidia::get_option() {
     local module="$2"
     local option="$3"
 
-    if [ ! -f "$file" ]; then
+    if [ ! -e "$file" ]; then
         log::error "$(tr::t_args "nvidia::get_option.file_not_found" "$file")"
         return 2
     fi
