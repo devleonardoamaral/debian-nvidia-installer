@@ -221,6 +221,8 @@ cudarepo::install_cuda_proprietary() {
         return 1
     fi
 
+    nvidia::enable_power_services
+
     return 0
 }
 
@@ -246,6 +248,8 @@ cudarepo::install_cuda_opensource() {
         log::input _ "$(tr::t "default.script.pause")"
         return 1
     fi
+
+    nvidia::enable_power_services
 
     return 0
 }
