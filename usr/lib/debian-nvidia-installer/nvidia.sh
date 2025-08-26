@@ -147,7 +147,7 @@ nvidia::change_option() {
     else
         echo "" >> "$file"
         echo "options ${module} ${option}=${value}" >> "$file"
-        log::info "$(tr::t_args "nvidia::change_option.option_added" "$module" "$value" "$file")"
+        log::info "$(tr::t_args "nvidia::change_option.option_added" "$option" "$value" "$file")"
     fi
 
     update-initramfs -u | tee -a /dev/fd/3
@@ -156,11 +156,11 @@ nvidia::change_option() {
 
 tr::add "pt_BR" "nvidia::change_option.file_not_found" "Arquivo não encontrado: %1"
 tr::add "pt_BR" "nvidia::change_option.option_changed" "Opção %1 alterada para %2 em %3"
-tr::add "pt_BR" "nvidia::change_option.option_added" "Nova linha de opção adicionada para %1 com valor %2 em %3"
+tr::add "pt_BR" "nvidia::change_option.option_added" "Nova entrada adicionada: opção %1 com o valor %2 em %3"
 
 tr::add "en_US" "nvidia::change_option.file_not_found" "File not found: %1"
 tr::add "en_US" "nvidia::change_option.option_changed" "Option %1 changed to %2 in %3"
-tr::add "en_US" "nvidia::change_option.option_added" "New options line added for %1 with value %2 in %3"
+tr::add "en_US" "nvidia::change_option.option_added" "New entry added: option %1 with value %2 in %3"
 
 # Função para obter o valor de uma opção específica do arquivo de configuração
 nvidia::get_option() {
