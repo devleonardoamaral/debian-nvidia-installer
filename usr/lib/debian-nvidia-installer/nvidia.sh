@@ -58,8 +58,8 @@ nvidia::get_nvidia_module() {
                 if packages::is_installed "nvidia-open-kernel-dkms"; then
                     echo "nvidia-current-open"
                 else
-                echo "nvidia-current"
-            fi
+                    echo "nvidia-current"
+                fi
             fi
             ;;
         * )
@@ -194,8 +194,9 @@ tr::add "en_US" "nvidia::get_option.file_not_found" "File not found: %1"
 tr::add "en_US" "nvidia::get_option.option_not_found" "Option %1 not found in %2"
 
 nvidia::get_module_param() {
-    local param="$1"
-    local file="/sys/module/nvidia/parameters/$param"
+    local module="$1"
+    local param="$2"
+    local file="/sys/module/$module/parameters/$param"
     local value status
 
     if [ ! -e "$file" ]; then
@@ -225,18 +226,34 @@ nvidia::enable_option() {
 
 nvidia::enable_modeset() {
     nvidia::change_option "$(nvidia::get_options_file "$(nvidia::get_source_alias)")" "nvidia-drm" "modeset" "1"
+    nvidia::change_option "$(nvidia::get_options_file "$(nvidia::get_source_alias)")" "nvidia-drm" "fbdev" "1"
 }
 
 # Função para obter a opção NVreg_PreserveVideoMemoryAllocations do arquivo de configuração
 nvidia::get_pvma() {
     local param="NVreg_PreserveVideoMemoryAllocations"
-    local value
+    local value status
+    local options_file source_alias nvidia_module
 
-    value="$(nvidia::get_option "$(nvidia::get_options_file "$(nvidia::get_source_alias)")" \
-        "$(nvidia::get_nvidia_module "$(nvidia::get_source_alias)")" "$param")"
+    source_alias="$(nvidia::get_source_alias)"
+    options_file="$(nvidia::get_options_file "$source_alias")"
+    nvidia_module="$(nvidia::get_nvidia_module "$source_alias")"
 
-    if [ "$?" -ne 0 ]; then
-        if ! value="$(nvidia::get_module_param "$param")"; then
+    log::info "DEBUG: get_pvma $source_alias $options_file $nvidia_module"
+
+    value="$(nvidia::get_option "$options_file" "$nvidia_module" "$param")"
+    status=$?
+
+    if [ "$status" -ne 0 ]; then
+        if [ "$source_alias" == "debian" ]; then
+            echo "-1"
+            return 0
+        fi
+
+        value="$(nvidia::get_module_param "$nvidia_module" "$param")"
+        status=$?
+
+        if [ "$status" -ne 0 ]; then
             return 1
         fi
     fi
@@ -254,15 +271,28 @@ nvidia::change_option_pvma() {
 # Função para obter a opção NVreg_EnableS0ixPowerManagement do arquivo de configuração
 nvidia::get_s0ixpm() {
     local param="NVreg_EnableS0ixPowerManagement"
-    local value
+    local value status
+    local options_file source_alias nvidia_module
 
-    # Tenta primeiro pelo arquivo de configuração
-    value="$(nvidia::get_option "$(nvidia::get_options_file "$(nvidia::get_source_alias)")" \
-        "$(nvidia::get_nvidia_module "$(nvidia::get_source_alias)")" "$param")"
+    source_alias="$(nvidia::get_source_alias)"
+    options_file="$(nvidia::get_options_file "$source_alias")"
+    nvidia_module="$(nvidia::get_nvidia_module "$source_alias")"
 
-    if [ "$?" -ne 0 ]; then
-        # Se não encontrar, tenta pelo módulo carregado
-        if ! value="$(nvidia::get_module_param "$param")"; then
+    log::info "DEBUG: get_s0ixpm $source_alias $options_file $nvidia_module"
+
+    value="$(nvidia::get_option "$options_file" "$nvidia_module" "$param")"
+    status=$?
+
+    if [ "$status" -ne 0 ]; then
+        if [ "$source_alias" == "debian" ]; then
+            echo "-1"
+            return 0
+        fi
+
+        value="$(nvidia::get_module_param "$nvidia_module" "$param")"
+        status=$?
+
+        if [ "$status" -ne 0 ]; then
             return 1
         fi
     fi
