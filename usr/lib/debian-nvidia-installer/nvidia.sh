@@ -239,8 +239,6 @@ nvidia::get_pvma() {
     options_file="$(nvidia::get_options_file "$source_alias")"
     nvidia_module="$(nvidia::get_nvidia_module "$source_alias")"
 
-    log::info "DEBUG: get_pvma $source_alias $options_file $nvidia_module"
-
     value="$(nvidia::get_option "$options_file" "$nvidia_module" "$param")"
     status=$?
 
@@ -277,8 +275,6 @@ nvidia::get_s0ixpm() {
     source_alias="$(nvidia::get_source_alias)"
     options_file="$(nvidia::get_options_file "$source_alias")"
     nvidia_module="$(nvidia::get_nvidia_module "$source_alias")"
-
-    log::info "DEBUG: get_s0ixpm $source_alias $options_file $nvidia_module"
 
     value="$(nvidia::get_option "$options_file" "$nvidia_module" "$param")"
     status=$?
