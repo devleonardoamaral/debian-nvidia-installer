@@ -90,7 +90,7 @@ installer::install_debian_proprietary550() {
         fi
     done
 
-    nvidia::change_option_pvma
+    nvidia::change_option_pvma "1"
 
     return 0
 }
@@ -130,7 +130,7 @@ installer::install_debian_opensource() {
         fi
     done
 
-    nvidia::change_option_pvma
+    nvidia::change_option_pvma "1"
         
     return 0
 }
