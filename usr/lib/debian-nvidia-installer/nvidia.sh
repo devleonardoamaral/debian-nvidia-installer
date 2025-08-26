@@ -262,8 +262,13 @@ nvidia::get_pvma() {
 
 # Função para alterar a opção NVreg_PreserveVideoMemoryAllocations no arquivo de configuração
 nvidia::change_option_pvma() {
-    nvidia::change_option "$(nvidia::get_options_file "$(nvidia::get_source_alias)")" \
-        "$(nvidia::get_nvidia_module "$(nvidia::get_source_alias)")" "NVreg_PreserveVideoMemoryAllocations" "$1"
+    local options_file source_alias nvidia_module
+
+    source_alias="$(nvidia::get_source_alias)"
+    options_file="$(nvidia::get_options_file "$source_alias")"
+    nvidia_module="$(nvidia::get_nvidia_module "$source_alias")"
+
+    nvidia::change_option "$options_file" "$nvidia_module" "NVreg_PreserveVideoMemoryAllocations" "$1"
 }
 
 # Função para obter a opção NVreg_EnableS0ixPowerManagement do arquivo de configuração
@@ -299,8 +304,13 @@ nvidia::get_s0ixpm() {
 
 # Função para alterar a opção NVreg_EnableS0ixPowerManagement no arquivo de configuração
 nvidia::change_option_s0ixpm() {
-    nvidia::change_option "$(nvidia::get_options_file "$(nvidia::get_source_alias)")" \
-        "$(nvidia::get_nvidia_module "$(nvidia::get_source_alias)")" "NVreg_EnableS0ixPowerManagement" "$1"
+    local options_file source_alias nvidia_module
+
+    source_alias="$(nvidia::get_source_alias)"
+    options_file="$(nvidia::get_options_file "$source_alias")"
+    nvidia_module="$(nvidia::get_nvidia_module "$source_alias")"
+
+    nvidia::change_option "$options_file" "$nvidia_module" "NVreg_EnableS0ixPowerManagement" "$1"
 }
 
 # Verifica se os serviços de energia da NVIDIA estão habilitados
@@ -311,3 +321,35 @@ nvidia::is_power_services_enabled() {
     done
     return $enabled
 }
+
+nvidia::enable_power_services() {
+    for svc in nvidia-suspend.service nvidia-hibernate.service nvidia-resume.service; do
+        systemctl enable "$svc" | tee -a /dev/fd/3
+        if [[ "${PIPESTATUS[0]}" -ne 0 ]]; then
+            log::error "$(tr::t_args "posinstall::enable_power_service.failure" "$svc")"
+            return 1
+        fi
+    done
+
+    return 0
+}
+
+tr::add "pt_BR" "nvidia::enable_power_services.failure" "Falha ao habilitar o serviço: %1"
+
+tr::add "en_US" "nvidia::enable_power_services.failure" "Failed to enable service: %1"
+
+nvidia::disable_power_services() {
+    for svc in nvidia-suspend.service nvidia-hibernate.service nvidia-resume.service; do
+        systemctl disable "$svc" | tee -a /dev/fd/3 
+        if [[ "${PIPESTATUS[0]}" -ne 0 ]]; then
+            log::error "$(tr::t_args "nvidia::disable_power_services.failure" "$svc")"
+            return 1
+        fi
+    done
+
+    return 0
+}
+
+tr::add "pt_BR" "nvidia::disable_power_services.failure" "Falha ao desabilitar o serviço: %1"
+
+tr::add "en_US" "nvidia::disable_power_services.failure" "Failed to disable service: %1"

@@ -86,10 +86,10 @@ tui::menu::posinstall() {
             log::info "$(tr::t_args "tui::menu::posinstall.power_service.status" "$status")"
             if [ "$status" -eq 0 ]; then
                 option_labels+=("$(tr::t "tui::menu::posinstall.option.disable_power_service")")
-                option_actions+=("posinstall::disable_power_service")
+                option_actions+=("posinstall::disable_power_services")
             else
                 option_labels+=("$(tr::t "tui::menu::posinstall.option.enable_power_service")")
-                option_actions+=("posinstall::enable_power_service")
+                option_actions+=("posinstall::enable_power_services")
             fi
         fi
 

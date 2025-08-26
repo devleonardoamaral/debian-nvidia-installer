@@ -286,7 +286,7 @@ tr::add "en_US" "posinstall::disable_nvidia_s0ixpm.failure" "Failed to disable S
 tr::add "en_US" "posinstall::disable_nvidia_s0ixpm.success" "S0ix Power Management disabled successfully."
 
 # Habilita os serviços de energia da NVIDIA
-posinstall::enable_power_service() {
+posinstall::enable_power_services() {
     log::info "$(tr::t "posinstall::enable_power_service.start")"
 
     tui::msgbox::warn "$(tr::t "posinstall::enable_power_service.warning")"
@@ -296,13 +296,9 @@ posinstall::enable_power_service() {
         return 255
     fi
 
-    for svc in nvidia-suspend.service nvidia-hibernate.service nvidia-resume.service; do
-        systemctl enable "$svc" | tee -a /dev/fd/3
-        if [[ "${PIPESTATUS[0]}" -ne 0 ]]; then
-            log::error "$(tr::t_args "posinstall::enable_power_service.failure" "$svc")"
-            return 1
-        fi
-    done
+    if ! nvidia::enable_power_services; then
+        return 1
+    fi
 
     log::info "$(tr::t "posinstall::enable_power_service.success")"
     return 0
@@ -321,7 +317,7 @@ tr::add "en_US" "posinstall::enable_power_service.failure" "Failed to enable ser
 tr::add "en_US" "posinstall::enable_power_service.success" "NVIDIA power services enabled successfully."
 
 # Desabilita os serviços de energia da NVIDIA
-posinstall::disable_power_service() {
+posinstall::disable_power_services() {
     log::info "$(tr::t "posinstall::disable_power_service.start")"
 
     if ! tui::yesno::default "" "$(tr::t "posinstall::disable_power_service.confirm")"; then
@@ -329,13 +325,9 @@ posinstall::disable_power_service() {
         return 255
     fi
 
-    for svc in nvidia-suspend.service nvidia-hibernate.service nvidia-resume.service; do
-        systemctl disable "$svc" | tee -a /dev/fd/3 
-        if [[ "${PIPESTATUS[0]}" -ne 0 ]]; then
-            log::error "$(tr::t_args "posinstall::disable_power_service.failure" "$svc")"
-            return 1
-        fi
-    done
+    if ! nvidia::disable_power_services; then
+        return 1
+    fi
 
     log::info "$(tr::t "posinstall::disable_power_service.success")"
     return 0
