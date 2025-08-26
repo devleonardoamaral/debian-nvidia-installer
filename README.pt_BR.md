@@ -122,4 +122,6 @@ rm ./debian-nvidia-installer.deb
 ```bash
 sudo apt purge --autoremove debian-nvidia-installer
 ```
-Isso remove o pacote e suas dependências.
+* `sudo` executa o comando como administrador.
+* `apt purge` remove o pacote completamente, incluindo seus arquivos de configuração.
+* `--autoremove` também remove dependências que não são mais necessárias.
