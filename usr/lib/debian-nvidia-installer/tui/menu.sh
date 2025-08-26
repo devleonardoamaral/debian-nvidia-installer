@@ -80,7 +80,7 @@ tui::menu::posinstall() {
         option_actions=()
 
         # Serviços auxiliares de energia da NVIDIA
-        if [ "$(nvidia::get_source_alias)" == "cuda" ]; then
+        if [ "$(nvidia::get_source_alias)" != "unknown" ]; then
             nvidia::is_power_services_enabled
             status=$?
             log::info "$(tr::t_args "tui::menu::posinstall.power_service.status" "$status")"
