@@ -120,8 +120,6 @@ rm ./debian-nvidia-installer.deb
 # Desinstalação
 
 ```bash
-# Remove o pacote e suas dependências
 sudo apt purge --autoremove debian-nvidia-installer
 ```
-
-3. O arquivo `debian-nvidia-installer.deb` será gerado na pasta atual, pronto para instalação.
+Isso remove o pacote e suas dependências.
