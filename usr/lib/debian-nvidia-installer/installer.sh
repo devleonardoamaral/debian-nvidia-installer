@@ -51,6 +51,8 @@ installer::install_debian_proprietary535() {
         log::input _ "$(tr::t "default.script.pause")"
         return 1
     fi
+
+    nvidia::change_option_pvma "1"
     
     return 0
 }
