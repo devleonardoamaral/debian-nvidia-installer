@@ -170,7 +170,7 @@ tr::add "en_US" "cudarepo::uninstall_cuda_repository.no_sources" "No CUDA source
 
 cudarepo::lock_cuda_version() {
     local version="$1"
-    local file="${2:-"/etc/apt/preferences.d/nvidia"}"
+    local file="${2:-"/etc/apt/preferences.d/custom-nvidia-driver.pref"}"
     mkdir -p "$(dirname "$file")"
 
     printf "Package: src:*nvidia*:any src:cuda-drivers:any src:cuda-compat:any\nPin: version %s\nPin-Priority: 1000\n" "$version" > "$file"
@@ -183,13 +183,18 @@ tr::add "pt_BR" "cudarepo::lock_cuda_version.locked" "Versão do driver NVIDIA %
 tr::add "en_US" "cudarepo::lock_cuda_version.locked" "NVIDIA driver version %1 pinned successfully using preference file %2."
 
 cudarepo::unlock_cuda_version() {
-    local file="${1:-"/etc/apt/preferences.d/nvidia"}"
+    local PREFS_DIR="${1:-"/etc/apt/preferences.d"}"
 
-    if [[ -f "$file" ]]; then
-        rm -f "$file"
-        log::info "$(tr::t_args "cudarepo::unlock_cuda_version.unlocked" "$file")"
+    # lista arquivos que casam
+    local files
+    files=$(find "$PREFS_DIR" -type f -iname "*nvidia*" 2>/dev/null)
+
+    if [ -n "$files" ]; then
+        # remove os arquivos encontrados
+        echo "$files" | xargs -r rm -v 2>&1 | tee -a /dev/fd/3
+        log::info "$(tr::t_args "cudarepo::unlock_cuda_version.unlocked" "$files")"
     else
-        log::info "$(tr::t_args "cudarepo::unlock_cuda_version.not_found" "$file")"
+        log::info "$(tr::t_args "cudarepo::unlock_cuda_version.not_found")"
     fi
 }
 
