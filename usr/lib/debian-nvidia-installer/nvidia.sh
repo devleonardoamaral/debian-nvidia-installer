@@ -55,7 +55,11 @@ nvidia::get_nvidia_module() {
             if packages::is_installed "nvidia-tesla-535-driver"; then
                 echo "nvidia-tesla-535"
             else
+                if packages::is_installed "nvidia-open-kernel-dkms"; then
+                    echo "nvidia-current-open"
+                else
                 echo "nvidia-current"
+            fi
             fi
             ;;
         * )
