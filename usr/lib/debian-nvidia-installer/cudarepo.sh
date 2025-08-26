@@ -192,17 +192,17 @@ cudarepo::unlock_cuda_version() {
     if [ -n "$files" ]; then
         # remove os arquivos encontrados
         echo "$files" | xargs -r rm -v 2>&1 | tee -a /dev/fd/3
-        log::info "$(tr::t_args "cudarepo::unlock_cuda_version.unlocked" "$files")"
+        log::info "$(tr::t_args "cudarepo::unlock_cuda_version.unlocked" "$(echo "$files" | tr '\n' ' ')")"
     else
         log::info "$(tr::t_args "cudarepo::unlock_cuda_version.not_found")"
     fi
 }
 
-tr::add "pt_BR" "cudarepo::unlock_cuda_version.unlocked" "Arquivo de preferência %1 removido, versão do driver NVIDIA foi despinada."
-tr::add "pt_BR" "cudarepo::unlock_cuda_version.not_found" "Arquivo de preferência %1 não encontrado, o driver NVIDIA não está pinado."
+tr::add "pt_BR" "cudarepo::unlock_cuda_version.unlocked" "Arquivos de preferência %1 removidos, versão do driver NVIDIA foi despinada."
+tr::add "pt_BR" "cudarepo::unlock_cuda_version.not_found" "Arquivo de preferência não encontrado, o driver NVIDIA não está pinado."
 
-tr::add "en_US" "cudarepo::unlock_cuda_version.unlocked" "Preference file %1 removed, NVIDIA driver version unpinned."
-tr::add "en_US" "cudarepo::unlock_cuda_version.not_found" "Preference file %1 not found, no NVIDIA driver version pinned."
+tr::add "en_US" "cudarepo::unlock_cuda_version.unlocked" "Preference files %1 removed, NVIDIA driver version unpinned."
+tr::add "en_US" "cudarepo::unlock_cuda_version.not_found" "Preference file not found, no NVIDIA driver version pinned."
 
 cudarepo::install_cuda_proprietary() {
     log::info "$(tr::t "cudarepo::install_cuda_proprietary.start")"
