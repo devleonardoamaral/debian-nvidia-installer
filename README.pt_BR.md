@@ -38,11 +38,13 @@ Você pode instalar o `debian-nvidia-installer` baixando o pacote `.deb` a parti
 
 > 💡 Compatível com gerenciadores como GDebi, Discover (KDE), GNOME Software, etc.
 
-### Opção 2: Terminal (Recomendado)
+### Opção 2: Terminal
 
 ```bash
 # Copia o arquivo para /tmp (diretório temporário) para evitar problemas relacionados a permissões
 mv ./debian-nvidia-installer_X.X.X.deb /tmp/
+
+# Vai para o diretório temporário onde o arquivo foi movido
 cd /tmp
 
 # Instala o pacote e resolve dependências automaticamente
