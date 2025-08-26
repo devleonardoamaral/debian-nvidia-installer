@@ -90,6 +90,8 @@ installer::install_debian_proprietary550() {
         fi
     done
 
+    nvidia::change_option_pvma
+
     return 0
 }
 
@@ -127,6 +129,8 @@ installer::install_debian_opensource() {
             packages::install "libnvoptix1" "libnvidia-ngx1"
         fi
     done
+
+    nvidia::change_option_pvma
         
     return 0
 }
