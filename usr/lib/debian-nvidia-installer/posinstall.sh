@@ -164,7 +164,7 @@ posinstall::enable_nvidia_pvma() {
     log::info "$(tr::t "posinstall::enable_nvidia_pvma.start")"
 
     tui::msgbox::dangerous_action
-    tui::msgbox::optimus_incompatible
+    # tui::msgbox::optimus_incompatible
 
     if ! tui::yesno::default "" "$(tr::t "posinstall::enable_nvidia_pvma.confirm")"; then
         log::info "$(tr::t "default.script.canceled.byuser")"
@@ -227,7 +227,7 @@ posinstall::enable_nvidia_s0ixpm() {
     log::info "$(tr::t "posinstall::enable_nvidia_s0ixpm.start")"
 
     tui::msgbox::dangerous_action
-    tui::msgbox::optimus_incompatible
+    # tui::msgbox::optimus_incompatible
 
     if ! tui::yesno::default "" "$(tr::t "posinstall::enable_nvidia_s0ixpm.confirm")"; then
         log::info "$(tr::t "default.script.canceled.byuser")"
