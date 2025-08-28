@@ -5,11 +5,11 @@ A ferramenta permite instalar drivers NVIDIA no Debian usando uma interface
 interativa em modo texto (TUI). Automatiza etapas como instalação de pacotes,
 verificação de compatibilidade e configuração do ambiente gráfico.
 
-<img src="data/screenshots/main-menu.png" width="100%" style="margin-bottom:10px;">
+<img src="data/screenshots/main-menu.png">
 
 <div style="display:flex; gap:10px;">
-  <img src="data/screenshots/drivers-menu.png" style="flex:1;">
-  <img src="data/screenshots/post-installation-menu.png" style="flex:1;">
+  <img src="data/screenshots/drivers-menu.png" width="394" height="266">
+  <img src="data/screenshots/post-installation-menu.png" width="394" height="266">
 </div>
 
 ### Requisitos
