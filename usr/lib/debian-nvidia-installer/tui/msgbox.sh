@@ -80,6 +80,6 @@ tui::msgbox::dangerous_action() {
         "$(tr::t "default.tui.button.ok")"
 }
 
-tr::add "pt_BR" "tui::msgbox::dangerous_action" "Certifique-se de entender completamente o que está fazendo antes de prosseguir! Esta funcionalidade pode causar comportamentos inesperados quando utilizada incorretamente."
+tr::add "pt_BR" "tui::msgbox::dangerous_action" "Proceda com cautela e certifique-se de compreender totalmente as consequências desta ação antes de continuar."
 
-tr::add "en_US" "tui::msgbox::dangerous_action" "Make sure you fully understand what you are doing before proceeding! This feature may cause unexpected behavior when used incorrectly."
+tr::add "en_US" "tui::msgbox::dangerous_action" "Proceed with caution and ensure you fully understand the consequences of this action before continuing."
