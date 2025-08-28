@@ -6,6 +6,8 @@ interativa em modo texto (TUI). Automatiza etapas como instalação de pacotes,
 verificação de compatibilidade e configuração do ambiente gráfico.
 
 <img src="data/screenshots/main-menu.png">
+<img src="data/screenshots/drivers-menu.png">
+<img src="data/screenshots/post-installation-menu.png">
 
 ### Requisitos
 

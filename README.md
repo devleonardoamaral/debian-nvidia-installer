@@ -4,6 +4,8 @@ NVIDIA driver installer with a Bash TUI. This tool allows you to install NVIDIA 
 It automates steps such as package installation, compatibility checks, and graphics environment configuration.
 
 <img src="data/screenshots/main-menu.png">
+<img src="data/screenshots/drivers-menu.png">
+<img src="data/screenshots/post-installation-menu.png">
 
 ### Requirements
 
