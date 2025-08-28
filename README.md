@@ -3,11 +3,11 @@
 NVIDIA driver installer with a Bash TUI. This tool allows you to install NVIDIA drivers on Debian using an interactive text-based interface (TUI).
 It automates steps such as package installation, compatibility checks, and graphics environment configuration.
 
-<img src="data/screenshots/main-menu.png" width="100%" style="margin-bottom:10px;">
+<img src="data/screenshots/main-menu.png">
 
 <div style="display:flex; gap:10px;">
-  <img src="data/screenshots/drivers-menu.png" style="flex:1;">
-  <img src="data/screenshots/post-installation-menu.png" style="flex:1;">
+  <img src="data/screenshots/drivers-menu.png" width="394" height="266">
+  <img src="data/screenshots/post-installation-menu.png" width="394" height="266">
 </div>
 
 ### Requirements
