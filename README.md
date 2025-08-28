@@ -110,9 +110,7 @@ Use the same steps as [Option 1: Graphical Interface (GUI)](#option-1-graphical-
 sudo apt purge --autoremove debian-nvidia-installer
 ```
 
-* `sudo` runs the command as administrator.
-* `apt purge` removes the package completely, including its configuration files.
-* `--autoremove` also removes any dependencies that are no longer needed.
+Removes the package and its configuration files completely, and also cleans up any dependencies that are no longer needed.
 
 ---
 
