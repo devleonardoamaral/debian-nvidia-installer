@@ -99,7 +99,7 @@ dpkg-deb --build --root-owner-group debian-nvidia-installer
 * Creates the `.deb` file from the repository folder.
 * `--root-owner-group` ensures the file permissions are compatible with the system.
 
-#### Step 3 – Install the package (same steps as Option 2)
+#### Step 3 – Install the package
 
 Use the same steps as [Option 1: Graphical Interface (GUI)](#option-1-graphical-interface-gui) or [Option 2: Terminal](#option-2-terminal). The generated file, `debian-nvidia-installer.deb`, **does not include the version number**.
 
