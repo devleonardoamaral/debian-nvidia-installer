@@ -3,9 +3,12 @@
 NVIDIA driver installer with a Bash TUI. This tool allows you to install NVIDIA drivers on Debian using an interactive text-based interface (TUI).
 It automates steps such as package installation, compatibility checks, and graphics environment configuration.
 
-<img src="data/screenshots/main-menu.png">
-<img src="data/screenshots/drivers-menu.png">
-<img src="data/screenshots/post-installation-menu.png">
+<img src="data/screenshots/main-menu.png" width="100%" style="margin-bottom:10px;">
+
+<div style="display:flex; gap:10px;">
+  <img src="data/screenshots/drivers-menu.png" style="flex:1;">
+  <img src="data/screenshots/post-installation-menu.png" style="flex:1;">
+</div>
 
 ### Requirements
 
@@ -69,10 +72,6 @@ The `cd` command means “change directory.” Here you enter the `/tmp` folder 
 sudo apt install ./debian-nvidia-installer_X.X.X.deb
 ```
 
-* `sudo` allows you to run the command as an administrator.
-* `apt install` installs the package and all required dependencies.
-* The `./` indicates that the file is in the current directory (`/tmp`).
-
 #### Step 4 – Clean up the file after installation (optional)
 
 ```bash
@@ -102,21 +101,8 @@ dpkg-deb --build --root-owner-group debian-nvidia-installer
 
 #### Step 3 – Install the package (same steps as Option 2)
 
-> ⚠️ Replace `X.X.X` with the correct name of the generated `.deb` file (usually `debian-nvidia-installer.deb`).
+Use the same steps as [Option 1: Graphical Interface (GUI)](#option-1-graphical-interface-gui) or [Option 2: Terminal](#option-2-terminal). The generated file, `debian-nvidia-installer.deb`, **does not include the version number**.
 
-```bash
-# Move to the temporary directory (optional but recommended)
-mv ./debian-nvidia-installer.deb /tmp/
-
-# Enter the temporary directory
-cd /tmp
-
-# Install the package
-sudo apt install ./debian-nvidia-installer.deb
-
-# Remove the file after installation (optional)
-rm ./debian-nvidia-installer.deb
-```
 
 # Uninstallation
 
