@@ -3,7 +3,7 @@ Name=Debian Nvidia Installer
 Name[pt_BR]=Instalador Nvidia para Debian
 Name[en_US]=Debian Nvidia Installer
 
-Comment=Gerenciador de drivers da Nvidia para Debian
+Comment=Nvidia driver manager for Debian
 Comment[pt_BR]=Gerenciador de drivers da Nvidia para Debian
 Comment[en_US]=Nvidia driver manager for Debian
 
