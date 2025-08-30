@@ -53,7 +53,7 @@ installer::install_debian_proprietary535() {
     fi
 
     nvidia::change_option_pvma "1"
-    
+
     return 0
 }
 
@@ -66,7 +66,7 @@ installer::install_debian_proprietary550() {
         log::info "$(tr::t "default.script.canceled.byuser")"
         return 255
     fi
-    
+
     # Instala o driver da NVIDIA
     local status
     ( # Subshell para isolar a variável DEBIAN_FRONTEND
@@ -133,7 +133,7 @@ installer::install_debian_opensource() {
     done
 
     nvidia::change_option_pvma "1"
-        
+
     return 0
 }
 
@@ -238,8 +238,8 @@ installer::set_up_dracut() {
     if packages::is_installed "dracut"; then
         local filename="10-nvidia.conf"
         local directory="/etc/dracut.conf.d"
-        local content='install_items+=" /etc/modprobe.d/nvidia-blacklists-nouveau.conf /etc/modprobe.d/nvidia.conf /etc/modprobe.d/nvidia-options.conf "' 
-        
+        local content='install_items+=" /etc/modprobe.d/nvidia-blacklists-nouveau.conf /etc/modprobe.d/nvidia.conf /etc/modprobe.d/nvidia-options.conf "'
+
         # Garante a existência do diretório do dracut
         mkdir -p "$directory"
 
@@ -262,7 +262,7 @@ installer::install_nvidia() {
         log::input _ "$(tr::t "default.script.pause")"
         return 1
     fi
-    
+
     # Verifica se há GPUs NVIDIA disponíveis no sistema
     log::info "$(tr::t "installer::install_nvidia.verify_gpu")"
     local nvidia_gpus
@@ -311,7 +311,7 @@ installer::install_nvidia() {
     else
         log::info "$(tr::t "installer::install_nvidia.sources_components.ok")"
     fi
-    
+
     # Atualiza a lista de pacote
     log::info "$(tr::t "installer::install_nvidia.update_packages")"
     if ! packages::update; then
@@ -338,7 +338,7 @@ installer::install_nvidia() {
     # Configura o dracut caso ele esteja instalado
     log::info "$(tr::t "installer::install_nvidia.dracut")"
     installer::set_up_dracut
-    
+
     log::info "$(tr::t "installer::install_nvidia.pre.success")"
 
     # Abre a janela para escolher qual driver instalar
@@ -453,7 +453,7 @@ installer::uninstall_nvidia() {
     rm -f "/etc/modprobe.d/nvidia-options.conf"
     log::info "$(tr::t_args "installer::uninstall_nvidia.removingfile" "/etc/modprobe.d/nvidia-modeset.conf")"
     rm -f "/etc/modprobe.d/nvidia-modeset.conf"
-    
+
     log::info "$(tr::t "installer::uninstall_nvidia.reinstall.nouveau.start")"
     log::info "$(tr::t "installer::uninstall_nvidia.remove.nouveau.blacklist.start")"
 
@@ -471,9 +471,9 @@ installer::uninstall_nvidia() {
     # Reinstala o driver Nouveau
     apt-get install --reinstall -y xserver-xorg-core xserver-xorg-video-nouveau | tee -a /dev/fd/3
     # Garante que o firmware necessário para o Nouveau utilizar a Nvidia esteja presente
-    apt-get install -y firmware-misc-nonfree firmware-nvidia-graphics | tee -a /dev/fd/3 
+    apt-get install -y firmware-misc-nonfree firmware-nvidia-graphics | tee -a /dev/fd/3
     # Atualiza o initramfs para garantir que o Nouveau seja carregado corretamente
-    update-initramfs -u | tee -a /dev/fd/3 
+    update-initramfs -u | tee -a /dev/fd/3
 
     log::info "$(tr::t "installer::uninstall_nvidia.reinstall.nouveau.success")"
 

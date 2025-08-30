@@ -127,4 +127,3 @@ test::exec_test "test::packages" \
     "test::packages::check_sources_components" \
     "test::packages::add_sources_components" \
     "test::packages::is_installed"
-

@@ -64,4 +64,3 @@ test::exec_test() {
 }
 
 for file in "$SCRIPT_DIR"/tests/*.sh; do source "$file"; done
-

@@ -84,7 +84,7 @@ grub::remove_kernel_parameter() {
 
         # Remove o parâmetro (com valor opcional)
         sed -i -E "/^[[:space:]]*GRUB_CMDLINE_LINUX_DEFAULT=/s/([\" ])${param_name}${sep}${param_value}([\" ])/\1\2/g" "$file"
-            
+
         # Remove espaços duplos
         sed -i -E "/^[[:space:]]*GRUB_CMDLINE_LINUX_DEFAULT=/s/  +/ /g" "$file"
 

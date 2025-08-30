@@ -42,7 +42,7 @@ post_installation::is_cuda_toolkit_installed() {
                 return 1
             fi
             ;;
-        unknown)  
+        unknown)
                 return 2
             ;;
     esac
@@ -83,7 +83,7 @@ posinstall::install_cuda_toolkit() {
                 return 1
             fi
             ;;
-        *)  
+        *)
             log::error "$(tr:t "posinstall::install_cuda_toolkit.invalid_repo")"
             tui::msgbox::error "$(tr::t "posinstall::install_cuda_toolkit.invalid_repo")"
             return 1
@@ -136,7 +136,7 @@ posinstall::uninstall_cuda_toolkit() {
                 return 1
             fi
             ;;
-        *)  
+        *)
             log::error "$(tr:t "posinstall::uninstall_cuda_toolkit.invalid_repo")"
             tui::msgbox::error "$(tr::t "posinstall::uninstall_cuda_toolkit.invalid_repo")"
             return 1

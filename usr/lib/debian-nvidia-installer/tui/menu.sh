@@ -19,7 +19,7 @@
 # along with debian-nvidia-installer. If not, see <https://www.gnu.org/licenses/gpl-3.0.html>.
 
 tui::menu::main() {
-    while true; do     
+    while true; do
         log::info "$(tr::t "tui::menu::main.nav.start")"
 
         NAVIGATION_STATUS=1
@@ -35,7 +35,7 @@ tui::menu::main() {
         case "$choice" in
             1) installer::install_nvidia ;;
             2) installer::uninstall_nvidia ;;
-            3) 
+            3)
                 if nvidia::is_driver_installed; then
                     tui::menu::posinstall
                 else
@@ -176,8 +176,8 @@ tr::add "pt_BR" "tui::menu::posinstall.option.disable_pvma" "Desativar NVreg_Pre
 tr::add "pt_BR" "tui::menu::posinstall.s0ixpm.status" "Opção NVreg_EnableS0ixPowerManagement=%1"
 tr::add "pt_BR" "tui::menu::posinstall.option.enable_s0ixpm" "Ativar NVreg_EnableS0ixPowerManagement"
 tr::add "pt_BR" "tui::menu::posinstall.option.disable_s0ixpm" "Desativar NVreg_EnableS0ixPowerManagement"
-tr::add "pt_BR" "tui::menu::posinstall.option.cuda.error" "Não foi possível determinar o repositório para instalação do CUDA Toolkit. Reinstale os drivers utilizando este script e tente novamente." 
-tr::add "pt_BR" "tui::menu::posinstall.option.cuda.install" "Instalar CUDA Toolkit" 
+tr::add "pt_BR" "tui::menu::posinstall.option.cuda.error" "Não foi possível determinar o repositório para instalação do CUDA Toolkit. Reinstale os drivers utilizando este script e tente novamente."
+tr::add "pt_BR" "tui::menu::posinstall.option.cuda.install" "Instalar CUDA Toolkit"
 tr::add "pt_BR" "tui::menu::posinstall.option.cuda.uninstall" "Desinstalar CUDA Toolkit"
 
 tr::add "en_US" "tui::menu::posinstall.nav.start" "Starting tui::menu::posinstall menu..."
@@ -192,8 +192,8 @@ tr::add "en_US" "tui::menu::posinstall.option.disable_pvma" "Disable NVreg_Prese
 tr::add "en_US" "tui::menu::posinstall.s0ixpm.status" "Option NVreg_EnableS0ixPowerManagement=%1"
 tr::add "en_US" "tui::menu::posinstall.option.enable_s0ixpm" "Enable NVreg_EnableS0ixPowerManagement"
 tr::add "en_US" "tui::menu::posinstall.option.disable_s0ixpm" "Disable NVreg_EnableS0ixPowerManagement"
-tr::add "en_US" "tui::menu::posinstall.option.cuda.error" "Could not determine the repository for installing the CUDA Toolkit. Please reinstall the drivers using this script and try again." 
-tr::add "en_US" "tui::menu::posinstall.option.cuda.install" "Install CUDA Toolkit" 
+tr::add "en_US" "tui::menu::posinstall.option.cuda.error" "Could not determine the repository for installing the CUDA Toolkit. Please reinstall the drivers using this script and try again."
+tr::add "en_US" "tui::menu::posinstall.option.cuda.install" "Install CUDA Toolkit"
 tr::add "en_US" "tui::menu::posinstall.option.cuda.uninstall" "Uninstall CUDA Toolkit"
 
 tui::menu::flavors() {
@@ -225,32 +225,32 @@ tui::menu::flavors() {
     choice="${choice:-6}"
 
     case "$choice" in
-        1) 
+        1)
             installer::install_debian_proprietary535
             status=$?
             ;;
-        2) 
+        2)
             installer::install_debian_proprietary550
             status=$?
             ;;
-        3) 
-            installer::install_debian_opensource 
+        3)
+            installer::install_debian_opensource
             status=$?
             ;;
-        4) 
+        4)
             cudarepo::install_driver "stable" "proprietary"
             status=$?
             ;;
-        5)  
-            cudarepo::install_driver "stable" "open-source" 
+        5)
+            cudarepo::install_driver "stable" "open-source"
             status=$?
             ;;
-        6) 
+        6)
             cudarepo::install_driver "latest" "proprietary"
             status=$?
             ;;
-        7)  
-            cudarepo::install_driver "latest" "open-source" 
+        7)
+            cudarepo::install_driver "latest" "open-source"
             status=$?
             ;;
         # 8) Volta ao menu principal por padrão

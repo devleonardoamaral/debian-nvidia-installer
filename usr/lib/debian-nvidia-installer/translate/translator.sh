@@ -72,7 +72,7 @@ tr::add() {
     local lang="$1"
     local key="$2"
     local value="$3"
-    
+
     case "${lang^^}" in
         PT_BR)
             T_PT_BR["$key"]="$value"
@@ -102,7 +102,7 @@ tr::setup_lang() {
     case "${lang^^}" in
         PT_BR) SCRIPT_LANG="pt_BR" ;;
         EN_US) SCRIPT_LANG="en_US" ;;
-        *) 
+        *)
             echo "Unsupported language: $1. Using default: en_US." >&2
             SCRIPT_LANG="en_US"
             return 1
