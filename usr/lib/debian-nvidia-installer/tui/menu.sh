@@ -267,6 +267,6 @@ tr::add "pt_BR" "tui.menu.driverflavors.option.install.debian.opensource" "v550 
 
 tr::add "en_US" "tui::menu::flavors.nav.start" "Starting tui::menu::flavors menu..."
 tr::add "en_US" "tui.driverflavors.subtitle" "Select which driver to install:"
-tr::add "en_US" "tui.menu.driverflavors.option.install.debian.proprietary535" "v535 Proprietário [Debian Repo]"
+tr::add "en_US" "tui.menu.driverflavors.option.install.debian.proprietary535" "v535 Proprietary [Debian Repo]"
 tr::add "en_US" "tui.menu.driverflavors.option.install.debian.proprietary550" "v550 Proprietary [Debian Repo]"
 tr::add "en_US" "tui.menu.driverflavors.option.install.debian.opensource" "v550 Open Source [Debian Repo]"
