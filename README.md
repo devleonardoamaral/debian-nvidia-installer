@@ -16,7 +16,7 @@ It automates steps such as package installation, compatibility checks, and graph
 * 64-bit architecture
 * Compatible NVIDIA graphics card
   > Official NVIDIA drivers on Debian Trixie do not support [GPUs based on the Fermi or Kepler architecture](https://www.nvidia.com/en-us/drivers/unix/legacy-gpu/).
-  
+
   > See [Debian’s guide on installing legacy drivers](https://wiki.debian.org/NvidiaGraphicsDrivers#Tesla_Drivers) if needed.
 * Bash-compatible shell
 * Administrator privileges (sudo/root)
@@ -36,9 +36,9 @@ You can install `debian-nvidia-installer` by downloading the `.deb` package from
 
 ### Option 1: Graphical Interface (GUI)
 
-1. Download the script’s `.deb` file.  
-2. **Double-click** the file to open it in your system’s package manager.  
-3. Click **“Install”**. You may be asked to enter your administrator password.  
+1. Download the script’s `.deb` file.
+2. **Double-click** the file to open it in your system’s package manager.
+3. Click **“Install”**. You may be asked to enter your administrator password.
 
 > 💡 Compatible with package managers like **GDebi**, **Discover** (KDE), **GNOME Software**, and similar tools.
 

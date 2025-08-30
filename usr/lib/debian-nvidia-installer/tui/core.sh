@@ -31,7 +31,7 @@ tui::show_menu() {
     local prompt="$2"
     shift 2
     local menu_items=("$@")
-    
+
     choice="$(dialog "${DIALOG_OPTS[@]}" \
            --no-cancel \
            --title "$title" \
@@ -73,6 +73,6 @@ tui::show_yesno() {
            --yes-label "$yes_label" \
            --no-label "$no_label" \
            --yesno "$message" 20 70 1>/dev/tty
-    
+
     return "$?"
 }

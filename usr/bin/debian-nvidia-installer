@@ -139,7 +139,7 @@ if [[ $# -gt 0 ]]; then
             script::help
             exit 0
             ;;
-        *)  
+        *)
             echo "$(tr::t_args "default.invalid.command" "$*")"
             script::help
             exit 1
@@ -168,7 +168,7 @@ Distribuição: %2\n
 
 Distribution: %2\n
 "
-    (   
+    (
         source "/etc/os-release"
         log::info "$(tr::t_args "default.script.welcome" "$SCRIPT_VERSION" "$DISTRO_INFO")"
     )

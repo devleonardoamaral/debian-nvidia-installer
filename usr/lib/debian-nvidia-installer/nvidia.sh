@@ -211,7 +211,7 @@ nvidia::get_module_param() {
     return $status
 }
 
-tr::add "pt_BR" "nvidia::get_module_param.file_not_found" "Parâmetro %1 não disponível ou módulo NVIDIA não carregado." 
+tr::add "pt_BR" "nvidia::get_module_param.file_not_found" "Parâmetro %1 não disponível ou módulo NVIDIA não carregado."
 tr::add "en_US" "nvidia::get_module_param.file_not_found" "Parameter %1 not available or NVIDIA module not loaded."
 
 # Função para desabilitar uma opção específica no arquivo de configuração
@@ -340,7 +340,7 @@ tr::add "en_US" "nvidia::enable_power_services.failure" "Failed to enable servic
 
 nvidia::disable_power_services() {
     for svc in nvidia-suspend.service nvidia-hibernate.service nvidia-resume.service; do
-        systemctl disable "$svc" | tee -a /dev/fd/3 
+        systemctl disable "$svc" | tee -a /dev/fd/3
         if [[ "${PIPESTATUS[0]}" -ne 0 ]]; then
             log::error "$(tr::t_args "nvidia::disable_power_services.failure" "$svc")"
             return 1

@@ -26,7 +26,7 @@ packages::check_sources_components() {
     if [ -n "$1" ]; then
         sources_file="$1"
     fi
-    
+
     shift
 
     local valid_lines_with_components=0
@@ -43,7 +43,7 @@ packages::check_sources_components() {
 
             # Extrai os componentes (últimos campos da linha)
             read -ra current_components <<< "$(echo "$current_line" | cut -d' ' -f5-)"
-            
+
             # Verifica se todos os componentes esperados estão presentes na linha
             for required_component in "$@"; do
                 for found_component in "${current_components[@]}"; do
@@ -70,7 +70,7 @@ packages::check_sources_components() {
 }
 
 # Adiciona novos componentes ao sources.list e atualiza a lista pacotes
-packages::add_sources_components() {    
+packages::add_sources_components() {
     local sources_file="/etc/apt/sources.list"
 
     if [ -n "$1" ]; then
