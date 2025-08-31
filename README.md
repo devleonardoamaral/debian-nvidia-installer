@@ -13,7 +13,7 @@ It automates steps such as package installation, compatibility checks, and graph
 ### Requirements
 
 * Debian Trixie distribution
-* 64-bit architecture
+* amd64 architecture
 * Compatible NVIDIA graphics card
   > Official NVIDIA drivers on Debian Trixie do not support [GPUs based on the Fermi or Kepler architecture](https://www.nvidia.com/en-us/drivers/unix/legacy-gpu/).
 

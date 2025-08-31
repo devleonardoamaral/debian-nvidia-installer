@@ -15,7 +15,7 @@ verificação de compatibilidade e configuração do ambiente gráfico.
 ### Requisitos
 
 * Distribuição Debian Trixie
-* Arquitetura 64 bits
+* Arquitetura amd64
 * Placa gráfica NVIDIA compatível
   > Os drivers oficiais da NVIDIA no Debian Trixie não oferecem suporte a [GPUs com arquitetura Fermi ou Kepler](https://www.nvidia.com/en-us/drivers/unix/legacy-gpu/).
 
