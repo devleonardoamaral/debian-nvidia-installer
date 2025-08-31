@@ -89,7 +89,7 @@ Run the build script provided in the repository. It will create the `.deb` packa
 ./build_deb.sh
 ```
 
-To install the `.deb` package, follow the same steps as in [Option 1: Graphical Interface (GUI)](#option-1-graphical-interface) or [Option 2: Terminal](#option-2-terminal).
+To install the `.deb` package, follow the same steps as in [Option 1: Graphical Interface](#option-1-graphical-interface) or [Option 2: Terminal](#option-2-terminal).
 
 # Uninstallation
 
