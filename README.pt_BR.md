@@ -47,69 +47,57 @@ Você pode instalar o `debian-nvidia-installer` baixando o pacote `.deb` a parti
 
 ### Opção 2: Terminal
 
-Antes de começar, **verifique a versão do script que você baixou do GitHub**.
-Substitua `X.X.X` nos comandos a seguir pela versão correta.
-Exemplo: se a versão for `0.0.1`, o arquivo será `debian-nvidia-installer_0.0.1.deb`.
+Antes de começar, verifique a versão do pacote .deb que você baixou do GitHub. Substitua `X.X.X` nos comandos a seguir pela versão correta.
+Exemplo: se a versão for `0.0.1`, o arquivo será `debian-nvidia-installer_0.0.1_amd64.deb`.
 
-> ⚠️ **Importante:** não instale o arquivo diretamente do local de download. Sempre mova para o diretório temporário (`/tmp`) para evitar problemas de permissão.
-
-#### Passo 1 – Mover o arquivo para o diretório temporário
+Copie o arquivo `.deb` para o diretório `/tmp`, para evitar problemas de permissão com o gerenciador de pacotes do sistema:
 
 ```bash
-mv ./debian-nvidia-installer_X.X.X.deb /tmp/
+cp ./debian-nvidia-installer_X.X.X_amd64.deb /tmp/
 ```
 
-Isso move o arquivo `.deb` para o diretório `/tmp`, que é seguro para instalar pacotes sem precisar de permissões especiais.
+> 💡 Arquivos dentro do diretório `/tmp` são removidos automaticamente após uma reinicialização do sistema.
 
-#### Passo 2 – Entrar no diretório temporário
+Entre no diretório temporário `/tmp`, onde o arquivo `.deb` foi movido:
 
 ```bash
 cd /tmp
 ```
 
-O comando `cd` significa “change directory” (mudar de diretório). Aqui você entra na pasta `/tmp` onde o arquivo foi movido.
-
-#### Passo 3 – Instalar o pacote
+Instale o pacote utilizando o `apt` para que as dependências do script sejam instaladas corretamente:
 
 ```bash
-sudo apt install ./debian-nvidia-installer_X.X.X.deb
+sudo apt install ./debian-nvidia-installer_X.X.X_amd64.deb
 ```
 
-#### Passo 4 – Limpar o arquivo após a instalação (opcional)
-
-```bash
-rm ./debian-nvidia-installer_X.X.X.deb
-```
-
-Isso remove o arquivo `.deb` que não é mais necessário. É opcional, já que todos os arquivos de `/tmp` são excluídos após reiniciar o sistema.
+> ⚠️ **Importante:** Não instale utilizando `dpkg -i`, isso fará com que as dependências do script não sejam instaladas e o pacote fique quebrado.
 
 ### Opção 3: Construir e instalar manualmente (para usuários avançados)
 
-#### Passo 1 – Clonar o repositório
+Clone o repositório localmente no seu computador utilizando o pacote [git](https://packages.debian.org/stable/git):
 
 ```bash
 git clone https://github.com/devleonardoamaral/debian-nvidia-installer.git
 ```
 
-Isso cria uma cópia local do repositório em seu computador.
-
-#### Passo 2 – Construir o pacote `.deb`
+Entre no diretório do repositório clonado:
 
 ```bash
-dpkg-deb --build --root-owner-group debian-nvidia-installer
+cd debian-nvidia-installer
 ```
 
-* Cria o arquivo `.deb` a partir da pasta do repositório.
-* `--root-owner-group` garante permissões compatíveis com o sistema.
+Execute o script de build disponível no repositório. Ele irá criar o pacote `.deb` em `./deb_build/debian-nvidia-installer_X.X.X_amd64.deb`:
 
-#### Passo 3 – Instalar o pacote
+```bash
+./build_deb.sh
+```
 
-Use os mesmos passos das opções [Opção 1: Interface Gráfica (GUI)](#opção-1-interface-gráfica) ou [Opção 2: Terminal](#opção-2-terminal). O arquivo gerado, `debian-nvidia-installer.deb`, **não inclui o número da versão**.
+Para instalar o pacote `.deb`, siga os mesmos passos das opções [Opção 1: Interface Gráfica](#opção-1-interface-gráfica) ou [Opção 2: Terminal](#opção-2-terminal).
 
 # Desinstalação
+
+Para desinstalar corretamente o script e suas dependências, utilize o seguinte comando:
 
 ```bash
 sudo apt purge --autoremove debian-nvidia-installer
 ```
-
-Remove completamente o pacote, incluindo seus arquivos de configuração, e também remove quaisquer dependências que não sejam mais necessárias.
