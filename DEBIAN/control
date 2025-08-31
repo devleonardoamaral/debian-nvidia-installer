@@ -2,7 +2,7 @@ Package: debian-nvidia-installer
 Version: 0.0.0
 Section: utils
 Priority: optional
-Architecture: all
+Architecture: amd64
 Homepage: https://github.com/devleonardoamaral/debian-nvidia-installer
 Maintainer: Leonardo Amaral <leonardo_amaral98@hotmail.com>
 Depends: mokutil, dialog, pciutils, findutils, wget
