@@ -92,7 +92,7 @@ Execute o script de build disponível no repositório. Ele irá criar o pacote `
 ./build_deb.sh
 ```
 
-Para instalar o pacote `.deb`, siga os mesmos passos das opções [Opção 1: Interface Gráfica (GUI)](#opção-1-interface-gráfica) ou [Opção 2: Terminal](#opção-2-terminal).
+Para instalar o pacote `.deb`, siga os mesmos passos das opções [Opção 1: Interface Gráfica](#opção-1-interface-gráfica) ou [Opção 2: Terminal](#opção-2-terminal).
 
 # Desinstalação
 
