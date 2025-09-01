@@ -76,3 +76,29 @@ tui::show_yesno() {
 
     return "$?"
 }
+
+tui::show_dynamic_menu() {
+    local title="$1"
+    local prompt="$2"
+
+    # Name references 
+    local -n labels=$3
+    local -n actions=$4
+
+    local menu_items=()
+    for i in "${!labels[@]}"; do
+        tag=$((i + 1))
+        menu_items+=("$tag" "${labels[i]}")
+    done
+
+    local choice
+    choice=$(tui::show_menu "$title" "$prompt" "${menu_items[@]}")
+    local status="$?"
+
+    if [ "$status" -eq 255 ]; then
+        return 255
+    fi
+
+    local i=$((choice - 1))
+    eval "${actions[i]}" 2>&1 | tee -a /dev/fd/3
+}

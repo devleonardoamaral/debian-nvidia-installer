@@ -29,7 +29,8 @@ tui::menu::main() {
             1 "$(tr::t "tui.menu.main.option.installdrivers")" \
             2 "$(tr::t "tui.menu.main.option.uninstalldrivers")"\
             3 "$(tr::t "tui.menu.main.option.posinstall")" \
-            4 "$(tr::t "default.tui.button.exit")")
+            4 "$(tr::t "tui::menu::main.option.app_gpu_management")" \
+            5 "$(tr::t "default.tui.button.exit")")
         choice="${choice:-4}"
 
         case "$choice" in
@@ -42,7 +43,8 @@ tui::menu::main() {
                     tui::msgbox::warn "$(tr::t "tui::menu::main.drivernotinstalled")"
                 fi
                 ;;
-            4) break ;; # Encerra a navegação
+            4) tui::menu::app_gpu_management ;;
+            5) break ;; # Encerra a navegação
         esac
     done
 }
@@ -53,6 +55,7 @@ tr::add "pt_BR" "tui.menu.main.subtitle" "Selecione uma opção:"
 tr::add "pt_BR" "tui.menu.main.option.installdrivers" "Instalar Drivers"
 tr::add "pt_BR" "tui.menu.main.option.uninstalldrivers" "Desinstalar Drivers"
 tr::add "pt_BR" "tui.menu.main.option.posinstall" "Opções pós-instalação"
+tr::add "pt_BR" "tui::menu::main.option.app_gpu_management" "Preferência de GPU"
 tr::add "pt_BR" "tui::menu::main.drivernotinstalled" "Não foi possível detectar o driver da NVIDIA no sistema.\n\nInstale o driver e reinicie o sistema para que o driver seja carregado antes de acessar as opções pós-instalação."
 
 tr::add "en_US" "tui::menu::main.nav.start" "[TUI] Opening the Main menu..."
@@ -61,6 +64,7 @@ tr::add "en_US" "tui.menu.main.subtitle" "Select an option:"
 tr::add "en_US" "tui.menu.main.option.installdrivers" "Install Drivers"
 tr::add "en_US" "tui.menu.main.option.uninstalldrivers" "Uninstall Drivers"
 tr::add "en_US" "tui.menu.main.option.posinstall" "Post-installation Options"
+tr::add "en_US" "tui::menu::main.option.app_gpu_management" "App GPU Preference"
 tr::add "en_US" "tui::menu::main.drivernotinstalled" "Could not detect the NVIDIA driver on the system.\n\nInstall the driver and restart the system so that the driver is loaded before accessing the post-installation options."
 
 tui::menu::posinstall() {
@@ -270,3 +274,53 @@ tr::add "en_US" "tui.driverflavors.subtitle" "Select which driver to install:"
 tr::add "en_US" "tui.menu.driverflavors.option.install.debian.proprietary535" "v535 Proprietary [Debian Repo]"
 tr::add "en_US" "tui.menu.driverflavors.option.install.debian.proprietary550" "v550 Proprietary [Debian Repo]"
 tr::add "en_US" "tui.menu.driverflavors.option.install.debian.opensource" "v550 Open Source [Debian Repo]"
+
+tui::menu::app_gpu_management() {
+    log::info "$(tr::t "tui::menu::app_gpu_management.nav.start")"
+
+    local desktop_file choice status
+    local option_labels=()
+    local option_actions=()
+
+    while true; do
+        option_labels=()
+        option_actions=()
+
+        while IFS= read -r desktop_file; do
+            if desktop::is_using_discrete_gpu "$desktop_file"; then
+                option_labels+=("[x] $(basename "$desktop_file" .desktop)")
+            else
+                option_labels+=("[ ] $(basename "$desktop_file" .desktop)")
+            fi
+            option_actions+=("desktop::switch_gpu_preferences \"$desktop_file\"; tui::msgbox::need_restart_session")
+        done < <(desktop::get_all_desktops)
+
+        option_labels+=("$(tr::t "tui::menu::app_gpu_management.tui.option.restore")")
+        option_actions+=("desktop::restore_backups; tui::msgbox::need_restart_session")
+
+        option_labels+=("$(tr::t "default.tui.button.exit")")
+        option_actions+=("return 255")
+
+        tui::show_dynamic_menu \
+            "$(tr::t "tui::menu::app_gpu_management.tui.title")" \
+            "$(tr::t "tui::menu::app_gpu_management.tui.prompt")" \
+            option_labels option_actions
+        status="$?"
+
+        if [ "$status" -eq 255 ]; then
+            break
+        fi
+    done
+
+    return 0
+}
+
+tr::add "pt_BR" "tui::menu::app_gpu_management.nav.start" "[TUI] Abrindo o menu de Preferência de GPU..."
+tr::add "pt_BR" "tui::menu::app_gpu_management.tui.title" "Preferência de GPU"
+tr::add "pt_BR" "tui::menu::app_gpu_management.tui.prompt" "Selecione um aplicativo para definir qual GPU usar:\n\n• [x] GPU dedicada\n• [ ] GPU integrada"
+tr::add "pt_BR" "tui::menu::app_gpu_management.tui.option.restore" "Reverter alterações"
+
+tr::add "en_US" "tui::menu::app_gpu_management.nav.start" "[TUI] Opening the App GPU Preference menu..."
+tr::add "en_US" "tui::menu::app_gpu_management.tui.title" "App GPU Preference"
+tr::add "en_US" "tui::menu::app_gpu_management.tui.prompt" "Select an application to set which GPU to use:\n\n• [x] Dedicated GPU\n• [ ] Integrated GPU"
+tr::add "en_US" "tui::menu::app_gpu_management.tui.option.restore" "Revert changes"
