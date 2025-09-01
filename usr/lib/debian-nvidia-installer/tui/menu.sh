@@ -31,7 +31,8 @@ tui::menu::main() {
             1 "$(tr::t "tui.menu.main.option.installdrivers")" \
             2 "$(tr::t "tui.menu.main.option.uninstalldrivers")" \
             3 "$(tr::t "tui.menu.main.option.posinstall")" \
-            4 "$(tr::t "tui::menu::main.option.app_gpu_management")"
+            4 "$(tr::t "tui::menu::main.option.app_gpu_management")" \
+            5 "$(tr::t "tui::menu::main.option.nvidia-smi")"
         )"
         status="$?"
 
@@ -50,6 +51,7 @@ tui::menu::main() {
                 fi
                 ;;
             4) tui::menu::app_gpu_management ;;
+            5) watch -n 1 "echo \"\n$(tr::t "tui::menu::main.option.nvidia-smi.tip")\n\"; nvidia-smi" ;;
         esac
     done
 }
@@ -61,6 +63,8 @@ tr::add "pt_BR" "tui.menu.main.option.installdrivers" "Instalar Drivers"
 tr::add "pt_BR" "tui.menu.main.option.uninstalldrivers" "Desinstalar Drivers"
 tr::add "pt_BR" "tui.menu.main.option.posinstall" "Opções pós-instalação"
 tr::add "pt_BR" "tui::menu::main.option.app_gpu_management" "Preferência de GPU"
+tr::add "pt_BR" "tui::menu::main.option.nvidia-smi" "Abrir Monitor da Nvidia"
+tr::add "pt_BR" "tui::menu::main.option.nvidia-smi.tip" "Pressione CTRL+C para voltar"
 tr::add "pt_BR" "tui::menu::main.drivernotinstalled" "Não foi possível detectar o driver da NVIDIA no sistema.\n\nInstale o driver e reinicie o sistema para que o driver seja carregado antes de acessar as opções pós-instalação."
 
 tr::add "en_US" "tui::menu::main.nav.start" "[TUI] Opening the Main menu..."
@@ -70,6 +74,8 @@ tr::add "en_US" "tui.menu.main.option.installdrivers" "Install Drivers"
 tr::add "en_US" "tui.menu.main.option.uninstalldrivers" "Uninstall Drivers"
 tr::add "en_US" "tui.menu.main.option.posinstall" "Post-installation Options"
 tr::add "en_US" "tui::menu::main.option.app_gpu_management" "App GPU Preference"
+tr::add "en_US" "tui::menu::main.option.nvidia-smi" "Open Nvidia Monitor"
+tr::add "en_US" "tui::menu::main.option.nvidia-smi.tip" "Press CTRL+C to return"
 tr::add "en_US" "tui::menu::main.drivernotinstalled" "Could not detect the NVIDIA driver on the system.\n\nInstall the driver and restart the system so that the driver is loaded before accessing the post-installation options."
 
 tui::menu::posinstall() {
