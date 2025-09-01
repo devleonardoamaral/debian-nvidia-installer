@@ -233,7 +233,7 @@ tui::menu::flavors() {
     status="$?"
 
     if [ "$status" -ne 0 ]; then
-        break
+        return 255
     fi
 
     case "$choice" in
