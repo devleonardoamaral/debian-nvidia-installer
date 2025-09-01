@@ -47,7 +47,7 @@ tui::menu::main() {
     done
 }
 
-tr::add "pt_BR" "tui::menu::main.nav.start" "Iniciando menu tui::menu::main..."
+tr::add "pt_BR" "tui::menu::main.nav.start" "[TUI] Abrindo o menu Principal..."
 tr::add "pt_BR" "tui.menu.main.title" "DEBIAN NVIDIA INSTALLER"
 tr::add "pt_BR" "tui.menu.main.subtitle" "Selecione uma opção:"
 tr::add "pt_BR" "tui.menu.main.option.installdrivers" "Instalar Drivers"
@@ -55,7 +55,7 @@ tr::add "pt_BR" "tui.menu.main.option.uninstalldrivers" "Desinstalar Drivers"
 tr::add "pt_BR" "tui.menu.main.option.posinstall" "Opções pós-instalação"
 tr::add "pt_BR" "tui::menu::main.drivernotinstalled" "Não foi possível detectar o driver da NVIDIA no sistema.\n\nInstale o driver e reinicie o sistema para que o driver seja carregado antes de acessar as opções pós-instalação."
 
-tr::add "en_US" "tui::menu::main.nav.start" "Starting tui::menu::main menu..."
+tr::add "en_US" "tui::menu::main.nav.start" "[TUI] Opening the Main menu..."
 tr::add "en_US" "tui.menu.main.title" "DEBIAN NVIDIA INSTALLER"
 tr::add "en_US" "tui.menu.main.subtitle" "Select an option:"
 tr::add "en_US" "tui.menu.main.option.installdrivers" "Install Drivers"
@@ -164,7 +164,7 @@ tui::menu::posinstall() {
     done
 }
 
-tr::add "pt_BR" "tui::menu::posinstall.nav.start" "Iniciando menu tui::menu::posinstall..."
+tr::add "pt_BR" "tui::menu::posinstall.nav.start" "[TUI] Abrindo o menu de Pós Instalação"
 tr::add "pt_BR" "tui::menu::posinstall.title" "OPÇÕES PÓS-INSTALAÇÃO"
 tr::add "pt_BR" "tui::menu::posinstall.subtitle" "Selecione uma opção:"
 tr::add "pt_BR" "tui::menu::posinstall.power_service.status" "Status dos serviços auxiliares de energia NVIDIA: %1"
@@ -180,7 +180,7 @@ tr::add "pt_BR" "tui::menu::posinstall.option.cuda.error" "Não foi possível de
 tr::add "pt_BR" "tui::menu::posinstall.option.cuda.install" "Instalar CUDA Toolkit"
 tr::add "pt_BR" "tui::menu::posinstall.option.cuda.uninstall" "Desinstalar CUDA Toolkit"
 
-tr::add "en_US" "tui::menu::posinstall.nav.start" "Starting tui::menu::posinstall menu..."
+tr::add "en_US" "tui::menu::posinstall.nav.start" "[TUI] Opening the Post-Installation menu..."
 tr::add "en_US" "tui::menu::posinstall.title" "POST-INSTALLATION OPTIONS"
 tr::add "en_US" "tui::menu::posinstall.subtitle" "Select an option:"
 tr::add "en_US" "tui::menu::posinstall.power_service.status" "NVIDIA auxiliary power services status: %1"
@@ -259,13 +259,13 @@ tui::menu::flavors() {
     return "$status"
 }
 
-tr::add "pt_BR" "tui::menu::flavors.nav.start" "Iniciando menu tui::menu::flavors..."
+tr::add "pt_BR" "tui::menu::flavors.nav.start" "[TUI] Abrindo o menu Seleção de Drivers Nvidia..."
 tr::add "pt_BR" "tui.driverflavors.subtitle" "Selecione qual driver insalar:"
 tr::add "pt_BR" "tui.menu.driverflavors.option.install.debian.proprietary535" "v535 Proprietário [Debian Repo]"
 tr::add "pt_BR" "tui.menu.driverflavors.option.install.debian.proprietary550" "v550 Proprietário [Debian Repo]"
 tr::add "pt_BR" "tui.menu.driverflavors.option.install.debian.opensource" "v550 Código Aberto [Debian Repo]"
 
-tr::add "en_US" "tui::menu::flavors.nav.start" "Starting tui::menu::flavors menu..."
+tr::add "en_US" "tui::menu::flavors.nav.start" "[TUI] Opening the Nvidia Driver Selection menu..."
 tr::add "en_US" "tui.driverflavors.subtitle" "Select which driver to install:"
 tr::add "en_US" "tui.menu.driverflavors.option.install.debian.proprietary535" "v535 Proprietary [Debian Repo]"
 tr::add "en_US" "tui.menu.driverflavors.option.install.debian.proprietary550" "v550 Proprietary [Debian Repo]"
