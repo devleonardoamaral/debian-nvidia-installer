@@ -275,9 +275,8 @@ installer::install_nvidia() {
             log::info "\t - ${line}"
         done <<< "$nvidia_gpus"
     else
-        log::error "$(tr::t "installer::install_nvidia.verify_gpu.failure")"
-        tui::msgbox::warn "$(tr::t "installer::install_nvidia.verify_gpu.failure")"
-        return 1
+        log::warn "$(tr::t "installer::install_nvidia.verify_gpu.failure")"
+        tui::msgbox::warn "$(tr::t "installer::install_nvidia.verify_gpu.failure.msgbox")"
     fi
 
     # Verifica se a arquitetura do sistema é suportada
@@ -369,9 +368,10 @@ installer::install_nvidia() {
 tr::add "pt_BR" "installer::install_nvidia.start" "Iniciando pré-instalação..."
 tr::add "pt_BR" "installer::install_nvidia.installed_drivers" "Verificando por drivers instalados no sistema..."
 tr::add "pt_BR" "installer::install_nvidia.installed_drivers.already_installed" "Driver NVIDIA detectado no sistema, remova o driver instalado no sistema antes de prosseguir com uma nova instalação. Operação abortada."
-tr::add "pt_BR" "installer::install_nvidia.verify_gpu" "Procurando por hardware NVIDIA..."
-tr::add "pt_BR" "installer::install_nvidia.verify_gpu.success" "Hardware NVIDIA detectado:"
-tr::add "pt_BR" "installer::install_nvidia.verify_gpu.failure" "Nenhum hardware NVIDIA encontrado. Operação abortada."
+tr::add "pt_BR" "installer::install_nvidia.verify_gpu" "Procurando por GPUs NVIDIA..."
+tr::add "pt_BR" "installer::install_nvidia.verify_gpu.success" "GPU NVIDIA detectada:"
+tr::add "pt_BR" "installer::install_nvidia.verify_gpu.failure" "Nenhuma GPU NVIDIA detectada."
+tr::add "pt_BR" "installer::install_nvidia.verify_gpu.failure.msgbox" "Nenhuma GPU NVIDIA detectada.\n\nAlgumas bibliotecas específicas de GPU não serão instaladas automaticamente. Para garantir uma instalação completa, execute o script com o hardware NVIDIA presente no sistema."
 tr::add "pt_BR" "installer::install_nvidia.verify_arch" "Verificando arquitetura do sistema..."
 tr::add "pt_BR" "installer::install_nvidia.unsupported_arch" "Arquitetura %1 não é suportada através deste instalador. Operação abortada."
 tr::add "pt_BR" "installer::install_nvidia.enable_multiarch" "Habilitando suporte à arquitetura i386..."
@@ -392,9 +392,10 @@ tr::add "pt_BR" "installer::install_nvidia.success" "Driver da NVIDIA instalado 
 tr::add "en_US" "installer::install_nvidia.start" "Starting pre-installation..."
 tr::add "en_US" "installer::install_nvidia.installed_drivers" "Checking for installed drivers on the system..."
 tr::add "en_US" "installer::install_nvidia.installed_drivers.already_installed" "NVIDIA driver detected on the system. Please remove the existing driver before proceeding with a new installation. Operation aborted."
-tr::add "en_US" "installer::install_nvidia.verify_gpu" "Searching for NVIDIA hardware..."
-tr::add "en_US" "installer::install_nvidia.verify_gpu.success" "NVIDIA hardware detected:"
-tr::add "en_US" "installer::install_nvidia.verify_gpu.failure" "No NVIDIA hardware found. Operation aborted."
+tr::add "en_US" "installer::install_nvidia.verify_gpu" "Searching for NVIDIA GPUs..."
+tr::add "en_US" "installer::install_nvidia.verify_gpu.success" "NVIDIA GPU detected:"
+tr::add "en_US" "installer::install_nvidia.verify_gpu.failure" "No NVIDIA GPU detected."
+tr::add "en_US" "installer::install_nvidia.verify_gpu.failure.msgbox" "No NVIDIA GPU detected.\n\nSome GPU-specific libraries will not be installed automatically. For a complete installation, run the script with the NVIDIA hardware present in the system."
 tr::add "en_US" "installer::install_nvidia.verify_arch" "Checking system architecture..."
 tr::add "en_US" "installer::install_nvidia.unsupported_arch" "Architecture %1 is not supported by this installer. Operation aborted."
 tr::add "en_US" "installer::install_nvidia.enable_multiarch" "Enabling support for i386 architecture..."
