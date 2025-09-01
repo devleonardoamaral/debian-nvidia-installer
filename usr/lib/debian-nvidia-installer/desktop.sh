@@ -38,20 +38,18 @@ USER_DESKTOP_SUBPATHS=(
 desktop::get_all_desktops() {
     local dir userdir
 
-    # Iterate over all user home directories under /home/*
+    # .desktop from all users
     for user_home in /home/*; do
         [[ -d "$user_home" ]] || continue
-
-        # Iterate over common user desktop subdirectories
         for subpath in "${USER_DESKTOP_SUBPATHS[@]}"; do
             userdir="$user_home/$subpath"
-            [[ -d "$userdir" ]] && find "$userdir" -type f -name "*.desktop" 2>/dev/null
+            [[ -d "$userdir" ]] && find "$userdir" \( -type f -o -type l \) -name "*.desktop" 2>/dev/null
         done
     done
 
-    # Iterate over system-wide desktop directories
+    # .desktop from system-wide directories
     for dir in "${SYSTEM_DESKTOP_PATHS[@]}"; do
-        [[ -d "$dir" ]] && find "$dir" -type f -name "*.desktop" 2>/dev/null
+        [[ -d "$dir" ]] && find "$dir" \( -type f -o -type l \) -name "*.desktop" 2>/dev/null
     done
 }
 
