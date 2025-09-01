@@ -18,33 +18,60 @@
 # You should have received a copy of the GNU General Public License
 # along with debian-nvidia-installer. If not, see <https://www.gnu.org/licenses/gpl-3.0.html>.
 
-declare -ag DESKTOP_PATHS=(
-    "$HOME/.local/share/applications"                       # User-specific .desktop files (highest priority)
-    "$HOME/.local/share/flatpak/exports/share/applications" # Local Flatpak-installed apps
-    "$HOME/.local/share/snap/desktop"                       # Local Snap-installed apps
-    "$HOME/.local/share/gnome/apps"                         # Older GNOME user apps (rare)
-    "/usr/local/share/applications"                         # Locally installed apps for all users
-    "/usr/share/applications"                               # System-wide applications (main directory)
-    "/var/lib/snapd/desktop/applications"                   # Snap apps installed globally
-    "/var/lib/flatpak/exports/share/applications"           # Flatpak apps installed globally
+# Global system-wide desktop directories
+SYSTEM_DESKTOP_PATHS=(
+    "/usr/local/share/applications"                      # Locally installed apps for all users
+    "/usr/share/applications"                            # System-wide applications (main directory)
+    "/var/lib/snapd/desktop/applications"                # Snap apps installed globally
+    "/var/lib/flatpak/exports/share/applications"        # Flatpak apps installed globally
 )
 
-# List all available .desktop files from common system and user paths
+# User-specific desktop subdirectories
+USER_DESKTOP_SUBPATHS=(
+    ".local/share/applications"                          # User-installed apps (highest priority)
+    ".local/share/flatpak/exports/share/applications"    # User Flatpak apps
+    ".local/share/snap/desktop"                          # User Snap apps
+    ".local/share/gnome/apps"                            # Older GNOME user apps (rare)
+)
+
+# List all available .desktop files for all users and system
 desktop::get_all_desktops() {
-    for dir in "${DESKTOP_PATHS[@]}"; do
-        if [[ -d "$dir" ]]; then
-            find "$dir" \( -type f -o -type l \) -name "*.desktop" 2>/dev/null
-        fi
+    local dir userdir
+
+    # Iterate over all user home directories under /home/*
+    for user_home in /home/*; do
+        [[ -d "$user_home" ]] || continue
+
+        # Iterate over common user desktop subdirectories
+        for subpath in "${USER_DESKTOP_SUBPATHS[@]}"; do
+            userdir="$user_home/$subpath"
+            [[ -d "$userdir" ]] && find "$userdir" -type f -name "*.desktop" 2>/dev/null
+        done
+    done
+
+    # Iterate over system-wide desktop directories
+    for dir in "${SYSTEM_DESKTOP_PATHS[@]}"; do
+        [[ -d "$dir" ]] && find "$dir" -type f -name "*.desktop" 2>/dev/null
     done
 }
 
-# List all .desktop backup files (.desktop.bak) from same directories as normal .desktop files
+# List all .desktop backup files (.desktop.bak) for all users and system
 desktop::get_all_backups() {
-    for dir in "${DESKTOP_PATHS[@]}"; do
-        if [[ -d "$dir" ]]; then
-            # Find regular files or symlinks ending with .desktop.bak
-            find "$dir" \( -type f -o -type l \) -name "*.desktop.bak" 2>/dev/null
-        fi
+    local dir userdir
+
+    # Backups from all users
+    for user_home in /home/*; do
+        [[ -d "$user_home" ]] || continue
+
+        for subpath in "${USER_DESKTOP_SUBPATHS[@]}"; do
+            userdir="$user_home/$subpath"
+            [[ -d "$userdir" ]] && find "$userdir" -type f -name "*.desktop.bak" 2>/dev/null
+        done
+    done
+
+    # Backups from system-wide directories
+    for dir in "${SYSTEM_DESKTOP_PATHS[@]}"; do
+        [[ -d "$dir" ]] && find "$dir" -type f -name "*.desktop.bak" 2>/dev/null
     done
 }
 

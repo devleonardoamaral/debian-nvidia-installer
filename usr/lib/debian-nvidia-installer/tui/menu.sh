@@ -287,11 +287,35 @@ tui::menu::app_gpu_management() {
         option_actions=()
 
         while IFS= read -r desktop_file; do
+            local user_name=""
+            local app_name
+
             if desktop::is_using_discrete_gpu "$desktop_file"; then
-                option_labels+=("[x] $(basename "$desktop_file" .desktop)")
+                # Extract the username from the path if it is under /home/*
+                if [[ "$desktop_file" =~ ^/home/([^/]+)/ ]]; then
+                    user_name="${BASH_REMATCH[1]}"
+                fi
+
+                # Optional: show app name with username
+                app_name="$(basename "$desktop_file" .desktop)"
+                if [[ -n "$user_name" ]]; then
+                    option_labels+=("[x] $app_name ($user_name)")
+                else
+                    option_labels+=("[x] $app_name")
+                fi
             else
-                option_labels+=("[ ] $(basename "$desktop_file" .desktop)")
+                app_name="$(basename "$desktop_file" .desktop)"
+                if [[ "$desktop_file" =~ ^/home/([^/]+)/ ]]; then
+                    user_name="${BASH_REMATCH[1]}"
+                fi
+
+                if [[ -n "$user_name" ]]; then
+                    option_labels+=("[ ] $app_name ($user_name)")
+                else
+                    option_labels+=("[ ] $app_name")
+                fi
             fi
+
             option_actions+=("desktop::switch_gpu_preferences \"$desktop_file\"; tui::msgbox::need_restart_session")
         done < <(desktop::get_all_desktops)
 
