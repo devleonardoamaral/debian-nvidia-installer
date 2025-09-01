@@ -24,14 +24,20 @@ tui::menu::main() {
 
         NAVIGATION_STATUS=1
 
-        local choice
-        choice=$(tui::show_menu "$(tr::t "tui.menu.main.title") $SCRIPT_VERSION" "$(tr::t "tui.menu.main.subtitle")" \
+        local choice status
+        choice="$(tui::show_menu \
+            "$(tr::t "tui.menu.main.title") $SCRIPT_VERSION" \
+            "$(tr::t "tui.menu.main.subtitle")" "" "$(tr::t "default.tui.button.exit")" \
             1 "$(tr::t "tui.menu.main.option.installdrivers")" \
-            2 "$(tr::t "tui.menu.main.option.uninstalldrivers")"\
+            2 "$(tr::t "tui.menu.main.option.uninstalldrivers")" \
             3 "$(tr::t "tui.menu.main.option.posinstall")" \
-            4 "$(tr::t "tui::menu::main.option.app_gpu_management")" \
-            5 "$(tr::t "default.tui.button.exit")")
-        choice="${choice:-4}"
+            4 "$(tr::t "tui::menu::main.option.app_gpu_management")" 
+        )"
+        status="$?"
+
+        if [ "$status" -ne 0 ]; then
+            break
+        fi
 
         case "$choice" in
             1) installer::install_nvidia ;;
@@ -44,7 +50,6 @@ tui::menu::main() {
                 fi
                 ;;
             4) tui::menu::app_gpu_management ;;
-            5) break ;; # Encerra a navegação
         esac
     done
 }
@@ -138,10 +143,6 @@ tui::menu::posinstall() {
             log::error "$(tr::t "tui::menu::posinstall.option.cuda.error")"
         fi
 
-        # Sempre adiciona a opção de sair
-        option_labels+=("$(tr::t "default.tui.button.exit")")
-        option_actions+=("break")
-
         # Monta array intercalando tags e rótulos
         menu_items=()
         for i in "${!option_labels[@]}"; do
@@ -150,12 +151,14 @@ tui::menu::posinstall() {
         done
 
         # Exibindo o menu
-        choice=$(tui::show_menu "$(tr::t "tui::menu::posinstall.title")" \
-                        "$(tr::t "tui::menu::posinstall.subtitle")" \
-                        "${menu_items[@]}")
+        choice="$(tui::show_menu \
+            "$(tr::t "tui::menu::posinstall.title")" \
+            "$(tr::t "tui::menu::posinstall.subtitle")" "" "" \
+            "${menu_items[@]}"
+        )"
+        status="$?"
 
-        # ESC ou cancelamento
-        if [ $? -eq 255 ]; then
+        if [ "$status" -ne 0 ]; then
             break
         fi
 
@@ -217,16 +220,21 @@ tui::menu::flavors() {
     tr::add "en_US" "tui.menu.driverflavors.option.install.cuda.latest.opensource" "v${version_latest} Open Source (unstable) [Cuda Repo]"
 
     local choice status
-    choice=$(tui::show_menu "" "$(tr::t "tui.driverflavors.subtitle")" \
+    choice="$(tui::show_menu \
+        "" "$(tr::t "tui.driverflavors.subtitle")" "" "" \
         1 "$(tr::t "tui.menu.driverflavors.option.install.debian.proprietary535")" \
         2 "$(tr::t "tui.menu.driverflavors.option.install.debian.proprietary550")" \
         3 "$(tr::t "tui.menu.driverflavors.option.install.debian.opensource")" \
         4 "$(tr::t "tui.menu.driverflavors.option.install.cuda.stable.proprietary")" \
         5 "$(tr::t "tui.menu.driverflavors.option.install.cuda.stable.opensource")" \
         6 "$(tr::t "tui.menu.driverflavors.option.install.cuda.latest.proprietary")" \
-        7 "$(tr::t "tui.menu.driverflavors.option.install.cuda.latest.opensource")" \
-        8 "$(tr::t "default.tui.button.exit")")
-    choice="${choice:-6}"
+        7 "$(tr::t "tui.menu.driverflavors.option.install.cuda.latest.opensource")"
+    )"
+    status="$?"
+
+    if [ "$status" -ne 0 ]; then
+        break
+    fi
 
     case "$choice" in
         1)
@@ -257,7 +265,6 @@ tui::menu::flavors() {
             cudarepo::install_driver "latest" "open-source"
             status=$?
             ;;
-        # 8) Volta ao menu principal por padrão
     esac
 
     return "$status"
@@ -322,12 +329,9 @@ tui::menu::app_gpu_management() {
         option_labels+=("$(tr::t "tui::menu::app_gpu_management.tui.option.restore")")
         option_actions+=("desktop::restore_backups; tui::msgbox::need_restart_session")
 
-        option_labels+=("$(tr::t "default.tui.button.exit")")
-        option_actions+=("return 255")
-
         tui::show_dynamic_menu \
             "$(tr::t "tui::menu::app_gpu_management.tui.title")" \
-            "$(tr::t "tui::menu::app_gpu_management.tui.prompt")" \
+            "$(tr::t "tui::menu::app_gpu_management.tui.prompt")" "" "" \
             option_labels option_actions
         status="$?"
 
