@@ -31,7 +31,7 @@ tui::menu::main() {
             1 "$(tr::t "tui.menu.main.option.installdrivers")" \
             2 "$(tr::t "tui.menu.main.option.uninstalldrivers")" \
             3 "$(tr::t "tui.menu.main.option.posinstall")" \
-            4 "$(tr::t "tui::menu::main.option.app_gpu_management")" 
+            4 "$(tr::t "tui::menu::main.option.app_gpu_management")"
         )"
         status="$?"
 

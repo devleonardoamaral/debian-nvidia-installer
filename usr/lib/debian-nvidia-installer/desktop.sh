@@ -160,7 +160,7 @@ desktop::change_option() {
 desktop::exists_option() {
     local desktop_file="$1"
     local option="$2"
-    
+
     grep -q "^${option}=" "$desktop_file"
 }
 
@@ -169,7 +169,7 @@ desktop::exists_option() {
 desktop::get_option() {
     local desktop_file="$1"
     local option="$2"
-    
+
     grep "^${option}=" "$desktop_file" | cut -d'=' -f2 | head -n1
 }
 

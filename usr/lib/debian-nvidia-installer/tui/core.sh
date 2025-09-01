@@ -87,7 +87,7 @@ tui::show_dynamic_menu() {
     local ok_label="$3"
     local cancel_label="$4"
 
-    # Name references 
+    # Name references
     local -n labels=$5
     local -n actions=$6
 
