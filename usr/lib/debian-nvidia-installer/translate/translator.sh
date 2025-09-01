@@ -30,6 +30,7 @@ declare -Ag T_PT_BR=(
     ["default.script.canceled.byuser"]="Operação cancelada pelo usuário."
     ["default.script.canceled.byfailure"]="Operação falhou."
     ["default.script.restartrequired"]="Reinicie o sistema para que as alterações sejam aplicadas."
+    ["default.script.restartsessionrequired"]="Reinicie a sessão gráfica para que as alterações sejam aplicadas."
 
     ["default.tui.title.warn"]="ATENÇÃO"
     ["default.tui.title.error"]="ERRO"
@@ -52,7 +53,8 @@ declare -Ag T_EN_US=(
     ["default.script.pause"]="Press Enter to continue..."
     ["default.script.canceled.byuser"]="Operation canceled by user."
     ["default.script.canceled.byfailure"]="Operation failed."
-    ["default.script.restartrequired"]="Restart the system for changes to take effect."
+    ["default.script.restartrequired"]="Restart the system to apply the changes."
+    ["default.script.restartsessionrequired"]="Restart your graphical session to apply the changes."
 
     ["default.tui.title.warn"]="WARNING"
     ["default.tui.title.error"]="ERROR"

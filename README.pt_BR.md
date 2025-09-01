@@ -8,8 +8,9 @@ verificação de compatibilidade e configuração do ambiente gráfico.
 <img src="data/screenshots/main-menu.png">
 
 <div style="display:flex; gap:10px;">
-  <img src="data/screenshots/drivers-menu.png" width="394" height="266">
-  <img src="data/screenshots/post-installation-menu.png" width="394" height="266">
+  <img src="data/screenshots/drivers-menu.png" width="270" height="183">
+  <img src="data/screenshots/post-installation-menu.png" width="270" height="183">
+  <img src="data/screenshots/app-gpu-preferences-menu.png" width="270" height="183">
 </div>
 
 ### Requisitos

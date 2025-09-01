@@ -24,13 +24,20 @@ tui::menu::main() {
 
         NAVIGATION_STATUS=1
 
-        local choice
-        choice=$(tui::show_menu "$(tr::t "tui.menu.main.title") $SCRIPT_VERSION" "$(tr::t "tui.menu.main.subtitle")" \
+        local choice status
+        choice="$(tui::show_menu \
+            "$(tr::t "tui.menu.main.title") $SCRIPT_VERSION" \
+            "$(tr::t "tui.menu.main.subtitle")" "" "$(tr::t "default.tui.button.exit")" \
             1 "$(tr::t "tui.menu.main.option.installdrivers")" \
-            2 "$(tr::t "tui.menu.main.option.uninstalldrivers")"\
+            2 "$(tr::t "tui.menu.main.option.uninstalldrivers")" \
             3 "$(tr::t "tui.menu.main.option.posinstall")" \
-            4 "$(tr::t "default.tui.button.exit")")
-        choice="${choice:-4}"
+            4 "$(tr::t "tui::menu::main.option.app_gpu_management")"
+        )"
+        status="$?"
+
+        if [ "$status" -ne 0 ]; then
+            break
+        fi
 
         case "$choice" in
             1) installer::install_nvidia ;;
@@ -42,25 +49,27 @@ tui::menu::main() {
                     tui::msgbox::warn "$(tr::t "tui::menu::main.drivernotinstalled")"
                 fi
                 ;;
-            4) break ;; # Encerra a navegação
+            4) tui::menu::app_gpu_management ;;
         esac
     done
 }
 
-tr::add "pt_BR" "tui::menu::main.nav.start" "Iniciando menu tui::menu::main..."
+tr::add "pt_BR" "tui::menu::main.nav.start" "[TUI] Abrindo o menu Principal..."
 tr::add "pt_BR" "tui.menu.main.title" "DEBIAN NVIDIA INSTALLER"
 tr::add "pt_BR" "tui.menu.main.subtitle" "Selecione uma opção:"
 tr::add "pt_BR" "tui.menu.main.option.installdrivers" "Instalar Drivers"
 tr::add "pt_BR" "tui.menu.main.option.uninstalldrivers" "Desinstalar Drivers"
 tr::add "pt_BR" "tui.menu.main.option.posinstall" "Opções pós-instalação"
+tr::add "pt_BR" "tui::menu::main.option.app_gpu_management" "Preferência de GPU"
 tr::add "pt_BR" "tui::menu::main.drivernotinstalled" "Não foi possível detectar o driver da NVIDIA no sistema.\n\nInstale o driver e reinicie o sistema para que o driver seja carregado antes de acessar as opções pós-instalação."
 
-tr::add "en_US" "tui::menu::main.nav.start" "Starting tui::menu::main menu..."
+tr::add "en_US" "tui::menu::main.nav.start" "[TUI] Opening the Main menu..."
 tr::add "en_US" "tui.menu.main.title" "DEBIAN NVIDIA INSTALLER"
 tr::add "en_US" "tui.menu.main.subtitle" "Select an option:"
 tr::add "en_US" "tui.menu.main.option.installdrivers" "Install Drivers"
 tr::add "en_US" "tui.menu.main.option.uninstalldrivers" "Uninstall Drivers"
 tr::add "en_US" "tui.menu.main.option.posinstall" "Post-installation Options"
+tr::add "en_US" "tui::menu::main.option.app_gpu_management" "App GPU Preference"
 tr::add "en_US" "tui::menu::main.drivernotinstalled" "Could not detect the NVIDIA driver on the system.\n\nInstall the driver and restart the system so that the driver is loaded before accessing the post-installation options."
 
 tui::menu::posinstall() {
@@ -134,10 +143,6 @@ tui::menu::posinstall() {
             log::error "$(tr::t "tui::menu::posinstall.option.cuda.error")"
         fi
 
-        # Sempre adiciona a opção de sair
-        option_labels+=("$(tr::t "default.tui.button.exit")")
-        option_actions+=("break")
-
         # Monta array intercalando tags e rótulos
         menu_items=()
         for i in "${!option_labels[@]}"; do
@@ -146,12 +151,14 @@ tui::menu::posinstall() {
         done
 
         # Exibindo o menu
-        choice=$(tui::show_menu "$(tr::t "tui::menu::posinstall.title")" \
-                        "$(tr::t "tui::menu::posinstall.subtitle")" \
-                        "${menu_items[@]}")
+        choice="$(tui::show_menu \
+            "$(tr::t "tui::menu::posinstall.title")" \
+            "$(tr::t "tui::menu::posinstall.subtitle")" "" "" \
+            "${menu_items[@]}"
+        )"
+        status="$?"
 
-        # ESC ou cancelamento
-        if [ $? -eq 255 ]; then
+        if [ "$status" -ne 0 ]; then
             break
         fi
 
@@ -164,7 +171,7 @@ tui::menu::posinstall() {
     done
 }
 
-tr::add "pt_BR" "tui::menu::posinstall.nav.start" "Iniciando menu tui::menu::posinstall..."
+tr::add "pt_BR" "tui::menu::posinstall.nav.start" "[TUI] Abrindo o menu de Pós Instalação"
 tr::add "pt_BR" "tui::menu::posinstall.title" "OPÇÕES PÓS-INSTALAÇÃO"
 tr::add "pt_BR" "tui::menu::posinstall.subtitle" "Selecione uma opção:"
 tr::add "pt_BR" "tui::menu::posinstall.power_service.status" "Status dos serviços auxiliares de energia NVIDIA: %1"
@@ -180,7 +187,7 @@ tr::add "pt_BR" "tui::menu::posinstall.option.cuda.error" "Não foi possível de
 tr::add "pt_BR" "tui::menu::posinstall.option.cuda.install" "Instalar CUDA Toolkit"
 tr::add "pt_BR" "tui::menu::posinstall.option.cuda.uninstall" "Desinstalar CUDA Toolkit"
 
-tr::add "en_US" "tui::menu::posinstall.nav.start" "Starting tui::menu::posinstall menu..."
+tr::add "en_US" "tui::menu::posinstall.nav.start" "[TUI] Opening the Post-Installation menu..."
 tr::add "en_US" "tui::menu::posinstall.title" "POST-INSTALLATION OPTIONS"
 tr::add "en_US" "tui::menu::posinstall.subtitle" "Select an option:"
 tr::add "en_US" "tui::menu::posinstall.power_service.status" "NVIDIA auxiliary power services status: %1"
@@ -213,16 +220,21 @@ tui::menu::flavors() {
     tr::add "en_US" "tui.menu.driverflavors.option.install.cuda.latest.opensource" "v${version_latest} Open Source (unstable) [Cuda Repo]"
 
     local choice status
-    choice=$(tui::show_menu "" "$(tr::t "tui.driverflavors.subtitle")" \
+    choice="$(tui::show_menu \
+        "" "$(tr::t "tui.driverflavors.subtitle")" "" "" \
         1 "$(tr::t "tui.menu.driverflavors.option.install.debian.proprietary535")" \
         2 "$(tr::t "tui.menu.driverflavors.option.install.debian.proprietary550")" \
         3 "$(tr::t "tui.menu.driverflavors.option.install.debian.opensource")" \
         4 "$(tr::t "tui.menu.driverflavors.option.install.cuda.stable.proprietary")" \
         5 "$(tr::t "tui.menu.driverflavors.option.install.cuda.stable.opensource")" \
         6 "$(tr::t "tui.menu.driverflavors.option.install.cuda.latest.proprietary")" \
-        7 "$(tr::t "tui.menu.driverflavors.option.install.cuda.latest.opensource")" \
-        8 "$(tr::t "default.tui.button.exit")")
-    choice="${choice:-6}"
+        7 "$(tr::t "tui.menu.driverflavors.option.install.cuda.latest.opensource")"
+    )"
+    status="$?"
+
+    if [ "$status" -ne 0 ]; then
+        return 255
+    fi
 
     case "$choice" in
         1)
@@ -253,20 +265,90 @@ tui::menu::flavors() {
             cudarepo::install_driver "latest" "open-source"
             status=$?
             ;;
-        # 8) Volta ao menu principal por padrão
     esac
 
     return "$status"
 }
 
-tr::add "pt_BR" "tui::menu::flavors.nav.start" "Iniciando menu tui::menu::flavors..."
+tr::add "pt_BR" "tui::menu::flavors.nav.start" "[TUI] Abrindo o menu Seleção de Drivers Nvidia..."
 tr::add "pt_BR" "tui.driverflavors.subtitle" "Selecione qual driver insalar:"
 tr::add "pt_BR" "tui.menu.driverflavors.option.install.debian.proprietary535" "v535 Proprietário [Debian Repo]"
 tr::add "pt_BR" "tui.menu.driverflavors.option.install.debian.proprietary550" "v550 Proprietário [Debian Repo]"
 tr::add "pt_BR" "tui.menu.driverflavors.option.install.debian.opensource" "v550 Código Aberto [Debian Repo]"
 
-tr::add "en_US" "tui::menu::flavors.nav.start" "Starting tui::menu::flavors menu..."
+tr::add "en_US" "tui::menu::flavors.nav.start" "[TUI] Opening the Nvidia Driver Selection menu..."
 tr::add "en_US" "tui.driverflavors.subtitle" "Select which driver to install:"
 tr::add "en_US" "tui.menu.driverflavors.option.install.debian.proprietary535" "v535 Proprietary [Debian Repo]"
 tr::add "en_US" "tui.menu.driverflavors.option.install.debian.proprietary550" "v550 Proprietary [Debian Repo]"
 tr::add "en_US" "tui.menu.driverflavors.option.install.debian.opensource" "v550 Open Source [Debian Repo]"
+
+tui::menu::app_gpu_management() {
+    log::info "$(tr::t "tui::menu::app_gpu_management.nav.start")"
+
+    local desktop_file choice status
+    local option_labels=()
+    local option_actions=()
+
+    while true; do
+        option_labels=()
+        option_actions=()
+
+        while IFS= read -r desktop_file; do
+            local user_name=""
+            local app_name
+
+            if desktop::is_using_discrete_gpu "$desktop_file"; then
+                # Extract the username from the path if it is under /home/*
+                if [[ "$desktop_file" =~ ^/home/([^/]+)/ ]]; then
+                    user_name="${BASH_REMATCH[1]}"
+                fi
+
+                # Optional: show app name with username
+                app_name="$(basename "$desktop_file" .desktop)"
+                if [[ -n "$user_name" ]]; then
+                    option_labels+=("[x] $app_name ($user_name)")
+                else
+                    option_labels+=("[x] $app_name")
+                fi
+            else
+                app_name="$(basename "$desktop_file" .desktop)"
+                if [[ "$desktop_file" =~ ^/home/([^/]+)/ ]]; then
+                    user_name="${BASH_REMATCH[1]}"
+                fi
+
+                if [[ -n "$user_name" ]]; then
+                    option_labels+=("[ ] $app_name ($user_name)")
+                else
+                    option_labels+=("[ ] $app_name")
+                fi
+            fi
+
+            option_actions+=("desktop::switch_gpu_preferences \"$desktop_file\"; tui::msgbox::need_restart_session")
+        done < <(desktop::get_all_desktops)
+
+        option_labels+=("$(tr::t "tui::menu::app_gpu_management.tui.option.restore")")
+        option_actions+=("desktop::restore_backups; tui::msgbox::need_restart_session")
+
+        tui::show_dynamic_menu \
+            "$(tr::t "tui::menu::app_gpu_management.tui.title")" \
+            "$(tr::t "tui::menu::app_gpu_management.tui.prompt")" "" "" \
+            option_labels option_actions
+        status="$?"
+
+        if [ "$status" -eq 255 ]; then
+            break
+        fi
+    done
+
+    return 0
+}
+
+tr::add "pt_BR" "tui::menu::app_gpu_management.nav.start" "[TUI] Abrindo o menu de Preferência de GPU..."
+tr::add "pt_BR" "tui::menu::app_gpu_management.tui.title" "Preferência de GPU"
+tr::add "pt_BR" "tui::menu::app_gpu_management.tui.prompt" "Selecione um aplicativo para definir qual GPU usar:\n\n• [x] GPU dedicada\n• [ ] GPU integrada"
+tr::add "pt_BR" "tui::menu::app_gpu_management.tui.option.restore" "Reverter alterações"
+
+tr::add "en_US" "tui::menu::app_gpu_management.nav.start" "[TUI] Opening the App GPU Preference menu..."
+tr::add "en_US" "tui::menu::app_gpu_management.tui.title" "App GPU Preference"
+tr::add "en_US" "tui::menu::app_gpu_management.tui.prompt" "Select an application to set which GPU to use:\n\n• [x] Dedicated GPU\n• [ ] Integrated GPU"
+tr::add "en_US" "tui::menu::app_gpu_management.tui.option.restore" "Revert changes"

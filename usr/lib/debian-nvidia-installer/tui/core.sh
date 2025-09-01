@@ -29,20 +29,24 @@ tui::show_menu() {
 
     local title="$1"
     local prompt="$2"
-    shift 2
+
+    local ok_label="${3:-"$(tr::t "default.tui.button.confirm")"}"
+    local cancel_label="${4:-"$(tr::t "default.tui.button.cancel")"}"
+
+    shift 4
     local menu_items=("$@")
 
     choice="$(dialog "${DIALOG_OPTS[@]}" \
-           --no-cancel \
            --title "$title" \
-           --ok-label "$(tr::t "default.tui.button.confirm")" \
+           --ok-label "$ok_label" \
+           --cancel-label "$cancel_label" \
            --menu "$prompt" \
            20 70 10 \
            "${menu_items[@]}" 2>&1 1>/dev/tty)"
+    local status="$?"
 
-    local ret="$?"
     echo "$choice"
-    return "$ret"
+    return "$status"
 }
 
 # Caixa de dialogo sem botão de cancelamento
@@ -75,4 +79,32 @@ tui::show_yesno() {
            --yesno "$message" 20 70 1>/dev/tty
 
     return "$?"
+}
+
+tui::show_dynamic_menu() {
+    local title="$1"
+    local prompt="$2"
+    local ok_label="$3"
+    local cancel_label="$4"
+
+    # Name references
+    local -n labels=$5
+    local -n actions=$6
+
+    local menu_items=()
+    for i in "${!labels[@]}"; do
+        tag=$((i + 1))
+        menu_items+=("$tag" "${labels[i]}")
+    done
+
+    local choice
+    choice=$(tui::show_menu "$title" "$prompt" "$ok_label" "$cancel_label" "${menu_items[@]}")
+    local status="$?"
+
+    if [ "$status" -ne 0 ]; then
+        return 255
+    fi
+
+    local i=$((choice - 1))
+    eval "${actions[i]}" 2>&1 | tee -a /dev/fd/3
 }

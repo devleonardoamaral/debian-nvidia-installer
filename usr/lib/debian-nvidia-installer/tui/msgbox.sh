@@ -35,6 +35,13 @@ tui::msgbox::need_restart() {
         "$(tr::t "default.tui.button.ok")"
 }
 
+tui::msgbox::need_restart_session() {
+    tui::msgbox::custom \
+        "$(tr::t "default.tui.title.warn")" \
+        "$(tr::t "default.script.restartsessionrequired")" \
+        "$(tr::t "default.tui.button.ok")"
+}
+
 # Caixa de diálogo de erro
 tui::msgbox::error() {
     local message="$1"
