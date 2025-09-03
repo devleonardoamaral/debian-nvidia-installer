@@ -259,7 +259,6 @@ installer::install_nvidia() {
     if nvidia::is_driver_installed; then
         log::info "$(tr::t "installer::install_nvidia.installed_drivers.already_installed")"
         tui::msgbox::warn "$(tr::t "installer::install_nvidia.installed_drivers.already_installed")"
-        log::input _ "$(tr::t "default.script.pause")"
         return 1
     fi
 
