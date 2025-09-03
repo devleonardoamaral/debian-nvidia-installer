@@ -259,7 +259,6 @@ installer::install_nvidia() {
     if nvidia::is_driver_installed; then
         log::info "$(tr::t "installer::install_nvidia.installed_drivers.already_installed")"
         tui::msgbox::warn "$(tr::t "installer::install_nvidia.installed_drivers.already_installed")"
-        log::input _ "$(tr::t "default.script.pause")"
         return 1
     fi
 
@@ -348,7 +347,7 @@ installer::install_nvidia() {
     # Habilita o DRM modeset NVIDIA
     if ! packages::is_installed "cuda-keyring"; then # Já é ativado nos drivers CUDA
         if ! nvidia::enable_modeset; then
-            log::error "$(tr:t "installer::install_nvidia.modeset.failure")"
+            log::error "$(tr::t "installer::install_nvidia.modeset.failure")"
             log::input _ "$(tr::t "default.script.pause")"
         fi
     fi
@@ -428,7 +427,7 @@ installer::uninstall_nvidia() {
     grub::remove_kernel_parameter "nvidia-drm.modeset" "=" "[0-9]+" | tee -a /dev/fd/3
     # Atualiza o GRUB
     if ! grub::update; then
-        log::error "$(tr:t "installer::uninstall_nvidia.update_grub.failed")"
+        log::error "$(tr::t "installer::uninstall_nvidia.update_grub.failed")"
     fi
 
     # Verifica quais pacotes da Nvidia estão instalados
