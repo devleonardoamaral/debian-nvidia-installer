@@ -59,7 +59,7 @@ cudarepo::install_driver() {
     # Instala o flavor escolhido
     local status
     case "$flavor" in
-        open-source)
+        opensource)
             cudarepo::install_cuda_opensource
             status=$?
             ;;
@@ -134,23 +134,7 @@ cudarepo::uninstall_cuda_repository() {
         log::info "$(tr::t "cudarepo::uninstall_cuda_repository.removed")"
     fi
 
-    # Procura o arquivo do repositório CUDA para a arquitetura atual
-    # log::info "$(tr::t "cudarepo::uninstall_cuda_repository.removing_sources")"
-
-    # local dir="/etc/apt/sources.list.d"
-    # local file
-    # file="$(find "$dir" -maxdepth 1 -type f -name "cuda-*$(uname -m).list" | head -n1)"
-
-    # if [[ -n "$file" ]]; then
-    #     sudo rm -f "$file"
-    #     log::info "$(tr::t_args "cudarepo::uninstall_cuda_repository.sources_removed" "$file")"
-    # else
-    #     log::info "$(tr::t "cudarepo::uninstall_cuda_repository.no_sources")"
-    # fi
-
-    # Atualiza a lista de pacotes depois de remover o repositório CUDA
     packages::update
-
     return 0
 }
 

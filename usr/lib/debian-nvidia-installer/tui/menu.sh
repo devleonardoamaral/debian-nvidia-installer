@@ -215,78 +215,61 @@ tui::menu::flavors() {
     local version_stable="${CUDA_DRIVER_VERSIONS["stable"]}"
     local version_latest="${CUDA_DRIVER_VERSIONS["latest"]}"
 
-    tr::add "pt_BR" "tui.menu.driverflavors.option.install.cuda.stable.proprietary" "v${version_stable} Proprietário [Cuda Repo]"
-    tr::add "pt_BR" "tui.menu.driverflavors.option.install.cuda.stable.opensource" "v${version_stable} Código Aberto [Cuda Repo]"
-    tr::add "pt_BR" "tui.menu.driverflavors.option.install.cuda.latest.proprietary" "v${version_latest} Proprietário (instável) [Cuda Repo]"
-    tr::add "pt_BR" "tui.menu.driverflavors.option.install.cuda.latest.opensource" "v${version_latest} Código Aberto (instável) [Cuda Repo]"
+    local option_labels=()
+    local option_actions=()
 
-    tr::add "en_US" "tui.menu.driverflavors.option.install.cuda.stable.proprietary" "v${version_stable} Proprietary [Cuda Repo]"
-    tr::add "en_US" "tui.menu.driverflavors.option.install.cuda.stable.opensource" "v${version_stable} Open Source [Cuda Repo]"
-    tr::add "en_US" "tui.menu.driverflavors.option.install.cuda.latest.proprietary" "v${version_latest} Proprietary (unstable) [Cuda Repo]"
-    tr::add "en_US" "tui.menu.driverflavors.option.install.cuda.latest.opensource" "v${version_latest} Open Source (unstable) [Cuda Repo]"
+    option_labels+=("$(tr::t "tui::menu::flavors.option.debian.proprietary.535")")
+    option_actions+=("installer::install_debian_proprietary535")
 
-    local choice status
-    choice="$(tui::show_menu \
-        "" "$(tr::t "tui.driverflavors.subtitle")" "" "" \
-        1 "$(tr::t "tui.menu.driverflavors.option.install.debian.proprietary535")" \
-        2 "$(tr::t "tui.menu.driverflavors.option.install.debian.proprietary550")" \
-        3 "$(tr::t "tui.menu.driverflavors.option.install.debian.opensource")" \
-        4 "$(tr::t "tui.menu.driverflavors.option.install.cuda.stable.proprietary")" \
-        5 "$(tr::t "tui.menu.driverflavors.option.install.cuda.stable.opensource")" \
-        6 "$(tr::t "tui.menu.driverflavors.option.install.cuda.latest.proprietary")" \
-        7 "$(tr::t "tui.menu.driverflavors.option.install.cuda.latest.opensource")"
-    )"
-    status="$?"
+    option_labels+=("$(tr::t "tui::menu::flavors.option.debian.proprietary.550")")
+    option_actions+=("installer::install_debian_proprietary550")
 
-    if [ "$status" -ne 0 ]; then
-        return 255
-    fi
+    option_labels+=("$(tr::t "tui::menu::flavors.option.debian.opensource.550")")
+    option_actions+=("installer::install_debian_opensource550")
 
-    case "$choice" in
-        1)
-            installer::install_debian_proprietary535
-            status=$?
-            ;;
-        2)
-            installer::install_debian_proprietary550
-            status=$?
-            ;;
-        3)
-            installer::install_debian_opensource
-            status=$?
-            ;;
-        4)
-            cudarepo::install_driver "stable" "proprietary"
-            status=$?
-            ;;
-        5)
-            cudarepo::install_driver "stable" "open-source"
-            status=$?
-            ;;
-        6)
-            cudarepo::install_driver "latest" "proprietary"
-            status=$?
-            ;;
-        7)
-            cudarepo::install_driver "latest" "open-source"
-            status=$?
-            ;;
-    esac
+    option_labels+=("$(tr::t_args "tui::menu::flavors.option.cuda.stable.proprietary" "$version_stable")")
+    option_actions+=("cudarepo::install_driver \"stable\" \"proprietary\"")
 
-    return "$status"
+    option_labels+=("$(tr::t_args "tui::menu::flavors.option.cuda.stable.opensource" "$version_stable")")
+    option_actions+=("cudarepo::install_driver \"stable\" \"opensource\"")
+
+    option_labels+=("$(tr::t_args "tui::menu::flavors.option.cuda.latest.proprietary" "$version_latest")")
+    option_actions+=("cudarepo::install_driver \"latest\" \"proprietary\"")
+
+    option_labels+=("$(tr::t_args "tui::menu::flavors.option.cuda.latest.opensource" "$version_latest")")
+    option_actions+=("cudarepo::install_driver \"latest\" \"opensource\"")
+
+    tui::show_dynamic_menu \
+        "$(tr::t "tui::menu::flavors.title")" \
+        "$(tr::t "tui::menu::flavors.prompt")" "" "" \
+        option_labels option_actions
+
+    return "$?"
 }
 
 tr::add "pt_BR" "tui::menu::flavors.nav.start" "[TUI] Abrindo o menu Seleção de Drivers Nvidia..."
-tr::add "pt_BR" "tui.driverflavors.subtitle" "Selecione qual driver insalar:"
-tr::add "pt_BR" "tui.menu.driverflavors.option.install.debian.proprietary535" "v535 Proprietário [Debian Repo]"
-tr::add "pt_BR" "tui.menu.driverflavors.option.install.debian.proprietary550" "v550 Proprietário [Debian Repo]"
-tr::add "pt_BR" "tui.menu.driverflavors.option.install.debian.opensource" "v550 Código Aberto [Debian Repo]"
+tr::add "pt_BR" "tui::menu::flavors.title" "SELECIONE O TIPO DE DRIVER"
+tr::add "pt_BR" "tui::menu::flavors.prompt" \
+    "Proprietário → kernel fechado + bibliotecas fechadas.\nEstável e compatível, indicado para GTX 10xx ou anteriores.\n\nCódigo Aberto → kernel aberto + bibliotecas fechadas.\nMelhor integração ao Linux, indicado para GTX 16xx, RTX 20xx ou mais nova.\n\nMais detalhes: https://github.com/NVIDIA/open-gpu-kernel-modules"
+tr::add "pt_BR" "tui::menu::flavors.option.debian.proprietary.535" "v535 Proprietário [Debian Repo]"
+tr::add "pt_BR" "tui::menu::flavors.option.debian.proprietary.550" "v550 Proprietário [Debian Repo]"
+tr::add "pt_BR" "tui::menu::flavors.option.debian.opensource.550" "v550 Código Aberto [Debian Repo]"
+tr::add "pt_BR" "tui::menu::flavors.option.cuda.stable.proprietary" "v%1 Proprietário [Cuda Repo]"
+tr::add "pt_BR" "tui::menu::flavors.option.cuda.stable.opensource" "v%1 Código Aberto [Cuda Repo]"
+tr::add "pt_BR" "tui::menu::flavors.option.cuda.latest.proprietary" "v%1 Proprietário (instável) [Cuda Repo]"
+tr::add "pt_BR" "tui::menu::flavors.option.cuda.latest.opensource" "v%1 Código Aberto (instável) [Cuda Repo]"
 
 tr::add "en_US" "tui::menu::flavors.nav.start" "[TUI] Opening the Nvidia Driver Selection menu..."
-tr::add "en_US" "tui.driverflavors.subtitle" "Select which driver to install:"
-tr::add "en_US" "tui.menu.driverflavors.option.install.debian.proprietary535" "v535 Proprietary [Debian Repo]"
-tr::add "en_US" "tui.menu.driverflavors.option.install.debian.proprietary550" "v550 Proprietary [Debian Repo]"
-tr::add "en_US" "tui.menu.driverflavors.option.install.debian.opensource" "v550 Open Source [Debian Repo]"
+tr::add "en_US" "tui::menu::flavors.title" "SELECT DRIVER FLAVOR"
+tr::add "en_US" "tui::menu::flavors.prompt" \
+    "Proprietary → closed kernel + closed libraries.\nStable and compatible, recommended for GTX 10xx or older.\n\nOpen Source → open kernel + closed libraries.\nBetter Linux integration, recommended for GTX 16xx, RTX 20xx or newer.\n\nMore details: https://github.com/NVIDIA/open-gpu-kernel-modules"
+tr::add "en_US" "tui::menu::flavors.option.debian.proprietary.535" "v535 Proprietary [Debian Repo]"
+tr::add "en_US" "tui::menu::flavors.option.debian.proprietary.550" "v550 Proprietary [Debian Repo]"
+tr::add "en_US" "tui::menu::flavors.option.debian.opensource.550" "v550 Open Source [Debian Repo]"
+tr::add "en_US" "tui::menu::flavors.option.cuda.stable.proprietary" "v%1 Proprietary [Cuda Repo]"
+tr::add "en_US" "tui::menu::flavors.option.cuda.stable.opensource" "v%1 Open Source [Cuda Repo]"
+tr::add "en_US" "tui::menu::flavors.option.cuda.latest.proprietary" "v%1 Proprietary (unstable) [Cuda Repo]"
+tr::add "en_US" "tui::menu::flavors.option.cuda.latest.opensource" "v%1 Open Source (unstable) [Cuda Repo]"
 
 tui::menu::app_gpu_management() {
     log::info "$(tr::t "tui::menu::app_gpu_management.nav.start")"

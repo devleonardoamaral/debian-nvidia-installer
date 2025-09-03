@@ -101,8 +101,8 @@ tr::add "pt_BR" "installer::install_debian_proprietary550.tui.yesno.proprietaryd
 
 tr::add "en_US" "installer::install_debian_proprietary550.tui.yesno.proprietarydriver.confirm" "You are about to install the proprietary NVIDIA driver.\n\nDo you want to continue?"
 
-installer::install_debian_opensource() {
-    if ! tui::yesno::default "$(tr::t "default.tui.title.warn")" "$(tr::t "installer::install_debian_opensource.tui.yesno.opendriver.confirm")"; then
+installer::install_debian_opensource550() {
+    if ! tui::yesno::default "$(tr::t "default.tui.title.warn")" "$(tr::t "installer::install_debian_opensource550.tui.yesno.opendriver.confirm")"; then
         log::info "$(tr::t "default.script.canceled.byuser")"
         return 255
     fi
@@ -137,9 +137,9 @@ installer::install_debian_opensource() {
     return 0
 }
 
-tr::add "pt_BR" "installer::install_debian_opensource.tui.yesno.opendriver.confirm" "Você está prestes a instalar o driver Open Source da NVIDIA.\n\nDeseja continuar?"
+tr::add "pt_BR" "installer::install_debian_opensource550.tui.yesno.opendriver.confirm" "Você está prestes a instalar o driver Open Source da NVIDIA.\n\nDeseja continuar?"
 
-tr::add "en_US" "installer::install_debian_opensource.tui.yesno.opendriver.confirm" "You are about to install the Open Source NVIDIA driver.\n\nDo you want to continue?"
+tr::add "en_US" "installer::install_debian_opensource550.tui.yesno.opendriver.confirm" "You are about to install the Open Source NVIDIA driver.\n\nDo you want to continue?"
 
 installer::setup_mok() {
     local mok_pub_path="/var/lib/dkms/mok.pub"
