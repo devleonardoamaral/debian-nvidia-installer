@@ -150,7 +150,7 @@ nvidia::change_option() {
         log::info "$(tr::t_args "nvidia::change_option.option_added" "$option" "$value" "$file")"
     fi
 
-    update-initramfs -u | tee -a /dev/fd/3
+    initramfs::update
     return 0
 }
 
