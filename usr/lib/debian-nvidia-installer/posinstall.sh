@@ -71,20 +71,20 @@ posinstall::install_cuda_toolkit() {
         debian)
 
             if ! packages::install "nvidia-cuda-dev" "nvidia-cuda-toolkit"; then
-                log::error "$(tr:t "posinstall::install_cuda_toolkit.install_failure")"
+                log::error "$(tr::t "posinstall::install_cuda_toolkit.install_failure")"
                 tui::msgbox::error "$(tr::t "posinstall::install_cuda_toolkit.install_failure")"
                 return 1
             fi
             ;;
         cuda)
             if ! packages::install "cuda-toolkit-13-0"; then
-                log::error "$(tr:t "posinstall::install_cuda_toolkit.install_failure")"
+                log::error "$(tr::t "posinstall::install_cuda_toolkit.install_failure")"
                 tui::msgbox::error "$(tr::t "posinstall::install_cuda_toolkit.install_failure")"
                 return 1
             fi
             ;;
         *)
-            log::error "$(tr:t "posinstall::install_cuda_toolkit.invalid_repo")"
+            log::error "$(tr::t "posinstall::install_cuda_toolkit.invalid_repo")"
             tui::msgbox::error "$(tr::t "posinstall::install_cuda_toolkit.invalid_repo")"
             return 1
             ;;
@@ -124,20 +124,20 @@ posinstall::uninstall_cuda_toolkit() {
         debian)
 
             if ! packages::purge "nvidia-cuda-dev" "nvidia-cuda-toolkit"; then
-                log::error "$(tr:t "posinstall::uninstall_cuda_toolkit.uninstall_failure")"
+                log::error "$(tr::t "posinstall::uninstall_cuda_toolkit.uninstall_failure")"
                 tui::msgbox::error "$(tr::t "posinstall::uninstall_cuda_toolkit.uninstall_failure")"
                 return 1
             fi
             ;;
         cuda)
             if ! packages::purge "cuda-toolkit-13-0"; then
-                log::error "$(tr:t "posinstall::uninstall_cuda_toolkit.uninstall_failure")"
+                log::error "$(tr::t "posinstall::uninstall_cuda_toolkit.uninstall_failure")"
                 tui::msgbox::error "$(tr::t "posinstall::uninstall_cuda_toolkit.uninstall_failure")"
                 return 1
             fi
             ;;
         *)
-            log::error "$(tr:t "posinstall::uninstall_cuda_toolkit.invalid_repo")"
+            log::error "$(tr::t "posinstall::uninstall_cuda_toolkit.invalid_repo")"
             tui::msgbox::error "$(tr::t "posinstall::uninstall_cuda_toolkit.invalid_repo")"
             return 1
             ;;
