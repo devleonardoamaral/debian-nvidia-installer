@@ -102,8 +102,14 @@ grub::remove_kernel_parameter() {
     fi
 }
 
-# Atualiza o GRUB
+# Force GRUB update
 grub::update() {
-    update-grub | tee -a /dev/fd/3
-    return ${PIPESTATUS[0]}
+    if ! packages::is_installed "grub2-common"; then
+        echo "Optional dependency 'grub2-common' not installed. To update kernel parameters you need the 'grub2-common' package." | tee -a /dev/fd/3
+    else
+        update-grub | tee -a /dev/fd/3
+        return ${PIPESTATUS[0]}
+    fi
+
+    return 0
 }
