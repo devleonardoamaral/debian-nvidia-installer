@@ -106,5 +106,6 @@ tui::show_dynamic_menu() {
     fi
 
     local i=$((choice - 1))
-    eval "${actions[i]}" 2>&1 | tee -a /dev/fd/3
+    eval "${actions[i]}"
+    return "$?"
 }
