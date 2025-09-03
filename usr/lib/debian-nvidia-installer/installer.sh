@@ -427,7 +427,9 @@ installer::uninstall_nvidia() {
     # Remove o modeset da Nvidia dos parâmetros do Kernel no GRUB
     grub::remove_kernel_parameter "nvidia-drm.modeset" "=" "[0-9]+" | tee -a /dev/fd/3
     # Atualiza o GRUB
-    grub::update
+    if ! grub::update; then
+        log::error "$(tr:t "installer::uninstall_nvidia.update_grub.failed")"
+    fi
 
     # Verifica quais pacotes da Nvidia estão instalados
     # Garante que os firwares não sejam removidos e nem o próprio script
@@ -474,7 +476,7 @@ installer::uninstall_nvidia() {
     # Garante que o firmware necessário para o Nouveau utilizar a Nvidia esteja presente
     apt-get install -y firmware-misc-nonfree firmware-nvidia-graphics | tee -a /dev/fd/3
     # Atualiza o initramfs para garantir que o Nouveau seja carregado corretamente
-    update-initramfs -u | tee -a /dev/fd/3
+    initramfs::update
 
     log::info "$(tr::t "installer::uninstall_nvidia.reinstall.nouveau.success")"
 
@@ -488,6 +490,7 @@ installer::uninstall_nvidia() {
 
 tr::add "pt_BR" "installer::uninstall_nvidia.tui.yesno.uninstall.confirm" "Você está prestes a desinstalar o driver NVIDIA do sistema.\n\nDeseja continuar?"
 tr::add "pt_BR" "installer::uninstall_nvidia.start" "Iniciando a desinstalação do driver NVIDIA..."
+tr::add "pt_BR" "installer::uninstall_nvidia.update_grub.failed" "Falha ao atualizar o GRUB."
 tr::add "pt_BR" "installer::uninstall_nvidia.remove.nouveau.blacklist.start" "Removendo blacklist do driver nouveau..."
 tr::add "pt_BR" "installer::uninstall_nvidia.remove.nouveau.blacklist.success" "Blacklist do driver nouveau removida com sucesso."
 tr::add "pt_BR" "installer::uninstall_nvidia.remove.nouveau.blacklist.failure" "Falha ao remover a blacklist do driver nouveau."
@@ -499,6 +502,7 @@ tr::add "pt_BR" "installer::uninstall_nvidia.removingfile" "Removendo arquivo: %
 
 tr::add "en_US" "installer::uninstall_nvidia.tui.yesno.uninstall.confirm" "You are about to uninstall the NVIDIA driver from the system.\n\nDo you want to continue?"
 tr::add "en_US" "installer::uninstall_nvidia.start" "Starting NVIDIA driver uninstallation..."
+tr::add "en_US" "installer::uninstall_nvidia.update_grub.failed" "Failed to update GRUB."
 tr::add "en_US" "installer::uninstall_nvidia.remove.nouveau.blacklist.start" "Removing nouveau driver blacklist..."
 tr::add "en_US" "installer::uninstall_nvidia.remove.nouveau.blacklist.success" "Nouveau driver blacklist removed successfully."
 tr::add "en_US" "installer::uninstall_nvidia.remove.nouveau.blacklist.failure" "Failed to remove the nouveau driver blacklist."
