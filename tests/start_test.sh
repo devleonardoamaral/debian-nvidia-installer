@@ -15,9 +15,9 @@ test::calc_step_result() {
 
     if (( $step_status == 0 )); then
         eval "$varname=\$(( $varname + 1 ))"
-        echo "    Etapa $step_name passou"
+        echo "    Step $step_name passed"
     else
-        echo "    Etapa $step_name falhou"
+        echo "    Step $step_name failed"
     fi
 }
 
@@ -28,7 +28,7 @@ test::calc_test_result() {
 
     local percent=$(( 100 * passed_tests / total_tests ))
 
-    echo "    ${test_name}() -> $percent% ($passed_tests/$total_tests etapas passaram)"
+    echo "    ${test_name}() -> $percent% ($passed_tests/$total_tests steps passed)"
 
     if [ $passed_tests -eq $total_tests ]; then
         return 0
@@ -44,7 +44,7 @@ test::exec_test() {
     local success=0
     local failure=0
 
-    echo "INICIANDO ${test_name}"
+    echo "STARTING ${test_name}"
 
     for test_func in "$@"; do
         if "$test_func"; then
@@ -60,7 +60,21 @@ test::exec_test() {
         percent=$(( 100 * success / total ))
     fi
 
-    echo "$percent% ($success/$total testes passaram)"
+    echo "$percent% ($success/$total tests passed)"
+
+    if [ "$failure" -gt 0 ]; then
+        return 1
+    else
+        return 0
+    fi
 }
 
-for file in "$SCRIPT_DIR"/tests/*.sh; do source "$file"; done
+test_status=0
+for file in "$SCRIPT_DIR"/tests/*.sh; do
+    source "$file"
+
+    if [ "$?" -ne 0 ]; then
+        test_status=1
+    fi
+done
+exit "$test_status"
