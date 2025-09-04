@@ -3,127 +3,112 @@
 source "$LIB_DIR"/packages.sh
 
 test::packages::check_sources_components() {
-    local total_tests=3
+    local total_tests=5
     local passed_tests=0
     local test_name="test::packages::check_sources_components"
 
-    local tempfile
+    local testfile
+    testfile=$(mktemp)
+    trap 'rm -f "$testfile"' RETURN
 
-    tempfile=$(mktemp)
-
-    # Conteúdo simulado do arquivo sources.list para teste
-    cat <<EOF > "$tempfile"
-#deb cdrom:[Debian GNU/Linux trixie-DI-rc2 _Trixie_ - Official RC amd64 NETINST with firmware 20250701-23:07]/ trixie contrib main non-free-firmware
-
+    cat <<EOF > "$testfile"
 deb http://deb.debian.org/debian/ trixie main non-free-firmware contrib non-free
 deb-src http://deb.debian.org/debian/ trixie main non-free-firmware contrib non-free
-
-deb http://security.debian.org/debian-security trixie-security main non-free-firmware contrib non-free
-deb-src http://security.debian.org/debian-security trixie-security main non-free-firmware contrib non-free
-
-# trixie-updates, to get updates before a point release is made;
-# see https://www.debian.org/doc/manuals/debian-reference/ch02.en.html#_updates_and_backports
-deb http://deb.debian.org/debian/ trixie-updates main non-free-firmware contrib non-free
-deb-src http://deb.debian.org/debian/ trixie-updates main non-free-firmware contrib non-free
-
-# This system was installed using removable media other than
-# CD/DVD/BD (e.g. USB stick, SD card, ISO image file).
-# The matching "deb cdrom" entries were disabled at the end
-# of the installation process.
-# For information about how to configure apt package sources,
-# see the sources.list(5) manual.
+# deb http://deb.debian.org/debian/ trixie main contrib  # commented
 EOF
 
-    # Teste 1: componentes "contrib", "non-free" e "non-free-firmware", deve retornar true
-    packages::check_sources_components "$tempfile" "contrib"
-    test::calc_step_result "1" "$?" "passed_tests"
+    # Case 1: single existing component
+    packages::check_sources_components "$testfile" "contrib" >/dev/null 2>/dev/null
+    test::calc_step_result "1 (exists)" "$?" "passed_tests"
 
-    # Teste 2: componentes "contrib", "non-free" e "non-free-firmware", deve retornar true
-    packages::check_sources_components "$tempfile" "contrib" "non-free" "non-free-firmware"
-    test::calc_step_result "2" "$?" "passed_tests"
+    # Case 2: multiple existing components
+    packages::check_sources_components "$testfile" "contrib" "non-free" "non-free-firmware" >/dev/null 2>/dev/null
+    test::calc_step_result "2 (all exist)" "$?" "passed_tests"
 
-    # Teste 3: componente "testcomp" não existe, deve retornar false
-    ! packages::check_sources_components "$tempfile" "testcomponent"
-    test::calc_step_result "3" "$?" "passed_tests"
+    # Case 3: non-existing component
+    ! packages::check_sources_components "$testfile" "fakecomp" >/dev/null 2>/dev/null
+    test::calc_step_result "3 (non-existing)" "$?" "passed_tests"
 
-    rm "$tempfile"
+    # Case 4: partially existing (one exists, one doesn’t)
+    ! packages::check_sources_components "$testfile" "contrib" "foobar" >/dev/null 2>/dev/null
+    test::calc_step_result "4 (partially existing)" "$?" "passed_tests"
+
+    # Case 5: empty sources file
+    : > "$testfile"
+    ! packages::check_sources_components "$testfile" "contrib"
+    test::calc_step_result "5 (empty file)" "$?" "passed_tests"
 
     test::calc_test_result "$test_name" "$passed_tests" "$total_tests"
     return $?
 }
 
 test::packages::add_sources_components() {
-    local total_tests=4
+    local total_tests=5
     local passed_tests=0
     local test_name="test::packages::add_sources_components"
 
-    local tempfile
+    local testfile
+    testfile=$(mktemp)
+    trap 'rm -f "$testfile"' RETURN
 
-    tempfile=$(mktemp)
-
-    # Conteúdo simulado do arquivo sources.list para teste
-    cat <<EOF > "$tempfile"
-#deb cdrom:[Debian GNU/Linux trixie-DI-rc2 _Trixie_ - Official RC amd64 NETINST with firmware 20250701-23:07]/ trixie contrib main non-free-firmware
-
+    cat <<EOF > "$testfile"
 deb http://deb.debian.org/debian/ trixie main
 deb-src http://deb.debian.org/debian/ trixie main
-
-deb http://security.debian.org/debian-security trixie-security main non-free-firmware contrib
-deb-src http://security.debian.org/debian-security trixie-security main non-free-firmware contrib non-free
-
-# trixie-updates, to get updates before a point release is made;
-# see https://www.debian.org/doc/manuals/debian-reference/ch02.en.html#_updates_and_backports
-deb http://deb.debian.org/debian/ trixie-updates main non-free
-deb-src http://deb.debian.org/debian/ trixie-updates main non-free testcomponent
-
-# This system was installed using removable media other than
-# CD/DVD/BD (e.g. USB stick, SD card, ISO image file).
-# The matching "deb cdrom" entries were disabled at the end
-# of the installation process.
-# For information about how to configure apt package sources,
-# see the sources.list(5) manual.
+# commented line
 EOF
 
-    # Teste 1.1: adiciona o componente "contrib", deve retornar true
-    packages::add_sources_components "$tempfile" "contrib" > /dev/null 2>&1
-    test::calc_step_result "1.1" "$?" "passed_tests"
+    # Case 1: add single component "contrib"
+    packages::add_sources_components "$testfile" "contrib" >/dev/null 2>/dev/null
+    packages::check_sources_components "$testfile" "contrib" >/dev/null 2>/dev/null
+    test::calc_step_result "1 (add contrib)" "$?" "passed_tests"
 
-    # Teste 1.2: verifica se o componente "contrib" foi adicionado, deve retornar true
-    packages::check_sources_components "$tempfile" "contrib"
-    test::calc_step_result "1.2" "$?" "passed_tests"
+    # Case 2: add multiple components ("contrib" already exists, "non-free" is new)
+    packages::add_sources_components "$testfile" "contrib" "non-free" >/dev/null 2>/dev/null
+    packages::check_sources_components "$testfile" "contrib" "non-free" >/dev/null 2>/dev/null
+    test::calc_step_result "2 (multiple without duplication)" "$?" "passed_tests"
 
-    # Teste 1.1: adiciona os componentes "contrib" e "non-free", deve retornar true
-    packages::add_sources_components "$tempfile" "contrib" "non-free" > /dev/null 2>&1
-    test::calc_step_result "2.1" "$?" "passed_tests"
+    # Case 3: ensure commented lines are not modified
+    ! grep -q "^#.*contrib" "$testfile"
+    test::calc_step_result "3 (ignore commented)" "$?" "passed_tests"
 
-    # Teste 1.2: verifica se os componentes "contrib" e "non-free" foram adicionados, deve retornar true
-    packages::check_sources_components "$tempfile" "contrib" "non-free"
-    test::calc_step_result "2.2" "$?" "passed_tests"
+    # Case 4: add mix of existing and new components
+    packages::add_sources_components "$testfile" "contrib" "non-free-firmware" >/dev/null 2>/dev/null
+    packages::check_sources_components "$testfile" "contrib" "non-free-firmware" >/dev/null 2>/dev/null
+    test::calc_step_result "4 (mix existing/new)" "$?" "passed_tests"
 
-    rm "$tempfile"
+    # Case 5: empty file should be updated correctly
+    : > "$testfile"
+    packages::add_sources_components "$testfile" "main" "contrib" >/dev/null 2>/dev/null
+    packages::check_sources_components "$testfile" "main" "contrib" >/dev/null 2>/dev/null
+    test::calc_step_result "5 (empty file)" "$?" "passed_tests"
 
     test::calc_test_result "$test_name" "$passed_tests" "$total_tests"
     return $?
 }
 
 test::packages::is_installed() {
-    local total_tests=2
+    local total_tests=3
     local passed_tests=0
     local test_name="test::packages::is_installed"
 
-    # Teste 1: pacote apt existe, deve retornar true
-    packages::is_installed "apt"
-    test::calc_step_result "1" "$?" "passed_tests"
+    # Case 1: real package (apt should exist)
+    packages::is_installed "apt" >/dev/null 2>/dev/null
+    test::calc_step_result "1 (real package)" "$?" "passed_tests"
 
-    # Teste 2: pacote testepackageinstalled não existe, deve retornar false
-    ! packages::is_installed "testepackageinstalled"
-    test::calc_step_result "2" "$?" "passed_tests"
+    # Case 2: fake package should not exist
+    ! packages::is_installed "fakepackage123" >/dev/null 2>/dev/null
+    test::calc_step_result "2 (non-existing package)" "$?" "passed_tests"
+
+    # Case 3: empty argument should fail
+    ! packages::is_installed "" >/dev/null 2>/dev/null
+    test::calc_step_result "3 (empty argument)" "$?" "passed_tests"
 
     test::calc_test_result "$test_name" "$passed_tests" "$total_tests"
     return $?
 }
 
-test::exec_test "test::packages" \
+test::exec_test \
+    "test::packages" \
     "test::packages::check_sources_components" \
     "test::packages::add_sources_components" \
     "test::packages::is_installed"
