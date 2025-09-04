@@ -296,11 +296,12 @@ installer::install_nvidia() {
     fi
 
     # Adiciona os componentes non-free nos repositórios
+    local source_file="/etc/apt/sources.list"
     log::info "$(tr::t "installer::install_nvidia.sources_components")"
-    if ! packages::check_sources_components "" "contrib" "non-free" "non-free-firmware"; then
+    if ! packages::check_sources_components "$source_file" "contrib" "non-free" "non-free-firmware"; then
         log::info "$(tr::t "installer::install_nvidia.sources_components.missing")"
 
-        if ! packages::add_sources_components "" "contrib" "non-free" "non-free-firmware"; then
+        if ! packages::add_sources_components "$source_file" "contrib" "non-free" "non-free-firmware"; then
             log::critical "$(tr::t "installer::install_nvidia.sources_components.failure")"
             return 1
         else
