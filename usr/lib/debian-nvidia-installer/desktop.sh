@@ -37,20 +37,33 @@ USER_DESKTOP_SUBPATHS=(
 # List all available .desktop files for all users and system
 desktop::get_all_desktops() {
     local dir userdir
+    local user_desktops=()
+    local system_desktops=()
 
     # .desktop from all users
     for user_home in /home/*; do
         [[ -d "$user_home" ]] || continue
         for subpath in "${USER_DESKTOP_SUBPATHS[@]}"; do
             userdir="$user_home/$subpath"
-            [[ -d "$userdir" ]] && find "$userdir" \( -type f -o -type l \) -name "*.desktop" 2>/dev/null
+            if [[ -d "$userdir" ]]; then
+                while IFS= read -r file; do
+                    user_desktops+=("$file")
+                done < <(find "$userdir" \( -type f -o -type l \) -name "*.desktop" 2>/dev/null)
+            fi
         done
     done
 
     # .desktop from system-wide directories
     for dir in "${SYSTEM_DESKTOP_PATHS[@]}"; do
-        [[ -d "$dir" ]] && find "$dir" \( -type f -o -type l \) -name "*.desktop" 2>/dev/null
+        [[ -d "$dir" ]] || continue
+        while IFS= read -r file; do
+            system_desktops+=("$file")
+        done < <(find "$dir" \( -type f -o -type l \) -name "*.desktop" 2>/dev/null)
     done
+
+    # print sorted results: users first, then system
+    printf "%s\n" "${user_desktops[@]}" | sort
+    printf "%s\n" "${system_desktops[@]}" | sort
 }
 
 # List all .desktop backup files (.desktop.bak) for all users and system
