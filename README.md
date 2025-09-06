@@ -103,3 +103,13 @@ sudo apt purge --autoremove debian-nvidia-installer
 ---
 
 Para a versão em **Português do Brasil**, veja [README.pt_BR.md](README.pt_BR.md)
+
+---
+.
+> ```
+> Hello, Debians!
+>
+> I created this script because I genuinely wanted to contribute to the Linux community, especially to Debian users. I know that moving to Debian can be challenging, particularly for those with NVIDIA hardware, and setting up the drivers correctly is often confusing and intimidating. My goal was to make this process simpler, more accessible, and less stressful for anyone going through it.
+>
+> Working on this script was also a personal journey for me. It was an opportunity to dive deeper into Linux, understand how the system works under the hood, and explore Bash in a practical way. Sharing the project on GitHub felt like a natural step—not only so others can use it, but also so anyone interested can learn, suggest improvements, and contribute. I hope it helps users, encourages collaboration, and strengthens knowledge sharing within the community.
+>```
