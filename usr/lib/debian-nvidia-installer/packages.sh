@@ -188,12 +188,14 @@ packages::is_installed() {
 packages::is_installed_regex() {
     local regex_include="$1"
     local regex_exclude="$2"  # opcional
-    [[ -z "$regex_include" ]] && return 1
+    [ -n "$regex_include" ] && return 1
 
     if [[ -n "$regex_exclude" ]]; then
-        dpkg -l | grep -E "$regex_include" | grep -vE "$regex_exclude" &>/dev/null
+        dpkg-query -f '${binary:Package}\n' -W | grep -E "$regex_include" | grep -vE "$regex_exclude" &>/dev/null
+        return "$?"
     else
-        dpkg -l | grep -E "$regex_include" &>/dev/null
+        dpkg-query -f '${binary:Package}\n' -W | grep -E "$regex_include" &>/dev/null
+        return "$?"
     fi
 }
 

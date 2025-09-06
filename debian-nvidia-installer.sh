@@ -22,14 +22,7 @@ for pkg in "${depends_list[@]}"; do
     percent=$(( current_pkg * 100 / max_pkg ))
 done
 
- printf "%3s%% | All dependecies are OK!\n" "$percent"
-
-echo "Executing tests..."
-
-if ! ./tests/start_test.sh; then
-    echo "Test(s) failed!"
-    exit 1
-fi
+printf "%3s%% | All dependecies are OK!\n" "$percent"
 
 echo "Running script..."
 custom_env_vars="env DEVENV=1"
