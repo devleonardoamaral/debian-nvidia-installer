@@ -1,26 +1,49 @@
 #!/usr/bin/env bash
 
+# ============================================================================
 # debian-nvidia-installer - NVIDIA Driver Installer for Debian (TUI)
 # Copyright (C) 2025 Leonardo Amaral
 #
-# This file is part of debian-nvidia-installer.
+# SPDX-License-Identifier:
+#     GPL-3.0-or-later
 #
-# debian-nvidia-installer is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# Module:
+#     grub.sh
 #
-# debian-nvidia-installer is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with debian-nvidia-installer. If not, see <https://www.gnu.org/licenses/gpl-3.0.html>.
+# Description:
+#     Provides functions to manipulate GRUB kernel parameters and update GRUB
+#     configuration. Supports adding, updating, and removing kernel parameters
+#     safely, including automatic backups.
+# ============================================================================
 
-declare -g GRUB_FILE="/etc/default/grub"
 
-# Função para adicionar ou modificar parâmetros do kernel no GRUB
+
+
+# ----------------------------------------------------------------------------
+# Constant: GRUB_FILE
+# Description:
+#     Path to the main GRUB configuration file.
+#     Defaults to /etc/default/grub.
+# ----------------------------------------------------------------------------
+: "${GRUB_FILE:="/etc/default/grub"}"
+readonly GRUB_FILE
+
+
+
+
+# ----------------------------------------------------------------------------
+# Function: grub::add_kernel_parameter
+# Description:
+#     Adds or updates a kernel parameter in the GRUB_CMDLINE_LINUX_DEFAULT line.
+#     Automatically creates a backup of the GRUB file before modifying it.
+# Params:
+#     string ($1): Parameter name.
+#     string ($2): Separator (e.g., = or space) to separate name and value.
+#     string ($3): Parameter value.
+# Returns:
+#     0 - Parameter successfully added or updated.
+#     1 - Failed to add or update the parameter.
+# ----------------------------------------------------------------------------
 grub::add_kernel_parameter() {
     local file="$GRUB_FILE"
     local param_name sep param_value ret
@@ -28,40 +51,55 @@ grub::add_kernel_parameter() {
     param_name="$(utils::escape_chars "$1")"
     sep="$(utils::escape_chars "$2")"
     param_value="$(utils::escape_chars "$3")"
-
     ret=0
 
     if [[ ! -f "$file" ]]; then
-        echo "File $file does not exist." >&2
+        log::error "File $file does not exist."
         return 1
     fi
 
-    # Cria um backup do arquivo GRUB
+    # Create a backup of the GRUB file
     cp "$file" "$file.bak"
 
-    # Verifica se o parâmetro já existe
+    # Check if parameter already exists
     if grep -E "^[[:space:]]*GRUB_CMDLINE_LINUX_DEFAULT=\"[^\"]*${param_name}${sep}[^\"]*\"" "$file" | \
         grep -qE "(\"|[[:space:]])${param_name}${sep}"; then
-        # Atualiza o parâmetro existente com o novo valor
+        # Update existing parameter with new value
         sed -i -E "/^[[:space:]]*GRUB_CMDLINE_LINUX_DEFAULT=/s/([\" ])(${param_name}${sep})([^\" ]*)?/\1\2${param_value}/g" "$file"
         ret="$?"
     else
-        # Adiciona o parâmetro no final
+        # Append the parameter at the end
         sed -i -E "/^[[:space:]]*GRUB_CMDLINE_LINUX_DEFAULT=/s/(^[[:space:]]*GRUB_CMDLINE_LINUX_DEFAULT=\"[^\"]*)/\1 ${param_name}${sep}${param_value}/" "$file"
         ret="$?"
-        # Remove espaços depois da aspas iniciais
+        # Remove spaces after the opening quote
         sed -i -E "/^[[:space:]]*GRUB_CMDLINE_LINUX_DEFAULT=/s/=\"[[:space:]]+/=\"/" "$file"
     fi
 
     if [[ "$ret" -ne 0 ]]; then
-        echo "Failed to add/update kernel parameter in GRUB file: $file" >&2
+        log::error "Failed to add/update kernel parameter in GRUB file: $file"
         return 1
     fi
 
     return 0
 }
 
-# Função para remover um parâmetro do kernel no GRUB
+
+
+
+# ----------------------------------------------------------------------------
+# Function: grub::remove_kernel_parameter
+# Description:
+#     Removes a kernel parameter from the GRUB_CMDLINE_LINUX_DEFAULT line.
+#     Automatically creates a backup of the GRUB file before modifying it.
+# Params:
+#     string ($1): Parameter name.
+#     string ($2): Separator used (e.g., = or space).
+#     string ($3): Parameter value (optional, remove exact match if provided).
+# Returns:
+#     0 - Parameter removed successfully.
+#     1 - Parameter not found in GRUB file.
+#     2 - GRUB file not found.
+# ----------------------------------------------------------------------------
 grub::remove_kernel_parameter() {
     local file="$GRUB_FILE"
     local param_name sep param_value
@@ -71,44 +109,52 @@ grub::remove_kernel_parameter() {
     param_value="$3"
 
     if [[ ! -f "$file" ]]; then
-        echo "GRUB file $file not found." >&2
+        log::error "GRUB file $file not found."
         return 2
     fi
 
-    # Cria um backup do arquivo GRUB
+    # Create a backup of the GRUB file
     cp "$file" "$file.bak"
 
-    # Verifica se o parâmetro existe antes de modificar
+    # Check if the parameter exists before attempting removal
     if grep -E "^[[:space:]]*GRUB_CMDLINE_LINUX_DEFAULT=\"[^\"]*${param_name}${sep}${param_value}[^\"]*\"" "$file" | \
             grep -qE "(\"|[[:space:]])${param_name}${sep}${param_value}(\"|[[:space:]])"; then
 
-        # Remove o parâmetro (com valor opcional)
+        # Remove the parameter (including optional value)
         sed -i -E "/^[[:space:]]*GRUB_CMDLINE_LINUX_DEFAULT=/s/([\" ])${param_name}${sep}${param_value}([\" ])/\1\2/g" "$file"
 
-        # Remove espaços duplos
-        sed -i -E "/^[[:space:]]*GRUB_CMDLINE_LINUX_DEFAULT=/s/  +/ /g" "$file"
+        # Cleanup extra spaces
+        sed -i -E "/^[[:space:]]*GRUB_CMDLINE_LINUX_DEFAULT=/s/  +/ /g"
+        sed -i -E "/^[[:space:]]*GRUB_CMDLINE_LINUX_DEFAULT=/s/[[:space:]]+\"/\"/"
+        sed -i -E "/^[[:space:]]*GRUB_CMDLINE_LINUX_DEFAULT=/s/=\"[[:space:]]+/=\"/"
 
-        # Remove espaços antes das aspas finais
-        sed -i -E "/^[[:space:]]*GRUB_CMDLINE_LINUX_DEFAULT=/s/[[:space:]]+\"/\"/" "$file"
-
-        # Remove espaços depois da aspas iniciais
-        sed -i -E "/^[[:space:]]*GRUB_CMDLINE_LINUX_DEFAULT=/s/=\"[[:space:]]+/=\"/" "$file"
-
-        echo "Changes have been applied to the GRUB file: $file" >&2
+        log::error "Changes have been applied to the GRUB file: $file"
         return 0
     else
-        echo "There were no changes to the GRUB file: $file" >&2
+        log::error "There were no changes to the GRUB file: $file"
         return 1
     fi
 }
 
-# Force GRUB update
+
+
+
+# ----------------------------------------------------------------------------
+# Function: grub::update
+# Description:
+#     Updates GRUB configuration by running `update-grub`.
+#     Checks if the optional dependency `grub2-common` is installed.
+# Returns:
+#     0 - On success (GRUB updated or optional dependency missing).
+#     >0 - If `update-grub` failed.
+# ----------------------------------------------------------------------------
 grub::update() {
     if ! packages::is_installed "grub2-common"; then
-        echo "Optional dependency 'grub2-common' not installed. To update kernel parameters you need the 'grub2-common' package." | tee -a /dev/fd/3
+        log::warn "Optional dependency 'grub2-common' is not installed. Automatic updating of kernel parameters requires this package."
+        log::warn "Please update GRUB manually for changes to take effect."
     else
-        update-grub | tee -a /dev/fd/3
-        return ${PIPESTATUS[0]}
+        log::capture_cmd update-grub
+        return $?
     fi
 
     return 0
