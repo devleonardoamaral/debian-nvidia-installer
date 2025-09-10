@@ -21,7 +21,7 @@
 installer::post_installation() {
     # Força uma atualização de pacotes no Flatpak para que sejam instaladas as bibliotecas do driver NVIDIA
     if packages::is_installed "flatpak"; then
-        flatpak update -y | tee -a /dev/fd/3
+        log::capture_cmd flatpak update -y
         tui::msgbox::warn "$(tr::t "installer::post_installation.warn.flatpak")"
     fi
 
