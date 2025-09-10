@@ -414,77 +414,90 @@ tr::add "en_US" "installer::install_nvidia.modeset.failure" "Failed to activate 
 tr::add "en_US" "installer::install_nvidia.success" "NVIDIA driver installed successfully."
 
 
-# Função principal para desinstalação do driver NVIDIA
+
+
+# ----------------------------------------------------------------------------
+# Function: installer::uninstall_nvidia
+# Description:
+#     Main function to completely uninstall the NVIDIA driver stack.
+#     This function removes kernel parameters, uninstalls NVIDIA-related
+#     packages, cleans up residual configuration files, restores Nouveau,
+#     and ensures the system is properly updated after changes.
+# Params:
+#     None
+# Returns:
+#     255 - If the user cancels the operation.
+#     0   - On success (though script::exit will terminate the script).
+# ----------------------------------------------------------------------------
 installer::uninstall_nvidia() {
-    # Exibe a mensagem para o usuário escolher se quer continuar a operação
-    if ! tui::yesno::default "$(tr::t "default.tui.title.warn")" "$(tr::t "installer::uninstall_nvidia.tui.yesno.uninstall.confirm")"; then
+    # Ask user confirmation before proceeding
+    if ! tui::yesno::default \
+        "$(tr::t "default.tui.title.warn")" \
+        "$(tr::t "installer::uninstall_nvidia.tui.yesno.uninstall.confirm")"; then
         log::info "$(tr::t "default.script.canceled.byuser")"
         return 255
     fi
 
     log::info "$(tr::t "installer::uninstall_nvidia.start")"
 
-    # Remove o modeset da Nvidia dos parâmetros do Kernel no GRUB
-    grub::remove_kernel_parameter "nvidia-drm.modeset" "=" "[0-9]+" | tee -a /dev/fd/3
-    # Atualiza o GRUB
+    # Remove the nvidia-drm.modeset parameter from the kernel command line in GRUB
+    grub::remove_kernel_parameter "nvidia-drm.modeset" "=" "[0-9]+"
+
+    # Update GRUB configuration
     if ! grub::update; then
         log::error "$(tr::t "installer::uninstall_nvidia.update_grub.failed")"
     fi
 
-    # Verifica quais pacotes da Nvidia estão instalados
-    # Garante que os firwares não sejam removidos e nem o próprio script
+    # Collect all installed NVIDIA-related packages
+    # Excludes firmware packages and the debian-nvidia-installer script itself
     local pkgs=()
-    mapfile -t pkgs < <(dpkg -l | awk '($2 ~ /nvidia/ || $2 ~ /^libxnv/ || $2 ~ /^cuda-drivers$/ || $2 ~ /cuda-toolkit/) && $2 != "debian-nvidia-installer" {print $2}')
+    mapfile -t pkgs < <(
+        dpkg -l | awk '($2 ~ /nvidia/ || $2 ~ /^libxnv/ || $2 ~ /^cuda-drivers$/ || $2 ~ /cuda-toolkit/) && $2 != "debian-nvidia-installer" {print $2}'
+    )
 
-    # Remove o bloqueio de versão do repositório CUDA, caso ele exista
+    # Remove CUDA repository version lock if present
     cudarepo::unlock_cuda_version
 
-    # Remove o repositório CUDA, caso ele exista
+    # Remove CUDA repository if present
     cudarepo::uninstall_cuda_repository
 
-    # Desinstala os pacotes encontrados ou pula a desistalação
+    # Purge NVIDIA-related packages if found
     if [ "${#pkgs[@]}" -gt 0 ]; then
         packages::purge "${pkgs[@]}"
     else
         log::info "$(tr::t "installer::uninstall_nvidia.no_packages")"
     fi
 
-    # Remove arquivos residuais de instalações anteriores da NVIDIA
-    log::info "$(tr::t_args "installer::uninstall_nvidia.removingfile" "/etc/modprobe.d/nvidia.conf")"
-    rm -f "/etc/modprobe.d/nvidia.conf"
-    log::info "$(tr::t_args "installer::uninstall_nvidia.removingfile" "/etc/modprobe.d/nvidia-options.conf")"
-    rm -f "/etc/modprobe.d/nvidia-options.conf"
-    log::info "$(tr::t_args "installer::uninstall_nvidia.removingfile" "/etc/modprobe.d/nvidia-modeset.conf")"
-    rm -f "/etc/modprobe.d/nvidia-modeset.conf"
+    # Clean up residual NVIDIA configuration files, including Nouveau blacklist
+    for f in "/etc/modprobe.d/nvidia*.conf"; do
+        [ -e "$f" ] && [ ! -d "$f" ] || continue
+        log::info "$(tr::t_args "installer::uninstall_nvidia.removingfile" "$f")"
+        rm -f "$f"
+    done
 
     log::info "$(tr::t "installer::uninstall_nvidia.reinstall.nouveau.start")"
     log::info "$(tr::t "installer::uninstall_nvidia.remove.nouveau.blacklist.start")"
 
-    # Remove o blacklist do driver Nouveau
-    if [[ -e /etc/modprobe.d/nvidia-blacklists-nouveau.conf ]]; then
-        if rm -f /etc/modprobe.d/nvidia-blacklists-nouveau.conf; then
-            log::info "$(tr::t "installer::uninstall_nvidia.remove.nouveau.blacklist.success")"
-        else
-            log::error "$(tr::t "installer::uninstall_nvidia.remove.nouveau.blacklist.failure")"
-        fi
-    fi
-
-    # Atualiza os repositórios
+    # Update APT repositories
     packages::update
-    # Reinstala o driver Nouveau
-    apt-get install --reinstall -y xserver-xorg-core xserver-xorg-video-nouveau | tee -a /dev/fd/3
-    # Garante que o firmware necessário para o Nouveau utilizar a Nvidia esteja presente
-    apt-get install -y firmware-misc-nonfree firmware-nvidia-graphics | tee -a /dev/fd/3
-    # Atualiza o initramfs para garantir que o Nouveau seja carregado corretamente
+
+    # Reinstall Nouveau packages
+    packages::reinstall xserver-xorg-core xserver-xorg-video-nouveau
+
+    # Ensure required firmware for Nouveau to use NVIDIA hardware is installed
+    packages::install firmware-misc-nonfree firmware-nvidia-graphics
+
+    # Update initramfs to make sure Nouveau loads correctly
     initramfs::update
 
     log::info "$(tr::t "installer::uninstall_nvidia.reinstall.nouveau.success")"
 
-    # Mensagem de sucesso
+    # Final success message and restart prompt
     log::info "$(tr::t "installer::uninstall_nvidia.success")"
     tui::msgbox::warn "$(tr::t "installer::uninstall_nvidia.success")"
-    tui::msgbox::need_restart # Exibe aviso que é necessário reiniciar
+    tui::msgbox::need_restart
 
+    # Exit script safely
     script::exit
 }
 
