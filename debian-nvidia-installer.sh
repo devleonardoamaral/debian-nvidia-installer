@@ -25,7 +25,7 @@ done
 printf "%3s%% | All dependecies are OK!\n" "$percent"
 
 echo "Running script..."
-custom_env_vars="env DEVENV=1"
+custom_env_vars="env DEVENV=1 LOG_LEVEL=0"
 
 if packages::is_installed "sudo"; then
     exec gnome-terminal --title="Terminal" -- bash -c "sudo $custom_env_vars ./usr/bin/debian-nvidia-installer; exec bash"

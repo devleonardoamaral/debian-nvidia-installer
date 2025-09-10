@@ -23,7 +23,7 @@ declare -g DISTRO_INFO
 
 # Variáveis globais
 declare -g SCRIPT_DIR
-declare -g LOG_DIR="/var/log/debian-nvidia-installer"
+declare -g LOG_FILE_PATH="/var/log/debian-nvidia-installer/debian-nvidia-installer.log"
 
 # Detecta se está em modo desenvolvimento ou produção
 if [[ -n "$DEVENV" ]]; then
@@ -81,7 +81,7 @@ script::exit() {
         log::info "${1:-$exit_message}"
     fi
 
-    echo "$(tr::t_args "script::exit.informlogpath" "$LOG_DIR/debian-nvidia-installer.log")"
+    echo "$(tr::t_args "script::exit.informlogpath" "$LOG_FILE_PATH")"
     log::input _ "$(tr::t "default.script.pause")"
     exit "$return_code"
 }
@@ -152,7 +152,7 @@ else
     DISTRO_INFO="$ID $VERSION_ID ($VERSION_CODENAME)"
 
     # Configura arquivos de logging
-    log::setup_logger "$LOG_DIR" "debian-nvidia-installer.log"
+    log::setup_logger "$LOG_FILE_PATH"
 
     # Exibe a mensagem de boas-vindas
     tr::add "pt_BR" "default.script.welcome" "Debian NVIDIA Installer v%1\n
