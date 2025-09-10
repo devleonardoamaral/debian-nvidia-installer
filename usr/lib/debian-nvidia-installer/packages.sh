@@ -244,6 +244,25 @@ packages::install() {
 
 
 # ----------------------------------------------------------------------------
+# Function: packages::reinstall
+# Description:
+#     Reinstall one or more APT packages, forcing reinstallation even if they
+#     are already installed. Recommended dependencies will also be installed.
+# Params:
+#     string[] ($@): list of package names to reinstall.
+# Returns:
+#     0 - All packages reinstalled successfully.
+#     >0 - Reinstallation failed for one or more packages.
+# ----------------------------------------------------------------------------
+packages::reinstall() {
+    log::capture_cmd apt-get install --reinstall -y "$@"
+}
+
+
+
+
+
+# ----------------------------------------------------------------------------
 # Function: packages::remove
 # Description:
 #     Remove one or more installed APT packages, along with automatically
