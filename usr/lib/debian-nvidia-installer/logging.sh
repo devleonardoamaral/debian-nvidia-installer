@@ -216,6 +216,35 @@ log::_write() {
 
 
 
+# ----------------------------------------------------------------------------
+# Function: log::open_fd
+# Description:
+#     Opens a new file descriptor for appending logs to the specified file.
+#     The file descriptor is stored in the global variable LOG_FD.
+# Params:
+#     string ($1): Path to the log file.
+# Returns:
+#     0 - On success.
+#     1 - On failure.
+# Globals:
+#     LOG_FD - Assigned with the chosen file descriptor number.
+# ----------------------------------------------------------------------------
+
+log::_open_fd() {
+    local log_path="$1"
+
+    # Ask Bash to choose a free FD
+    if exec {LOG_FD}>>"$log_path"; then
+        return 0
+    fi
+
+    echo "Error: failed to open file descriptor for $log_path" >&2
+    return 1
+}
+
+
+
+
 # ============================================================================
 # Public Logging Functions
 # ============================================================================
@@ -334,6 +363,7 @@ log::capture_cmd() {
 log::setup_logger() {
     local log_path="$1"
 
+    # Check the param
     if [[ -z "$log_path" ]]; then
         echo "Error: log file path not provided." >&2
         return 1
@@ -360,11 +390,8 @@ log::setup_logger() {
         return 1
     }
 
-    # Open file descriptor 3 for logging
-    exec 3>>"$log_path" || {
-        echo "Error: failed to open file descriptor for '$log_path'." >&2
-        return 1
-    }
+    # Open file descriptor for logging
+    log::_open_fd "$log_path" || return 1
 
     # Set log file permissions
     sudo chmod 744 "$log_path" 2>/dev/null || {
@@ -372,6 +399,7 @@ log::setup_logger() {
         return 1
     }
 
+    # Set up default log levels
     log::_set_log_level "CRITICAL" 100 "$LOG_ESC_BOLD_RED"
     log::_set_log_level "ERROR" 90 "$LOG_ESC_BOLD_RED"
     log::_set_log_level "WARN" 80 "$LOG_ESC_BOLD_YELLOW"
