@@ -1,31 +1,37 @@
 #!/usr/bin/env bash
 
+# ============================================================================
 # debian-nvidia-installer - NVIDIA Driver Installer for Debian (TUI)
 # Copyright (C) 2025 Leonardo Amaral
 #
-# This file is part of debian-nvidia-installer.
+# SPDX-License-Identifier:
+#     GPL-3.0-or-later
 #
-# debian-nvidia-installer is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# Module:
+#     packages.sh
 #
-# debian-nvidia-installer is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with debian-nvidia-installer. If not, see <https://www.gnu.org/licenses/gpl-3.0.html>.
+# Description:
+#     Provides functions for managing APT packages and editing sources list
+#     files. This script is intended to be sourced, not executed directly.
+# ============================================================================
 
-# Check whether each source entry in a sources list file includes all the specified components.
-# sources_file ($1): path to the sources list file (e.g., /etc/apt/sources.list)
-# components ($@): list of components to check for each source entry
-#                   (e.g., "contrib", "non-free", "non-free-firmware")
+
+
+
+# ----------------------------------------------------------------------------
+# Function: packages::check_sources_components
+# Description:
+#     Check whether each source entry [One-Line-Style] in a sources list file
+#     includes all the specified components.
+# Params:
+#     string ($1): path to the sources list file (e.g., /etc/apt/sources.list)
+#     string[] ($@): list of components to check for each source entry
+#                    (e.g., "contrib", "non-free", "non-free-firmware")
 # Returns:
-#   0 - every source entry contains all the specified components
-#   1 - any source entry is missing a component
-#   2 - the file does not exist or is invalid
+#     0 - All sources have all required components.
+#     1 - One or more sources have missing components.
+#     2 - Source file does not exist or is invalid.
+# ----------------------------------------------------------------------------
 packages::check_sources_components() {
     local sources_file="$1"
     shift
@@ -39,7 +45,7 @@ packages::check_sources_components() {
 
     # If no components are specified, consider the sources list valid
     if [ "${#required_components[@]}" -eq 0 ]; then
-        echo "No components suppied to check" >&2
+        echo "No components supplied to check" >&2
         return 0
     fi
 
@@ -73,15 +79,25 @@ packages::check_sources_components() {
     return 0
 }
 
-# Add new components to the provided sources.list file, and update the apt sources list afterwards.
-# sources_file ($1): path to the sources.list file (e.g., /etc/apt/sources.list)
-# components ($@): list of components to add to each source entry
-#                   (e.g., "contrib", "non-free", "non-free-firmware")
+
+
+
+
+# ----------------------------------------------------------------------------
+# Function: packages::add_sources_components
+# Description:
+#     Add new source components to all entries [One-Line-Style] of the
+#     specified sources list file.
+# Params:
+#     string ($1): path to the sources list file (e.g., /etc/apt/sources.list)
+#     string[] ($@): list of components to add for each source entry
+#                    (e.g., "contrib", "non-free", "non-free-firmware")
 # Returns:
-#   0 - all components were added successfully to the provided sources.list file
-#   1 - an error occurred while trying to add the components to the file
-#   2 - the file does not exist or is invalid
-#   3 - failed to update the apt sources list after successfully adding all components
+#     0 - All components were added successfully to the provided sources .list file.
+#     1 - An error occurred while trying to add the components to the file.
+#     2 - The file does not exist or is invalid.
+#     3 - Failed to update the APT sources list after successfully adding components.
+# ----------------------------------------------------------------------------
 packages::add_sources_components() {
     local sources_file="$1"
     shift
@@ -89,20 +105,20 @@ packages::add_sources_components() {
 
     # Check if the sources file exists and if is a regular file or symlink
     if [ -z "$sources_file" ] || { [ ! -f "$sources_file" ] && [ ! -h "$sources_file" ]; }; then
-        echo "Invalid source file: $source_file" >&2
+        log::error "Invalid source file: $source_file"
         return 2
     fi
 
     # If no components are specified, consider that all the components are successfuly added
     if [ "${#components[@]}" -eq 0 ]; then
-        echo "No components suppied to add" >&2
+        log::error "No components supplied to add"
         return 0
     fi
 
     # Copy sources file to temp dir preserving it metadata
     local tempfile="/tmp/$(basename "$sources_file").bak"
     if ! cp -p "$sources_file" "$tempfile"; then
-        echo "Failed to copy source list" >&2
+        log::error "Failed to copy source list"
         return 1
     fi
 
@@ -158,12 +174,12 @@ packages::add_sources_components() {
     # Apply changes to the original file
     if [ "$changed" -eq 1 ]; then
         if ! cp -p "$tempfile" "$sources_file"; then
-            echo "Failed to apply changes to the original source list" >&2
+            log::error "Failed to apply changes to the original source list"
             return 1
         fi
 
         if ! packages::update; then
-            echo "Failed to update apt sources list" >&2
+            log::error "Failed to update apt sources list"
             return 3
         fi
     fi
@@ -171,60 +187,111 @@ packages::add_sources_components() {
     return 0
 }
 
-# Atualiza a lista de pacotes
+
+
+
+# ----------------------------------------------------------------------------
+# Function: packages::update
+# Description:
+#     Update the APT package index from all configured sources.
+# Params:
+#     None
+# Returns:
+#     0 - Update completed successfully.
+#     >0 - Update failed.
+# ----------------------------------------------------------------------------
 packages::update() {
-    apt-get update | tee -a /dev/fd/3
-    return ${PIPESTATUS[0]}
+    log::capture_cmd apt-get update
 }
 
-# Verifica se um pacote está instalado.
+
+
+
+# ----------------------------------------------------------------------------
+# Function: packages::is_installed
+# Description:
+#     Check if a package is installed on the system.
+# Params:
+#     string ($1): name of the package (e.g., "curl")
+# Returns:
+#     0 - The package is installed.
+#     1 - The package is not installed or the argument is empty.
+# ----------------------------------------------------------------------------
 packages::is_installed() {
     local pkg="$1"
     [[ -z "$pkg" ]] && return 1
     dpkg -s "$pkg" &>/dev/null
 }
 
-# Verifica se um ou mais pacotes estão instalados através de um regex
-packages::is_installed_regex() {
-    local regex_include="$1"
-    local regex_exclude="$2"  # opcional
-    [ -n "$regex_include" ] && return 1
 
-    if [[ -n "$regex_exclude" ]]; then
-        dpkg-query -f '${binary:Package}\n' -W | grep -E "$regex_include" | grep -vE "$regex_exclude" &>/dev/null
-        return "$?"
-    else
-        dpkg-query -f '${binary:Package}\n' -W | grep -E "$regex_include" &>/dev/null
-        return "$?"
-    fi
-}
 
-# Instala um ou mais pacotes no sistema
+
+# ----------------------------------------------------------------------------
+# Function: packages::install
+# Description:
+#     Install one or more APT packages with recommended dependencies.
+# Params:
+#     string[] ($@): list of package names to install.
+# Returns:
+#     0 - All packages installed successfully.
+#     >0 - Installation failed for one or more packages.
+# ----------------------------------------------------------------------------
 packages::install() {
-    apt-get install -y "$@" | tee -a /dev/fd/3
-    return ${PIPESTATUS[0]}
+    log::capture_cmd apt-get install -y "$@"
 }
 
-# Instala um ou mais pacotes no sistema sem pacotes recomendados
-packages::install_no_recommends() {
-    apt-get install --no-install-recommends -y "$@" | tee -a /dev/fd/3
-    return ${PIPESTATUS[0]}
-}
 
-# Desinstala um ou mais pacotes do sistema
-packages::remove() {
-    apt-get remove --autoremove -y "$@" | tee -a /dev/fd/3
-    return ${PIPESTATUS[0]}
-}
 
-# Desinstala um ou mais pacotes do sistema com purge
-packages::purge() {
-    apt-get purge --autoremove -y "$@" | tee -a /dev/fd/3
-    return ${PIPESTATUS[0]}
-}
 
-# Reinstala um ou mais pacotes do sistema
+# ----------------------------------------------------------------------------
+# Function: packages::reinstall
+# Description:
+#     Reinstall one or more APT packages, forcing reinstallation even if they
+#     are already installed. Recommended dependencies will also be installed.
+# Params:
+#     string[] ($@): list of package names to reinstall.
+# Returns:
+#     0 - All packages reinstalled successfully.
+#     >0 - Reinstallation failed for one or more packages.
+# ----------------------------------------------------------------------------
 packages::reinstall() {
-    apt-get install --reinstall -y "$@" | tee -a /dev/fd/3
-    return ${PIPESTATUS[0]}
+    log::capture_cmd apt-get install --reinstall -y "$@"
+}
+
+
+
+
+
+# ----------------------------------------------------------------------------
+# Function: packages::remove
+# Description:
+#     Remove one or more installed APT packages, along with automatically
+#     installed dependencies that are no longer required.
+# Params:
+#     string[] ($@): list of package names to remove.
+# Returns:
+#     0 - All packages removed successfully.
+#     >0 - Removal failed for one or more packages.
+# ----------------------------------------------------------------------------
+packages::remove() {
+    log::capture_cmd apt-get remove --autoremove -y "$@"
+}
+
+
+
+
+# ----------------------------------------------------------------------------
+# Function: packages::purge
+# Description:
+#     Remove one or more installed APT packages and purge their configuration
+#     files, along with automatically installed dependencies that are no longer
+#     required.
+# Params:
+#     string[] ($@): list of package names to purge.
+# Returns:
+#     0 - All packages purged successfully.
+#     >0 - Purge failed for one or more packages.
+# ----------------------------------------------------------------------------
+packages::purge() {
+    log::capture_cmd apt-get purge --autoremove -y "$@"
 }

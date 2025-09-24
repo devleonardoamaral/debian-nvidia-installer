@@ -8,7 +8,7 @@ Comment[pt_BR]=Gerenciador de drivers da Nvidia para Debian
 Comment[en_US]=Nvidia driver manager for Debian
 
 Exec=pkexec /usr/bin/debian-nvidia-installer
-Icon=utilities-terminal
+Icon=debian-nvidia-installer
 Terminal=true
 Type=Application
 Categories=Utility;

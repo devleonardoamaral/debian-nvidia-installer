@@ -324,8 +324,8 @@ nvidia::is_power_services_enabled() {
 
 nvidia::enable_power_services() {
     for svc in nvidia-suspend.service nvidia-hibernate.service nvidia-resume.service; do
-        systemctl enable "$svc" | tee -a /dev/fd/3
-        if [[ "${PIPESTATUS[0]}" -ne 0 ]]; then
+        log::capture_cmd systemctl enable "$svc"
+        if [[ "$?" -ne 0 ]]; then
             log::error "$(tr::t_args "posinstall::enable_power_service.failure" "$svc")"
             return 1
         fi
@@ -340,8 +340,8 @@ tr::add "en_US" "nvidia::enable_power_services.failure" "Failed to enable servic
 
 nvidia::disable_power_services() {
     for svc in nvidia-suspend.service nvidia-hibernate.service nvidia-resume.service; do
-        systemctl disable "$svc" | tee -a /dev/fd/3
-        if [[ "${PIPESTATUS[0]}" -ne 0 ]]; then
+        log::capture_cmd systemctl disable "$svc"
+        if [[ "$?" -ne 0 ]]; then
             log::error "$(tr::t_args "nvidia::disable_power_services.failure" "$svc")"
             return 1
         fi

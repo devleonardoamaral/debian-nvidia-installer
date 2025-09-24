@@ -92,8 +92,8 @@ cudarepo::install_cuda_repository() {
     trap 'rm -f "$temp_download_file"' RETURN
 
     # Faz o download instalador do repositório CUDA
-    wget -O "$temp_download_file" https://developer.download.nvidia.com/compute/cuda/repos/debian12/x86_64/cuda-keyring_1.1-1_all.deb | tee -a /dev/fd/3
-    if [[ "${PIPESTATUS[0]}" -ne 0 ]]; then
+    log::capture_cmd wget -O "$temp_download_file" https://developer.download.nvidia.com/compute/cuda/repos/debian12/x86_64/cuda-keyring_1.1-1_all.deb
+    if [[ "$?" -ne 0 ]]; then
         log::critical "$(tr::t "cudarepo::install_cuda_repository.download_failure")"
         log::input _ "$(tr::t "default.script.pause")"
         return 1
@@ -166,27 +166,65 @@ tr::add "pt_BR" "cudarepo::lock_cuda_version.locked" "Versão do driver NVIDIA %
 
 tr::add "en_US" "cudarepo::lock_cuda_version.locked" "NVIDIA driver version %1 pinned successfully using preference file %2."
 
+
+
+
+# ----------------------------------------------------------------------------
+# Function: cudarepo::unlock_cuda_version
+# Description:
+#     Searches for NVIDIA-related APT preference files and removes them
+#     to unpin the NVIDIA driver version.
+# Params:
+#     string ($1) [optional] - Directory to search for preference files.
+#                               Defaults to "/etc/apt/preferences.d".
+# Returns:
+#     0 - On success (files removed or no files found).
+#     >0 - If an error occurs while removing one or more files.
+# ----------------------------------------------------------------------------
 cudarepo::unlock_cuda_version() {
     local PREFS_DIR="${1:-"/etc/apt/preferences.d"}"
+    local ret=0
+    local removed_count=0
 
-    # lista arquivos que casam
-    local files
-    files=$(find "$PREFS_DIR" -type f -iname "*nvidia*" 2>/dev/null)
+    # Get list of matching files as an array (files or symlinks)
+    local files=()
+    mapfile -t files < <(
+        find "$PREFS_DIR" \( -type f -o -type l \) -iname "*nvidia*" 2>/dev/null
+    )
 
-    if [ -n "$files" ]; then
-        # remove os arquivos encontrados
-        echo "$files" | xargs -r rm -v 2>&1 | tee -a /dev/fd/3
-        log::info "$(tr::t_args "cudarepo::unlock_cuda_version.unlocked" "$(echo "$files" | tr '\n' ' ')")"
+    if [ "${#files[@]}" -gt 0 ]; then
+        # Remove each file individually and log removal
+        for f in "${files[@]}"; do
+            log::info "$(tr::t_args "cudarepo::unlock_cuda_version.removing_file" "$f")"
+            if rm -f "$f"; then
+                ((removed_count++))
+            else
+                log::error "$(tr::t_args "cudarepo::unlock_cuda_version.remove_failed" "$f")"
+                ret=1
+            fi
+        done
+
+        # Log the number of successfully removed files
+        log::info "$(tr::t_args "cudarepo::unlock_cuda_version.unlocked" "$removed_count")"
     else
         log::info "$(tr::t_args "cudarepo::unlock_cuda_version.not_found")"
     fi
+
+    return $ret
 }
 
-tr::add "pt_BR" "cudarepo::unlock_cuda_version.unlocked" "Arquivos de preferência %1 removidos, versão do driver NVIDIA foi despinada."
+tr::add "pt_BR" "cudarepo::unlock_cuda_version.removing_file" "Removendo arquivo de preferência: %1..."
+tr::add "pt_BR" "cudarepo::unlock_cuda_version.unlocked" "%1 arquivos de preferência removido(s), versão do driver NVIDIA foi despinada."
 tr::add "pt_BR" "cudarepo::unlock_cuda_version.not_found" "Arquivo de preferência não encontrado, o driver NVIDIA não está pinado."
+tr::add "pt_BR" "cudarepo::unlock_cuda_version.remove_failed" "Falha ao remover o arquivo de preferência: %1"
 
-tr::add "en_US" "cudarepo::unlock_cuda_version.unlocked" "Preference files %1 removed, NVIDIA driver version unpinned."
+tr::add "en_US" "cudarepo::unlock_cuda_version.removing_file" "Removing preference file: %1..."
+tr::add "en_US" "cudarepo::unlock_cuda_version.unlocked" "%1 preference files removed, NVIDIA driver version unpinned."
 tr::add "en_US" "cudarepo::unlock_cuda_version.not_found" "Preference file not found, no NVIDIA driver version pinned."
+tr::add "en_US" "cudarepo::unlock_cuda_version.remove_failed" "Failed to remove preference file: %1"
+
+
+
 
 cudarepo::install_cuda_proprietary() {
     log::info "$(tr::t "cudarepo::install_cuda_proprietary.start")"
