@@ -309,10 +309,10 @@ log::critical() { log::_write 100 "$1"; }
 log::input() {
     local __varname=$1
     shift
-    echo -ne "[$(date "+%Y-%m-%d %H:%M:%S")] >>> $1" >&3
+    echo -ne "[$(date "+%Y-%m-%d %H:%M:%S")] >>> $1" >&"${LOG_FD}"
     echo -ne "${LOG_ESC_BOLD_MAGENTA}>>>${LOG_ESC_RESET}${LOG_ESC_BOLD} $* ${LOG_ESC_RESET}"
     read -r user_input
-    echo -e "$user_input" >&3
+    echo -e "$user_input" >&"${LOG_FD}"
     printf -v "$__varname" '%s' "$user_input"
 }
 
