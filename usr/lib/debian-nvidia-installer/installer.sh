@@ -453,8 +453,18 @@ installer::uninstall_nvidia() {
     # Collect all installed NVIDIA-related packages
     # Excludes firmware packages and the debian-nvidia-installer script itself
     local pkgs=()
+
+    # Base exclude list
+    exclude="debian-nvidia-installer"
+
+    # If XFCE is installed, also exclude libxnvctrl0 (all architectures)
+    if packages::is_installed xfce4-sensors-plugin; then
+        exclude="$exclude|libxnvctrl0(:.*)?"
+    fi
+
+    # Build pkgs array
     mapfile -t pkgs < <(
-        dpkg -l | awk '($2 ~ /nvidia/ || $2 ~ /^libxnv/ || $2 ~ /^cuda-drivers$/ || $2 ~ /cuda-toolkit/) && $2 != "debian-nvidia-installer" {print $2}'
+        dpkg -l | awk -v ex="$exclude" '($2 ~ /nvidia/ || $2 ~ /^libxnv/ || $2 ~ /^cuda-drivers$/ || $2 ~ /cuda-toolkit/) && $2 !~ "^("ex")$" {print $2}'
     )
 
     # Remove CUDA repository version lock if present
