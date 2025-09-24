@@ -128,10 +128,10 @@ grub::remove_kernel_parameter() {
         sed -i -E "/^[[:space:]]*GRUB_CMDLINE_LINUX_DEFAULT=/s/[[:space:]]+\"/\"/"
         sed -i -E "/^[[:space:]]*GRUB_CMDLINE_LINUX_DEFAULT=/s/=\"[[:space:]]+/=\"/"
 
-        log::error "Changes have been applied to the GRUB file: $file"
+        log::info "Changes have been applied to the GRUB file: $file"
         return 0
     else
-        log::error "There were no changes to the GRUB file: $file"
+        log::warn "There were no changes to the GRUB file: $file"
         return 1
     fi
 }
