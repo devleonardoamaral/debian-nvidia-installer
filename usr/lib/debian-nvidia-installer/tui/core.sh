@@ -23,6 +23,14 @@ DIALOG_OPTS=(
     --keep-tite
 )
 
+# Detecta se está em modo desenvolvimento ou produção
+if [[ -n "$DEVENV" ]]; then
+   export DIALOGRC="$(readlink -f "$(dirname "${BASH_SOURCE[0]}")/../../../../usr/share/debian-nvidia-installer/theme.dialogrc")"
+   [[ -f "$DIALOGRC" ]] && echo "Using dialogrc: $DIALOGRC" || echo "File $DIALOGRC not found!"
+else
+   export DIALOGRC="/usr/share/debian-nvidia-installer/theme.dialogrc"
+fi
+
 # Menu com multiplas escolhas sem botão de cancelamento
 tui::show_menu() {
     local choice
@@ -41,7 +49,7 @@ tui::show_menu() {
            --ok-label "$ok_label" \
            --cancel-label "$cancel_label" \
            --menu "$prompt" \
-           20 70 10 \
+           21 72 10 \
            "${menu_items[@]}" 2>&1 1>/dev/tty)"
     local status="$?"
 
@@ -60,7 +68,7 @@ tui::show_msgbox() {
            --title "$title" \
            --ok-label "$ok_label" \
            --msgbox "$message" \
-           20 70 1>/dev/tty
+           21 72 1>/dev/tty
 
     return "$?"
 }
@@ -76,7 +84,7 @@ tui::show_yesno() {
            --title "$title" \
            --yes-label "$yes_label" \
            --no-label "$no_label" \
-           --yesno "$message" 20 70 1>/dev/tty
+           --yesno "$message" 21 72 1>/dev/tty
 
     return "$?"
 }
