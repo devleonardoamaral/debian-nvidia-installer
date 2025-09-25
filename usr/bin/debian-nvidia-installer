@@ -28,7 +28,7 @@ declare -g LOG_FILE_PATH="/var/log/debian-nvidia-installer/debian-nvidia-install
 # Detecta se está em modo desenvolvimento ou produção
 if [[ -n "$DEVENV" ]]; then
     echo "——— DEVELOPMENT MODE ———"
-    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../lib/debian-nvidia-installer" && pwd -P)"
+    SCRIPT_DIR="$(readlink -f "$(dirname "${BASH_SOURCE[0]}")/../lib/debian-nvidia-installer")"
 else
     SCRIPT_DIR="/usr/lib/debian-nvidia-installer"
 fi
