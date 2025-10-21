@@ -297,20 +297,28 @@ installer::install_nvidia() {
         log::info "$(tr::t "installer::install_nvidia.enable_multiarch.success")"
     fi
 
-    # Adiciona os componentes non-free nos repositórios
-    local source_file="/etc/apt/sources.list"
+    # Adds the non-free components to the repositories
     log::info "$(tr::t "installer::install_nvidia.sources_components")"
-    if ! packages::check_sources_components "$source_file" "contrib" "non-free" "non-free-firmware"; then
-        log::info "$(tr::t "installer::install_nvidia.sources_components.missing")"
-
-        if ! packages::add_sources_components "$source_file" "contrib" "non-free" "non-free-firmware"; then
+    if [ -f "/etc/apt/sources.list.d/debian.sources" ]; then
+        if ! sed -i 's/^Components:.*$/Components: main contrib non-free non-free-firmware/' "/etc/apt/sources.list.d/debian.sources"; then
             log::critical "$(tr::t "installer::install_nvidia.sources_components.failure")"
             return 1
-        else
-            log::info "$(tr::t "installer::install_nvidia.sources_components.success")"
         fi
+
+        log::info "$(tr::t "installer::install_nvidia.sources_components.success")"
     else
-        log::info "$(tr::t "installer::install_nvidia.sources_components.ok")"
+        if ! packages::check_sources_components "/etc/apt/sources.list" "contrib" "non-free" "non-free-firmware"; then
+            log::info "$(tr::t "installer::install_nvidia.sources_components.missing")"
+
+            if ! packages::add_sources_components "/etc/apt/sources.list" "contrib" "non-free" "non-free-firmware"; then
+                log::critical "$(tr::t "installer::install_nvidia.sources_components.failure")"
+                return 1
+            else
+                log::info "$(tr::t "installer::install_nvidia.sources_components.success")"
+            fi
+        else
+            log::info "$(tr::t "installer::install_nvidia.sources_components.ok")"
+        fi
     fi
 
     # Atualiza a lista de pacote

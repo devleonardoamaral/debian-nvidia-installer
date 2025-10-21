@@ -119,7 +119,7 @@ tr::add "pt_BR" "cudarepo::install_cuda_repository.download_failure" "Falha no d
 tr::add "en_US" "cudarepo::install_cuda_repository.download_failure" "Failed to download the CUDA repository installation package. Operation aborted."
 
 cudarepo::uninstall_cuda_repository() {
-    # Desinstala o pacote de instalação do repositório CUDA
+    # Uninstalls the installation package from the CUDA repository
     local rm_status
     if ! packages::purge "cuda-keyring"; then
         rm_status="$?"
@@ -134,6 +134,19 @@ cudarepo::uninstall_cuda_repository() {
         log::info "$(tr::t "cudarepo::uninstall_cuda_repository.removed")"
     fi
 
+    # Removes the CUDA sources file if it exists
+    local cuda_sources="/etc/apt/sources.list.d/cuda-debian12-x86_64.sources"
+    if [ -f "$cuda_sources" ]; then
+        log::info "$(tr::t "cudarepo::uninstall_cuda_repository.removing_sources")"
+        if rm -f "$cuda_sources"; then
+            log::info "$(tr::t_args "cudarepo::uninstall_cuda_repository.sources_removed" "$cuda_sources")"
+        else
+            log::warn "$(tr::t "cudarepo::uninstall_cuda_repository.sources_remove_failure")"
+        fi
+    else
+        log::info "$(tr::t "cudarepo::uninstall_cuda_repository.no_sources")"
+    fi
+
     packages::update
     return 0
 }
@@ -144,13 +157,15 @@ tr::add "pt_BR" "cudarepo::uninstall_cuda_repository.removed" "Pacote cuda-keyri
 tr::add "pt_BR" "cudarepo::uninstall_cuda_repository.removing_sources" "Removendo arquivo de fontes do CUDA..."
 tr::add "pt_BR" "cudarepo::uninstall_cuda_repository.sources_removed" "Arquivo de fontes removido: %1"
 tr::add "pt_BR" "cudarepo::uninstall_cuda_repository.no_sources" "Nenhum arquivo de fontes do CUDA encontrado para remover."
+tr::add "pt_BR" "cudarepo::uninstall_cuda_repository.sources_remove_failure" "Falha ao remover o arquivo de fontes do CUDA: %1"
 
 tr::add "en_US" "cudarepo::uninstall_cuda_repository.remove_failure" "Failed to remove cuda-keyring package: code %1."
 tr::add "en_US" "cudarepo::uninstall_cuda_repository.not_installed" "cuda-keyring package is not installed. Skipping."
 tr::add "en_US" "cudarepo::uninstall_cuda_repository.removed" "cuda-keyring package removed successfully."
-tr::add "en_US" "cudarepo::uninstall_cuda_repository.removing_sources" "Removing CUDA source list..."
-tr::add "en_US" "cudarepo::uninstall_cuda_repository.sources_removed" "Removed CUDA source list: %1"
-tr::add "en_US" "cudarepo::uninstall_cuda_repository.no_sources" "No CUDA source list found to remove."
+tr::add "en_US" "cudarepo::uninstall_cuda_repository.removing_sources" "Removing CUDA sources file..."
+tr::add "en_US" "cudarepo::uninstall_cuda_repository.sources_removed" "Removed CUDA sources file: %1"
+tr::add "en_US" "cudarepo::uninstall_cuda_repository.no_sources" "No CUDA sources file found to remove."
+tr::add "en_US" "cudarepo::uninstall_cuda_repository.sources_remove_failure" "Failed to remove the CUDA sources file: %1"
 
 cudarepo::lock_cuda_version() {
     local version="$1"
