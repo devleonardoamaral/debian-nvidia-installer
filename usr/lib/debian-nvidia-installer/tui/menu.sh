@@ -256,8 +256,8 @@ tr::add "pt_BR" "tui::menu::flavors.option.debian.proprietary.550" "v550 Proprie
 tr::add "pt_BR" "tui::menu::flavors.option.debian.opensource.550" "v550 Código Aberto [Debian Repo]"
 tr::add "pt_BR" "tui::menu::flavors.option.cuda.stable.proprietary" "v%1 Proprietário [Cuda Repo]"
 tr::add "pt_BR" "tui::menu::flavors.option.cuda.stable.opensource" "v%1 Código Aberto [Cuda Repo]"
-tr::add "pt_BR" "tui::menu::flavors.option.cuda.latest.proprietary" "v%1 Proprietário (instável) [Cuda Repo]"
-tr::add "pt_BR" "tui::menu::flavors.option.cuda.latest.opensource" "v%1 Código Aberto (instável) [Cuda Repo]"
+tr::add "pt_BR" "tui::menu::flavors.option.cuda.latest.proprietary" "latest Proprietário (instável) [Cuda Repo]"
+tr::add "pt_BR" "tui::menu::flavors.option.cuda.latest.opensource" "latest Código Aberto (instável) [Cuda Repo]"
 
 tr::add "en_US" "tui::menu::flavors.nav.start" "[TUI] Opening the Nvidia Driver Selection menu..."
 tr::add "en_US" "tui::menu::flavors.title" "SELECT DRIVER FLAVOR"
@@ -268,8 +268,8 @@ tr::add "en_US" "tui::menu::flavors.option.debian.proprietary.550" "v550 Proprie
 tr::add "en_US" "tui::menu::flavors.option.debian.opensource.550" "v550 Open Source [Debian Repo]"
 tr::add "en_US" "tui::menu::flavors.option.cuda.stable.proprietary" "v%1 Proprietary [Cuda Repo]"
 tr::add "en_US" "tui::menu::flavors.option.cuda.stable.opensource" "v%1 Open Source [Cuda Repo]"
-tr::add "en_US" "tui::menu::flavors.option.cuda.latest.proprietary" "v%1 Proprietary (unstable) [Cuda Repo]"
-tr::add "en_US" "tui::menu::flavors.option.cuda.latest.opensource" "v%1 Open Source (unstable) [Cuda Repo]"
+tr::add "en_US" "tui::menu::flavors.option.cuda.latest.proprietary" "latest Proprietary (unstable) [Cuda Repo]"
+tr::add "en_US" "tui::menu::flavors.option.cuda.latest.opensource" "latest Open Source (unstable) [Cuda Repo]"
 
 tui::menu::app_gpu_management() {
     log::info "$(tr::t "tui::menu::app_gpu_management.nav.start")"
