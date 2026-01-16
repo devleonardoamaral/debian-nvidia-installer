@@ -92,7 +92,7 @@ cudarepo::install_cuda_repository() {
     trap 'rm -f "$temp_download_file"' RETURN
 
     # Faz o download instalador do repositório CUDA
-    log::capture_cmd wget -O "$temp_download_file" https://developer.download.nvidia.com/compute/cuda/repos/debian12/x86_64/cuda-keyring_1.1-1_all.deb
+    log::capture_cmd wget -O "$temp_download_file" https://developer.download.nvidia.com/compute/cuda/repos/debian13/x86_64/cuda-keyring_1.1-1_all.deb
     if [[ "$?" -ne 0 ]]; then
         log::critical "$(tr::t "cudarepo::install_cuda_repository.download_failure")"
         log::input _ "$(tr::t "default.script.pause")"
