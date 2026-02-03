@@ -18,25 +18,11 @@
 # You should have received a copy of the GNU General Public License
 # along with debian-nvidia-installer. If not, see <https://www.gnu.org/licenses/gpl-3.0.html>.
 
-declare -Ag CUDA_DRIVER_VERSIONS=(
-    ["latest"]="580"
-    ["stable"]="575"
-)
 
 cudarepo::install_driver() {
-    local key="$1"
-    local flavor="$2"
-    local version lock
-
-    # Constrói as variáveis
-    if [[ -v CUDA_DRIVER_VERSIONS["$key"] ]]; then
-        version="${CUDA_DRIVER_VERSIONS[$key]}"
-        lock="${version}.*"
-    else
-        log::critical "$(tr::t "default.script.canceled.byfailure")"
-        log::input _ "$(tr::t "default.script.pause")"
-        return 1
-    fi
+    local flavor="$1"
+    local version="$2"
+    local lock="${version}.*"
 
     # Verifica se o usuário quer continuar
     if ! tui::yesno::default "$(tr::t "default.tui.title.warn")" "$(tr::t_args "cudarepo::install_driver.confirm" "$version" "$flavor")"; then
@@ -45,7 +31,7 @@ cudarepo::install_driver() {
     fi
 
     # Trava a versão caso a versão não seja a latest
-    if [[ "$key" != "latest" ]]; then
+    if [[ "$version" != "latest" ]]; then
         cudarepo::lock_cuda_version "$lock"
     fi
 

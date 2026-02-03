@@ -212,9 +212,6 @@ tr::add "en_US" "tui::menu::posinstall.option.cuda.uninstall" "Uninstall CUDA To
 tui::menu::flavors() {
     log::info "$(tr::t "tui::menu::flavors.nav.start")"
 
-    local version_stable="${CUDA_DRIVER_VERSIONS["stable"]}"
-    local version_latest="${CUDA_DRIVER_VERSIONS["latest"]}"
-
     local option_labels=()
     local option_actions=()
 
@@ -227,17 +224,23 @@ tui::menu::flavors() {
     option_labels+=("$(tr::t "tui::menu::flavors.option.debian.opensource.550")")
     option_actions+=("installer::install_debian_opensource550")
 
-    option_labels+=("$(tr::t_args "tui::menu::flavors.option.cuda.stable.proprietary" "$version_stable")")
-    option_actions+=("cudarepo::install_driver \"stable\" \"proprietary\"")
+    option_labels+=("$(tr::t_args "tui::menu::flavors.option.cuda.stable.proprietary" "575")")
+    option_actions+=("cudarepo::install_driver \"proprietary\" \"575\"")
 
-    option_labels+=("$(tr::t_args "tui::menu::flavors.option.cuda.stable.opensource" "$version_stable")")
-    option_actions+=("cudarepo::install_driver \"stable\" \"opensource\"")
+    option_labels+=("$(tr::t_args "tui::menu::flavors.option.cuda.stable.opensource" "575")")
+    option_actions+=("cudarepo::install_driver \"opensource\" \"575\"")
 
-    option_labels+=("$(tr::t_args "tui::menu::flavors.option.cuda.latest.proprietary" "$version_latest")")
-    option_actions+=("cudarepo::install_driver \"latest\" \"proprietary\"")
+    option_labels+=("$(tr::t_args "tui::menu::flavors.option.cuda.stable.proprietary" "580")")
+    option_actions+=("cudarepo::install_driver \"proprietary\" \"580\"")
 
-    option_labels+=("$(tr::t_args "tui::menu::flavors.option.cuda.latest.opensource" "$version_latest")")
-    option_actions+=("cudarepo::install_driver \"latest\" \"opensource\"")
+    option_labels+=("$(tr::t_args "tui::menu::flavors.option.cuda.stable.opensource" "580")")
+    option_actions+=("cudarepo::install_driver \"opensource\" \"580\"")
+
+    option_labels+=("$(tr::t_args "tui::menu::flavors.option.cuda.latest.proprietary" "latest")")
+    option_actions+=("cudarepo::install_driver \"proprietary\" \"latest\"")
+
+    option_labels+=("$(tr::t_args "tui::menu::flavors.option.cuda.latest.opensource" "latest")")
+    option_actions+=("cudarepo::install_driver \"opensource\" \"latest\"")
 
     tui::show_dynamic_menu \
         "$(tr::t "tui::menu::flavors.title")" \
